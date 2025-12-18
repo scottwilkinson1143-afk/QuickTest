@@ -48,7 +48,7 @@ login().then(() => {
         //open apps -- inserted here --
         document.getElementById("id01").innerHTML = 'Initialising App....';
         const sessionAppFromApp = qlik.sessionAppFromApp("2649b403-fe69-43d9-9cc7-91b4ac7b2e6e", config);
-        console.log(sessionAppFromApp);
+        console.log(sessionAppFromApp.id);
         document.getElementById("id01").innerHTML = 'Reloading App....';
         qlik.theme.apply('Matrix');
         sessionAppFromApp.doReload().then((result)=>{
