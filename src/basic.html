@@ -16,10 +16,16 @@
     header {
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
       padding: 20px 40px;
       background-color: #0f172a;
       color: white;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
 
     /* Logo */
@@ -34,6 +40,22 @@
       font-weight: bold;
       font-size: 20px;
       letter-spacing: 1px;
+    }
+
+    /* Dropdown */
+    .location-select {
+      background-color: #1e293b;
+      color: white;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .location-select:focus {
+      outline: none;
+      border-color: #38bdf8;
     }
 
     main {
@@ -62,11 +84,21 @@
 <body>
 
   <header>
-    <div class="logo">NS</div>
-    <div>
-      <h2>NovaSpark</h2>
-      <small>Igniting ideas</small>
+    <div class="header-left">
+      <div class="logo">NS</div>
+      <div>
+        <h2>NovaSpark</h2>
+        <small>Igniting ideas</small>
+      </div>
     </div>
+
+    <!-- Dropdown -->
+    <select class="location-select">
+      <option value="">Select location</option>
+      <option value="norwich">Norwich</option>
+      <option value="camberley">Camberley</option>
+      <option value="bristol">Bristol</option>
+    </select>
   </header>
 
   <main>
@@ -76,7 +108,7 @@
       This page uses only HTML and CSS—no frameworks, no JavaScript.
     </p>
     <p>
-      Perfect as a starting point for a landing page, portfolio, or demo project.
+      Use the location selector in the header to choose between Norwich, Camberley, or Bristol.
     </p>
   </main>
 
@@ -86,3 +118,4 @@
 
 </body>
 </html>
+
