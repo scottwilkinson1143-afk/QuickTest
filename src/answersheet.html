@@ -1,7 +1,50 @@
 <!doctype html>
 <html>
 <head>
-
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        font-size: 14px;
+        background-color: #f5f5f5;
+        color: #333;
+        height: 100%;
+        width: 100%;
+      }
+      .container {
+        padding: 8px;
+        gap: 8px;
+        position: relative;
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        box-sizing: border-box;
+      }
+      .classic-app {
+        height: 800px;
+        width: 1200px;
+        border: 1px solid #bbb;
+        flex-grow: 1;
+        border-radius: 3px;
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+        position: relative;
+        box-sizing: border-box;
+        overflow: auto;
+        position: relative;
+      }
+      .viz {
+        width: 600px;
+        height: 600px;
+        padding: 16px;
+        border: 1px solid #bbb;
+        border-radius: 3px;
+        box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+        position:relative;
+      }
+    </style>      
 <script
   crossorigin="anonymous"
   type="application/javascript"
@@ -19,12 +62,15 @@
     </select>
   </div>
   <div>
-    <qlik-embed
-      id="appSheets"
-      ui="object"
-      app-id="abfd1ad9-0ab0-421d-ac4a-d222a27c2e23"
-      object-id="cnFcL"
-    ></qlik-embed>
+      <div id="classic-app" class="container">
+        <h2>qlik-embed classic/app embeds the full Qlik Sense client in the page.</h2>
+        <div class="classic-app">
+          <qlik-embed
+            ui="classic/app"
+            app-id="abfd1ad9-0ab0-421d-ac4a-d222a27c2e23"
+            sheet-id="cnFcL"
+          ></qlik-embed>
+        </div>
   </div>
 </body>
 <script type="module">
