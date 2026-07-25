@@ -3,19 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QlikCat — Samsung EMEA Analytics</title>
+<title>QlikCat — Trading Demo</title>
+
+<!--
+  ═══════════════════════════════════════════════════════════════
+  QLIK CLOUD CONNECTION
+  All auth config lives here as data- attributes on the script tag.
+  ═══════════════════════════════════════════════════════════════
+-->
+<script
+  crossorigin="anonymous"
+  type="application/javascript"
+  src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components"
+  data-host="https://ukdemosaas.eu.qlikcloud.com"
+  data-client-id="a6c0a95b5e3ad86f95aa94a9de35c610"
+  data-redirect-uri="https://witty-field-0c6615903.3.azurestaticapps.net/oauth-callback.html"
+  data-access-token-storage="session"
+  data-auth-type="Oauth2"
+></script>
 
 <script>
   // ═══════════════════════════════════════════════════════════
-  // QLIK CONFIGURATION — edit these values
+  // APP ID AND SHEET IDs — paste your sheet GUIDs here
   // ═══════════════════════════════════════════════════════════
-  const QLIK_CONFIG = {
-    tenant:   'ukdemosaas.eu.qlikcloud.com',
-    clientId: 'a6c0a95b5e3ad86f95aa94a9de35c610',
-    appId:    'ecb5a0ff-be59-4fbe-87bf-43ff31d30191',
-  };
+  const APP_ID = 'ecb5a0ff-be59-4fbe-87bf-43ff31d30191';
 
-  // ── Sheet IDs — paste your sheet GUIDs here ──────────────
   const SHEETS = {
     executive:   'bTRLvp',           // Executive Dashboard
     portfolio:   'YOUR_SHEET_ID_2',  // Portfolio
@@ -80,23 +92,6 @@
 <!-- Load qlik-embed from your tenant -->
 <script>
   (function() {
-    const s   = document.createElement('script');
-    s.src     = `https://${QLIK_CONFIG.tenant}/resources/assets/external/requirejs/require.js`;
-    s.async   = true;
-    s.onload  = function() {
-      if (window.qlik && window.qlik.auth) {
-        qlik.auth.setDefaultHostConfig({
-          host:               QLIK_CONFIG.tenant,
-          clientId:           QLIK_CONFIG.clientId,
-          redirectUri:        'https://witty-field-0c6615903.3.azurestaticapps.net/oauth-callback.html',
-          accessTokenStorage: 'session',
-          autoRedirect:       true,
-        });
-      }
-    };
-    document.head.appendChild(s);
-  })();
-</script>
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -331,7 +326,7 @@
 
 <!-- ── Footer ─────────────────────────────────────────────────── -->
 <footer>
-  <b>QlikCat</b> &nbsp;·&nbsp; Better Demos &nbsp;·&nbsp; Samsung EMEA Analytics Demo
+  <b>QlikCat</b> &nbsp;·&nbsp; Better Demos &nbsp;·&nbsp; Trading Demo
 </footer>
 
 <script>
@@ -381,7 +376,7 @@
     // Create new qlik-embed for the selected sheet
     const embed = document.createElement('qlik-embed');
     embed.setAttribute('ui',       'analytics/sheet');
-    embed.setAttribute('app-id',   QLIK_CONFIG.appId);
+    embed.setAttribute('app-id',   APP_ID);
     embed.setAttribute('sheet-id', SHEETS[key]);
     embed.style.flex   = '1';
     embed.style.width  = '100%';
