@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QlikCat — Qlik Sense Embed</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --grn1:   #1D9E75;
+    --grn2:   #97C459;
+    --grn3:   #0F6E56;
+    --navy:   #1A1A2E;
+    --light:  #F0FAF5;
+    --mid:    #D1F0E5;
+    --white:  #FFFFFF;
+    --subtext:#557766;
+    --border: #C5E8D8;
+    --shadow: 0 2px 12px rgba(15,110,86,0.10);
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #F6FCF9;
+    color: var(--navy);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  header {
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    height: 72px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+
+  .logo-mark {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .logo-wordmark {
+    font-size: 1.65rem;
+    letter-spacing: -0.5px;
+  }
+  .logo-wordmark .qlik { font-weight: 300; color: var(--navy); }
+  .logo-wordmark .cat  { font-weight: 700; color: var(--navy); }
+  .logo-tagline {
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    color: var(--subtext);
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Page title strip */
+  .page-title-bar {
+    background: var(--grn3);
+    padding: 0 2rem;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .page-title-bar h1 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ── Main ───────────────────────────────────────────────── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 2rem;
+    min-height: 0;
+  }
+
+  /* Outer card */
+  .embed-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .embed-card-header {
+    background: var(--light);
+    border-bottom: 1px solid var(--border);
+    padding: 0.65rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .embed-card-header .badge {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--grn1);
+    flex-shrink: 0;
+  }
+  .embed-card-header h2 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--subtext);
+  }
+
+  /* Placeholder / embed target */
+  .qlik-embed-target {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border);
+    margin: 1rem;
+    border-radius: 8px;
+    background: var(--light);
+    min-height: 480px;
+
+    /* ── Replace this <div> content with your Qlik Sense embed script ── */
+  }
+
+  .placeholder-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    opacity: 0.55;
+  }
+  .placeholder-inner svg {
+    opacity: 0.5;
+  }
+  .placeholder-inner p {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--subtext);
+    text-align: center;
+  }
+  .placeholder-inner code {
+    font-size: 0.72rem;
+    background: var(--mid);
+    color: var(--grn3);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────── */
+  footer {
+    background: var(--grn3);
+    color: rgba(255,255,255,0.55);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: 0.55rem;
+    flex-shrink: 0;
+  }
+  footer b { color: var(--grn2); }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────── -->
+<header>
+  <svg class="logo-mark" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <circle cx="50" cy="50" r="44" stroke="#1D9E75" stroke-width="8"/>
+    <circle cx="50" cy="50" r="44" stroke="#97C459" stroke-width="4"
+            stroke-dasharray="28 250" stroke-dashoffset="-210"/>
+    <circle cx="50" cy="50" r="27" stroke="#1D9E75" stroke-width="6"/>
+    <circle cx="50" cy="50" r="27" stroke="#97C459" stroke-width="3"
+            stroke-dasharray="18 152" stroke-dashoffset="-130"/>
+    <circle cx="50" cy="50" r="11" fill="#1D9E75"/>
+    <circle cx="50" cy="50" r="5.5" fill="#97C459"/>
+  </svg>
+
+  <div class="logo-text">
+    <div class="logo-wordmark">
+      <span class="qlik">Qlik</span><span class="cat">Cat</span>
+    </div>
+    <div class="logo-tagline">Better Demos</div>
+  </div>
+</header>
+
+<!-- ── Page title ──────────────────────────────────────────────────── -->
+<div class="page-title-bar">
+  <h1>Qlik Sense — Embedded Sheet</h1>
+</div>
+
+<!-- ── Main body ────────────────────────────────────────────────────── -->
+<main>
+  <div class="embed-card">
+
+    <div class="embed-card-header">
+      <div class="badge"></div>
+      <h2>Qlik Sense Sheet</h2>
+    </div>
+
+    <!--
+      ═══════════════════════════════════════════════════════════
+      QLIK SENSE EMBED TARGET
+      Replace the contents of this <div> with your Qlik embed
+      script. The div fills the full available page height.
+
+      Example (nebula.js / qlik-embed):
+      ───────────────────────────────────
+      <qlik-embed
+        ui="analytics/sheet"
+        app-id="YOUR_APP_ID"
+        sheet-id="YOUR_SHEET_ID">
+      </qlik-embed>
+
+      Or for iframe embed:
+      ───────────────────────────────────
+      <iframe
+        src="https://YOUR_TENANT.us.qlikcloud.com/single/?appid=YOUR_APP_ID&sheet=YOUR_SHEET_ID&opt=currobj"
+        style="width:100%;height:100%;border:none;">
+      </iframe>
+      ═══════════════════════════════════════════════════════════
+    -->
+    <div class="qlik-embed-target">
+      <div class="placeholder-inner">
+        <svg width="52" height="52" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="44" stroke="#1D9E75" stroke-width="8"/>
+          <circle cx="50" cy="50" r="27" stroke="#1D9E75" stroke-width="6"/>
+          <circle cx="50" cy="50" r="11" fill="#1D9E75"/>
+        </svg>
+        <p>Qlik Sense Embedded Sheet</p>
+        <code>Replace this div with your embed script</code>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────────────── -->
+<footer>
+  <b>QlikCat</b> &nbsp;·&nbsp; Better Demos &nbsp;·&nbsp; Samsung EMEA Analytics Demo
+</footer>
+
+</body>
+</html>
