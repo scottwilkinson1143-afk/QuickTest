@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script
+  crossorigin="anonymous"
+  type="application/javascript"
+  src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components"
+  data-host="https://ukdemosaas.eu.qlikcloud.com"
+  data-client-id="a6c0a95b5e3ad86f95aa94a9de35c610"
+  data-redirect-uri="https://witty-field-0c6615903.3.azurestaticapps.net/oauth-callback.html"
+  data-access-token-storage="session"
+  data-auth-type="Oauth2"
+></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QlikCat — Qlik Sense Embed</title>
@@ -254,7 +264,11 @@
           <circle cx="50" cy="50" r="11" fill="#1D9E75"/>
         </svg>
         <p>Qlik Sense Embedded Sheet</p>
-        <code>Replace this div with your embed script</code>
+              <qlik-embed
+        ui="analytics/sheet"
+        app-id="ecb5a0ff-be59-4fbe-87bf-43ff31d30191"
+        sheet-id="1bc2b84b-2e51-4e12-ade2-7ed8d704d601">
+      </qlik-embed>
       </div>
     </div>
 
