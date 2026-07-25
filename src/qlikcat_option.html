@@ -35,65 +35,49 @@
     transaction: 'YOUR_SHEET_ID_4',  // Transaction Detail
   };
 
-  // ── Menu labels and icons ────────────────────────────────
+  // ── Menu definition — icons referenced by DOM id ────────
   const MENU = [
-    {
-      key:   'executive',
-      label: 'Executive Dashboard',
-      icon:  // bar chart rising
-        `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6"  y1="20" x2="6"  y2="14"/>
-          <line x1="2"  y1="20" x2="22" y2="20"/>
-        </svg>`,
-    },
-    {
-      key:   'portfolio',
-      label: 'Portfolio',
-      icon:  // briefcase
-        `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="7" width="20" height="14" rx="2"/>
-          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-          <line x1="12" y1="12" x2="12" y2="17"/>
-          <line x1="9"  y1="14.5" x2="15" y2="14.5"/>
-        </svg>`,
-    },
-    {
-      key:   'operational',
-      label: 'Operational Excellence',
-      icon:  // settings / cog
-        `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33
-                   1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33
-                   l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4
-                   h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06
-                   A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51
-                   1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9
-                   a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>`,
-    },
-    {
-      key:   'transaction',
-      label: 'Transaction Detail',
-      icon:  // list / lines
-        `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="8"  y1="6"  x2="21" y2="6"/>
-          <line x1="8"  y1="12" x2="21" y2="12"/>
-          <line x1="8"  y1="18" x2="21" y2="18"/>
-          <line x1="3"  y1="6"  x2="3.01" y2="6"/>
-          <line x1="3"  y1="12" x2="3.01" y2="12"/>
-          <line x1="3"  y1="18" x2="3.01" y2="18"/>
-        </svg>`,
-    },
+    { key: 'executive',   label: 'Executive Dashboard',    iconId: 'icon-executive'   },
+    { key: 'portfolio',   label: 'Portfolio',              iconId: 'icon-portfolio'   },
+    { key: 'operational', label: 'Operational Excellence', iconId: 'icon-operational' },
+    { key: 'transaction', label: 'Transaction Detail',     iconId: 'icon-transaction' },
   ];
 </script>
 
-<!-- Load qlik-embed from your tenant -->
-<script>
-  (function() {
-
-<style>
+<!-- SVG icons stored safely in hidden HTML — never inside a script block -->
+<div style="display:none">
+  <span id="icon-executive">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+      <line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  </span>
+  <span id="icon-portfolio">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+      <line x1="12" y1="12" x2="12" y2="17"/>
+      <line x1="9" y1="14.5" x2="15" y2="14.5"/>
+    </svg>
+  </span>
+  <span id="icon-operational">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </span>
+  <span id="icon-transaction">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/>
+      <line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/>
+      <line x1="3" y1="18" x2="3.01" y2="18"/>
+    </svg>
+  </span>
+</div>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -338,10 +322,11 @@
       div.className = 'nav-divider';
       nav.appendChild(div);
     }
+    const iconHtml = document.getElementById(item.iconId).innerHTML;
     const btn = document.createElement('button');
     btn.className  = 'nav-btn';
     btn.id         = `nav-${item.key}`;
-    btn.innerHTML  = item.icon + `<span>${item.label}</span>`;
+    btn.innerHTML  = iconHtml + `<span>${item.label}</span>`;
     btn.onclick    = () => loadSheet(item.key);
     nav.appendChild(btn);
   });
@@ -360,7 +345,8 @@
     });
 
     // Update card header
-    document.getElementById('header-icon').innerHTML = item.icon;
+    const iconHtml = document.getElementById(item.iconId).innerHTML;
+    document.getElementById('header-icon').innerHTML = iconHtml;
     document.getElementById('header-title').textContent = item.label;
 
     // Remove existing embed if present
