@@ -316,71 +316,75 @@
 </footer>
 
 <script>
-  // ── Build nav from MENU array ──────────────────────────────
-  const nav = document.getElementById('nav');
-  MENU.forEach((item, i) => {
-    if (i > 0) {
-      const div = document.createElement('div');
-      div.className = 'nav-divider';
-      nav.appendChild(div);
-    }
-    const iconHtml = document.getElementById(item.iconId).innerHTML;
-    const btn = document.createElement('button');
-    btn.className  = 'nav-btn';
-    btn.id         = `nav-${item.key}`;
-    btn.innerHTML  = iconHtml + `<span>${item.label}</span>`;
-    btn.onclick    = () => loadSheet(item.key);
-    nav.appendChild(btn);
-  });
+  document.addEventListener('DOMContentLoaded', function() {
 
-  // ── Embed state ────────────────────────────────────────────
-  let currentEmbed = null;
-
-  function loadSheet(key) {
-    const item = MENU.find(m => m.key === key);
-    if (!item) return;
-
-    // Update nav active state
-    MENU.forEach(m => {
-      document.getElementById(`nav-${m.key}`)
-        .classList.toggle('active', m.key === key);
+    // ── Build nav from MENU array ────────────────────────────
+    const nav = document.getElementById('nav');
+    MENU.forEach((item, i) => {
+      if (i > 0) {
+        const div = document.createElement('div');
+        div.className = 'nav-divider';
+        nav.appendChild(div);
+      }
+      const iconHtml = document.getElementById(item.iconId).innerHTML;
+      const btn = document.createElement('button');
+      btn.className  = 'nav-btn';
+      btn.id         = `nav-${item.key}`;
+      btn.innerHTML  = iconHtml + `<span>${item.label}</span>`;
+      btn.onclick    = () => loadSheet(item.key);
+      nav.appendChild(btn);
     });
 
-    // Update card header
-    const iconHtml = document.getElementById(item.iconId).innerHTML;
-    document.getElementById('header-icon').innerHTML = iconHtml;
-    document.getElementById('header-title').textContent = item.label;
+    // ── Embed state ──────────────────────────────────────────
+    let currentEmbed = null;
 
-    // Remove existing embed if present
-    if (currentEmbed) {
-      currentEmbed.remove();
-      currentEmbed = null;
+    function loadSheet(key) {
+      const item = MENU.find(m => m.key === key);
+      if (!item) return;
+
+      // Update nav active state
+      MENU.forEach(m => {
+        document.getElementById(`nav-${m.key}`)
+          .classList.toggle('active', m.key === key);
+      });
+
+      // Update card header
+      const iconHtml = document.getElementById(item.iconId).innerHTML;
+      document.getElementById('header-icon').innerHTML = iconHtml;
+      document.getElementById('header-title').textContent = item.label;
+
+      // Remove existing embed if present
+      if (currentEmbed) {
+        currentEmbed.remove();
+        currentEmbed = null;
+      }
+
+      // Show spinner
+      const loading = document.getElementById('embed-loading');
+      loading.style.display = 'flex';
+
+      // Create new qlik-embed for the selected sheet
+      const embed = document.createElement('qlik-embed');
+      embed.setAttribute('ui',       'analytics/sheet');
+      embed.setAttribute('app-id',   APP_ID);
+      embed.setAttribute('sheet-id', SHEETS[key]);
+      embed.style.flex      = '1';
+      embed.style.width     = '100%';
+      embed.style.minHeight = '0';
+      embed.style.display   = 'block';
+
+      embed.addEventListener('load', () => {
+        loading.style.display = 'none';
+      });
+
+      document.getElementById('embed-body').appendChild(embed);
+      currentEmbed = embed;
     }
 
-    // Show spinner
-    const loading = document.getElementById('embed-loading');
-    loading.style.display = 'flex';
+    // ── Load Executive Dashboard immediately ─────────────────
+    loadSheet('executive');
 
-    // Create new qlik-embed for the selected sheet
-    const embed = document.createElement('qlik-embed');
-    embed.setAttribute('ui',       'analytics/sheet');
-    embed.setAttribute('app-id',   APP_ID);
-    embed.setAttribute('sheet-id', SHEETS[key]);
-    embed.style.flex   = '1';
-    embed.style.width  = '100%';
-    embed.style.minHeight = '0';
-    embed.style.display   = 'block';
-
-    embed.addEventListener('load', () => {
-      loading.style.display = 'none';
-    });
-
-    document.getElementById('embed-body').appendChild(embed);
-    currentEmbed = embed;
-  }
-
-  // ── Load Executive Dashboard on page ready ─────────────────
-  document.addEventListener('DOMContentLoaded', () => loadSheet('executive'));
+  }); // end DOMContentLoaded
 </script>
 
 </body>
