@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QlikCat — Trading Demo</title>
+
+<!-- Qlik Cloud connection -->
+<script
+  crossorigin="anonymous"
+  type="application/javascript"
+  src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components"
+  data-host="https://ukdemosaas.eu.qlikcloud.com"
+  data-client-id="a6c0a95b5e3ad86f95aa94a9de35c610"
+  data-redirect-uri="https://witty-field-0c6615903.3.azurestaticapps.net/oauth-callback.html"
+  data-access-token-storage="session"
+  data-auth-type="Oauth2"
+></script>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  // CONFIGURATION — App ID and Object IDs for each view
+  // Paste your Qlik object GUIDs into each view below.
+  // Each view has:
+  //   kpi1–kpi4  : the four KPI objects across the top row
+  //   main       : the large object (~60% width)
+  //   sideTop    : upper stacked object (~30% width)
+  //   sideBottom : lower stacked object (~30% width)
+  // ═══════════════════════════════════════════════════════════════
+  const APP_ID = 'ecb5a0ff-be59-4fbe-87bf-43ff31d30191';
+
+  const VIEWS = {
+    executive: {
+      label: 'Executive Dashboard',
+      iconId: 'icon-executive',
+      objects: {
+        kpi1:       '50edffa9-e50f-4bec-bb8d-c35a6f3bb82c',  // KPI 1
+        kpi2:       '2bcc00dd-9081-4f00-a2d8-98a32f1bce07',  // KPI 2
+        kpi3:       'a14a142d-8826-466e-8868-2918c4ee4f6f',  // KPI 3
+        kpi4:       '280fe68d-1e4c-470a-a780-f4d03b89ffd2',  // KPI 4
+        main:       '301838e9-d579-47ac-9910-fc9a2e62a466',  // Main chart (~60%)
+        sideTop:    'dYaYqv',  // Side top (~30%)
+        sideBottom: 'RfAEXtp',  // Side bottom (~30%)
+      },
+    },
+    portfolio: {
+      label: 'Portfolio',
+      iconId: 'icon-portfolio',
+      objects: {
+        kpi1:       'FvjKfy',
+        kpi2:       'ANtjmbG',
+        kpi3:       'VUuXM',
+        kpi4:       'Zmmsdc',
+        main:       'ab7350ec-f913-45aa-9f9c-6b75fe4ba50c',
+        sideTop:    'b2b87e56-aaba-4047-93af-c8966a5d7475',
+        sideBottom: '0ed39d31-5ef4-46b2-bb32-d06c4b45edfa',
+      },
+    },
+    operational: {
+      label: 'Operational Excellence',
+      iconId: 'icon-operational',
+      objects: {
+        kpi1:       'd705831e-778a-4f26-bdb5-495c7862def3',
+        kpi2:       '64a993a9-8aa3-49e2-840e-3913defca28a',
+        kpi3:       '64a993a9-8aa3-49e2-840e-3913defca28a',
+        kpi4:       '2e670d25-6b8d-4585-ad5a-a70287b6a4dc',
+        main:       'RAZax',
+        sideTop:    'BawwD',
+        sideBottom: 'ePAn',
+      },
+    },
+    transaction: {
+      label: 'Transaction Detail',
+      iconId: 'icon-transaction',
+      objects: {
+        kpi1:       '6d62de2b-9b10-471a-906a-d008fa1a1fe3',
+        kpi2:       '7f5b23ef-b060-4c91-b37a-08c8b0d38aba',
+        kpi3:       '3883f709-d2b7-4111-b97a-29095f5caa5f',
+        kpi4:       '9398f55e-db55-41f8-a56b-f88608eacf09',
+        main:       '9c2e2bc2-009a-45d1-8b92-3d06d5795129',
+        sideTop:    'YOUR_OBJECT_ID',
+        sideBottom: 'YOUR_OBJECT_ID',
+      },
+    },
+  };
+
+  const MENU = [
+    { key: 'executive',   label: 'Executive Dashboard',    iconId: 'icon-executive'   },
+    { key: 'portfolio',   label: 'Portfolio',              iconId: 'icon-portfolio'   },
+    { key: 'operational', label: 'Operational Excellence', iconId: 'icon-operational' },
+    { key: 'transaction', label: 'Transaction Detail',     iconId: 'icon-transaction' },
+  ];
+</script>
+
+<!-- SVG icons — never inside a script block -->
+<div style="display:none">
+  <span id="icon-executive">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+    </svg>
+  </span>
+  <span id="icon-portfolio">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+      <line x1="12" y1="12" x2="12" y2="17"/><line x1="9" y1="14.5" x2="15" y2="14.5"/>
+    </svg>
+  </span>
+  <span id="icon-operational">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </span>
+  <span id="icon-transaction">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+      <line x1="3" y1="18" x2="3.01" y2="18"/>
+    </svg>
+  </span>
+</div>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --grn1:    #1D9E75;
+    --grn2:    #97C459;
+    --grn3:    #0F6E56;
+    --navy:    #1A1A2E;
+    --light:   #F0FAF5;
+    --mid:     #D1F0E5;
+    --white:   #FFFFFF;
+    --subtext: #557766;
+    --border:  #C5E8D8;
+    --shadow:  0 2px 12px rgba(15,110,86,0.10);
+    --card-shadow: 0 2px 8px rgba(15,110,86,0.13);
+    --gap:     0.75rem;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    color: var(--navy);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Background: subtle geometric SVG pattern in brand green tones */
+    background-color: #EAF7F1;
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(29,158,117,0.08) 0%, transparent 55%),
+      radial-gradient(circle at 85% 75%, rgba(15,110,86,0.07) 0%, transparent 55%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg stroke='%231D9E75' stroke-width='0.4' stroke-opacity='0.12'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3Ccircle cx='30' cy='30' r='12'/%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: auto, auto, 60px 60px;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  header {
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 62px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo-mark { width: 40px; height: 40px; flex-shrink: 0; }
+  .logo-text  { display: flex; flex-direction: column; line-height: 1; }
+  .logo-wordmark { font-size: 1.5rem; letter-spacing: -0.5px; }
+  .logo-wordmark .qlik { font-weight: 300; color: var(--navy); }
+  .logo-wordmark .cat  { font-weight: 700; color: var(--navy); }
+  .logo-tagline {
+    font-size: 0.58rem; letter-spacing: 0.28em;
+    color: var(--subtext); margin-top: 2px; text-transform: uppercase;
+  }
+
+  /* ── Nav ribbon ─────────────────────────────────────────── */
+  nav {
+    background: var(--grn3);
+    display: flex;
+    align-items: stretch;
+    height: 46px;
+    flex-shrink: 0;
+    z-index: 9;
+  }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0 1.25rem;
+    background: none; border: none;
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.84rem; font-family: 'Arial', sans-serif;
+    font-weight: 500; cursor: pointer; white-space: nowrap;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .nav-btn:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+  .nav-btn.active {
+    color: var(--white);
+    border-bottom-color: var(--grn2);
+    background: rgba(255,255,255,0.10);
+    font-weight: 700;
+  }
+  .nav-divider { width: 1px; background: rgba(255,255,255,0.18); margin: 10px 0; }
+
+  /* ── Main body ──────────────────────────────────────────── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--gap);
+    gap: var(--gap);
+    min-height: 0;
+  }
+
+  /* ── KPI row — 20% of body height ──────────────────────── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--gap);
+    flex: 0 0 20%;
+    min-height: 0;
+  }
+
+  /* ── Chart row — remaining 80% ──────────────────────────── */
+  .chart-row {
+    display: flex;
+    gap: var(--gap);
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Large pane ~60% */
+  .pane-main {
+    flex: 6;
+    min-width: 0;
+  }
+
+  /* Side stack ~30% */
+  .pane-side {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    min-width: 0;
+  }
+
+  .pane-side-top,
+  .pane-side-bottom {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── Object card ─────────────────────────────────────────── */
+  .obj-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .obj-card-header {
+    background: rgba(240,250,245,0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 0.38rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+  .obj-card-header .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--grn1);
+    flex-shrink: 0;
+  }
+  .obj-card-header .obj-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--subtext);
+    flex: 1;
+  }
+  .obj-card-header .obj-id {
+    font-size: 0.62rem;
+    color: #aac4b8;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .obj-body {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+  }
+
+  /* qlik-embed fills card body */
+  qlik-embed {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Loading spinner */
+  .obj-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--subtext);
+    font-size: 0.78rem;
+    background: rgba(240,250,245,0.6);
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--mid);
+    border-top-color: var(--grn1);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Footer ─────────────────────────────────────────────── */
+  footer {
+    background: var(--grn3);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem; letter-spacing: 0.08em;
+    text-align: center; padding: 0.45rem;
+    flex-shrink: 0;
+  }
+  footer b { color: var(--grn2); }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────── -->
+<header>
+  <svg class="logo-mark" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <circle cx="50" cy="50" r="44" stroke="#1D9E75" stroke-width="8"/>
+    <circle cx="50" cy="50" r="44" stroke="#97C459" stroke-width="4" stroke-dasharray="28 250" stroke-dashoffset="-210"/>
+    <circle cx="50" cy="50" r="27" stroke="#1D9E75" stroke-width="6"/>
+    <circle cx="50" cy="50" r="27" stroke="#97C459" stroke-width="3" stroke-dasharray="18 152" stroke-dashoffset="-130"/>
+    <circle cx="50" cy="50" r="11" fill="#1D9E75"/>
+    <circle cx="50" cy="50" r="5.5" fill="#97C459"/>
+  </svg>
+  <div class="logo-text">
+    <div class="logo-wordmark"><span class="qlik">Qlik</span><span class="cat">Cat</span></div>
+    <div class="logo-tagline">Better Demos</div>
+  </div>
+</header>
+
+<!-- ── Nav ribbon ──────────────────────────────────────────── -->
+<nav id="nav"></nav>
+
+<!-- ── Main body ───────────────────────────────────────────── -->
+<main>
+
+  <!-- KPI row — 20% height, 4 equal columns -->
+  <div class="kpi-row" id="kpi-row">
+    <div class="obj-card" id="card-kpi1">
+      <div class="obj-card-header">
+        <div class="dot"></div>
+        <span class="obj-label">KPI 1</span>
+        <span class="obj-id" id="label-kpi1"></span>
+      </div>
+      <div class="obj-body" id="body-kpi1">
+        <div class="obj-loading" id="load-kpi1"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div class="obj-card" id="card-kpi2">
+      <div class="obj-card-header">
+        <div class="dot"></div>
+        <span class="obj-label">KPI 2</span>
+        <span class="obj-id" id="label-kpi2"></span>
+      </div>
+      <div class="obj-body" id="body-kpi2">
+        <div class="obj-loading" id="load-kpi2"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div class="obj-card" id="card-kpi3">
+      <div class="obj-card-header">
+        <div class="dot"></div>
+        <span class="obj-label">KPI 3</span>
+        <span class="obj-id" id="label-kpi3"></span>
+      </div>
+      <div class="obj-body" id="body-kpi3">
+        <div class="obj-loading" id="load-kpi3"><div class="spinner"></div></div>
+      </div>
+    </div>
+    <div class="obj-card" id="card-kpi4">
+      <div class="obj-card-header">
+        <div class="dot"></div>
+        <span class="obj-label">KPI 4</span>
+        <span class="obj-id" id="label-kpi4"></span>
+      </div>
+      <div class="obj-body" id="body-kpi4">
+        <div class="obj-loading" id="load-kpi4"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart row — 80% remaining height -->
+  <div class="chart-row">
+
+    <!-- Main object ~60% -->
+    <div class="pane-main">
+      <div class="obj-card" style="height:100%">
+        <div class="obj-card-header">
+          <div class="dot"></div>
+          <span class="obj-label" id="label-main-title">Main Chart</span>
+          <span class="obj-id" id="label-main"></span>
+        </div>
+        <div class="obj-body" id="body-main">
+          <div class="obj-loading" id="load-main"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side stack ~30% -->
+    <div class="pane-side">
+      <div class="pane-side-top">
+        <div class="obj-card" style="height:100%">
+          <div class="obj-card-header">
+            <div class="dot"></div>
+            <span class="obj-label">Side Top</span>
+            <span class="obj-id" id="label-sideTop"></span>
+          </div>
+          <div class="obj-body" id="body-sideTop">
+            <div class="obj-loading" id="load-sideTop"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pane-side-bottom">
+        <div class="obj-card" style="height:100%">
+          <div class="obj-card-header">
+            <div class="dot"></div>
+            <span class="obj-label">Side Bottom</span>
+            <span class="obj-id" id="label-sideBottom"></span>
+          </div>
+          <div class="obj-body" id="body-sideBottom">
+            <div class="obj-loading" id="load-sideBottom"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer>
+  <b>QlikCat</b> &nbsp;·&nbsp; Better Demos &nbsp;·&nbsp; Trading Demo
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // ── Build nav ──────────────────────────────────────────
+    const nav = document.getElementById('nav');
+    MENU.forEach((item, i) => {
+      if (i > 0) {
+        const d = document.createElement('div');
+        d.className = 'nav-divider';
+        nav.appendChild(d);
+      }
+      const iconHtml = document.getElementById(item.iconId).innerHTML;
+      const btn = document.createElement('button');
+      btn.className = 'nav-btn';
+      btn.id        = 'nav-' + item.key;
+      btn.innerHTML = iconHtml + '<span>' + item.label + '</span>';
+      btn.onclick   = function() { loadView(item.key); };
+      nav.appendChild(btn);
+    });
+
+    // ── Object slot definitions ────────────────────────────
+    // Each slot: { bodyId, loadId, labelId }
+    const SLOTS = [
+      { key: 'kpi1',       bodyId: 'body-kpi1',       loadId: 'load-kpi1',       labelId: 'label-kpi1'       },
+      { key: 'kpi2',       bodyId: 'body-kpi2',       loadId: 'load-kpi2',       labelId: 'label-kpi2'       },
+      { key: 'kpi3',       bodyId: 'body-kpi3',       loadId: 'load-kpi3',       labelId: 'label-kpi3'       },
+      { key: 'kpi4',       bodyId: 'body-kpi4',       loadId: 'load-kpi4',       labelId: 'label-kpi4'       },
+      { key: 'main',       bodyId: 'body-main',       loadId: 'load-main',       labelId: 'label-main'       },
+      { key: 'sideTop',    bodyId: 'body-sideTop',    loadId: 'load-sideTop',    labelId: 'label-sideTop'    },
+      { key: 'sideBottom', bodyId: 'body-sideBottom', loadId: 'load-sideBottom', labelId: 'label-sideBottom' },
+    ];
+
+    // ── Create one qlik-embed object ───────────────────────
+    function makeEmbed(objectId) {
+      const el = document.createElement('qlik-embed');
+      el.setAttribute('ui',           'classic/chart');
+      el.setAttribute('app-id',       APP_ID);
+      el.setAttribute('object-id',    objectId);
+      el.setAttribute('show-toolbar', 'true');
+      return el;
+    }
+
+    // ── Load a view — replace all objects ─────────────────
+    function loadView(viewKey) {
+      const view = VIEWS[viewKey];
+      if (!view) return;
+
+      // Nav active state
+      MENU.forEach(function(m) {
+        document.getElementById('nav-' + m.key)
+          .classList.toggle('active', m.key === viewKey);
+      });
+
+      // For each slot: remove old embed, show spinner, create new embed
+      SLOTS.forEach(function(slot) {
+        const body    = document.getElementById(slot.bodyId);
+        const loading = document.getElementById(slot.loadId);
+        const labelEl = document.getElementById(slot.labelId);
+        const objectId = view.objects[slot.key];
+
+        // Remove any existing embed
+        const existing = body.querySelector('qlik-embed');
+        if (existing) existing.remove();
+
+        // Show object ID in the card header
+        if (labelEl) labelEl.textContent = objectId !== 'YOUR_OBJECT_ID' ? objectId : '';
+
+        // Show spinner
+        loading.style.display = 'flex';
+
+        // Only render if a real object ID has been set
+        if (!objectId || objectId === 'YOUR_OBJECT_ID') {
+          loading.innerHTML = '<span style="font-size:0.72rem;color:#aac4b8;letter-spacing:0.04em">Object ID not set</span>';
+          return;
+        }
+
+        // Create embed
+        const embed = makeEmbed(objectId);
+        embed.addEventListener('load', function() {
+          loading.style.display = 'none';
+        });
+        body.appendChild(embed);
+      });
+    }
+
+    // ── Load Executive Dashboard on startup ────────────────
+    loadView('executive');
+
+  }); // end DOMContentLoaded
+</script>
+
+</body>
+</html>
