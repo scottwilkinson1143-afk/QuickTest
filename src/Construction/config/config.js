@@ -1,7 +1,7 @@
 /*
   Fill in variable "AppGUID" based on Qlik Sense Application
 */
-const AppGUID = 'c938d2cb-30b4-4d03-9c22-505f19de293f';
+const AppGUID = 'ec664476-3e5e-43f4-99ee-1c430ca815f5';
 export { AppGUID };
 
 /*
