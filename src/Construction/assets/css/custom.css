@@ -1,0 +1,3379 @@
+
+/* :not(.lui-icon) excludes Qlik's own native toolbar icons (the
+   selection confirm/cancel checkmark+X, current-selections bar's
+   back/forward/clear buttons, etc.) - those render their glyphs via an
+   icon font keyed to specific character codes, so forcing Arial onto
+   them turns the icons into invisible/blank glyphs instead of just
+   changing a typeface. This is exactly why the confirm-selections
+   toolbar stopped appearing to work: the toolbar itself was still there,
+   its icons just had no glyph left to render. */
+body,
+body :not(.lui-icon) {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+
+.mu-icon {
+  width: 1.25em;
+  height: 1.25em;
+  display: inline-block;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+
+.mu-icon-flip {
+  transform: scaleX(-1);
+}
+
+:root {
+
+  --mu-primary: #6c4bd6;
+  --mu-primary-dark: #4c2f9e;
+  --mu-primary-light: #efe9fc;
+  --mu-brand-primary: #6c4bd6;
+  --mu-accent: #2fb8ac;
+  --mu-success: #2e7d32;
+  --mu-danger: #d32f2f;
+  --mu-warning: #ed6c02;
+
+  --mu-text: #1c2536;
+  --mu-text-muted: #6b7280;
+  --mu-surface: #ffffff;
+  --mu-surface-alt: #f6f5fb;
+  --mu-border: #ece9f6;
+
+  /* Sidebar navy->purple gradient stops */
+  --mu-navy-900: #241559;
+  --mu-navy-800: #33207a;
+  --mu-navy-700: #6c4bd6;
+
+  /* Spacing scale */
+  --mu-space-xs: 0.25rem;
+  --mu-space-sm: 0.5rem;
+  --mu-space-md: 1rem;
+  --mu-space-lg: 1.5rem;
+  --mu-space-xl: 2.5rem;
+  /* Shape + elevation */
+  --mu-radius-sm: 0.5rem;
+  --mu-radius-md: 0.85rem;
+  --mu-radius-lg: 1.25rem;
+  --mu-shadow-sm: 0 2px 6px rgba(40, 20, 90, 0.06);
+  --mu-shadow-md: 0 10px 24px rgba(40, 20, 90, 0.09);
+  --mu-shadow-lg: 0 18px 40px rgba(40, 20, 90, 0.14);
+  /* Motion - kept short so hover states never feel laggy */
+  --mu-transition-fast: 120ms ease;
+  --mu-transition-base: 200ms ease;
+  --bs-primary: var(--mu-primary);
+}
+
+
+body.mu-dark {
+  --mu-text: #eef0fa;
+  --mu-text-muted: #a6acc9;
+  --mu-surface: #1a2035;
+  --mu-surface-alt: #29304a;
+  --mu-border: #3b4463;
+  --mu-primary-light: rgba(108, 75, 214, 0.28);
+}
+
+/* UI UX Pro Max fintech direction: midnight surfaces, slate structure, and
+   restrained green for positive states and primary actions. */
+body.mu-accent-exchange {
+  --mu-primary: #22c55e;
+  --mu-primary-dark: #16a34a;
+  --mu-primary-light: rgba(34, 197, 94, 0.16);
+  --mu-brand-primary: #22c55e;
+  --mu-accent: #38bdf8;
+  --mu-text: #f8fafc;
+  --mu-text-muted: #94a3b8;
+  --mu-surface: #0e1223;
+  --mu-surface-alt: #020617;
+  --mu-border: #334155;
+  --mu-navy-900: #020617;
+  --mu-navy-800: #0f172a;
+  --mu-navy-700: #1e293b;
+  --mu-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.24);
+  --mu-shadow-md: 0 12px 28px rgba(0, 0, 0, 0.32);
+  --mu-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.42);
+  --bs-primary: var(--mu-primary);
+}
+
+body.mu-accent-exchange,
+body.mu-accent-exchange .main-content {
+  background-color: #020617 !important;
+}
+
+.bg-exchange {
+  background-color: #22c55e !important;
+}
+
+/* .main-content carries the vendor .max-height-vh-100/.h-100 utility
+   classes (max-height: 100vh, height: 100%), which assumes something like
+   PerfectScrollbar turns it into its own internally-scrolling box - but
+   that library is never actually loaded/initialised anywhere in this
+   mashup (only a dead ps-scroll-y event listener remains, which never
+   fires). Without it, .main-content is just a plain block capped at one
+   viewport tall with default overflow: visible, so on any tab whose
+   content is taller than that (Dashboard once Chart 4/5 are on screen,
+   longer Report/Self Service content, etc), everything past that 100vh
+   mark visually overflows outside .main-content's own box - and that's
+   exactly the region its background-color rule below doesn't reach,
+   revealing whatever sits behind it instead. Removing the cap lets
+   .main-content grow to its real content height so its own background
+   paints the whole thing, in light mode too (this is a structural layout
+   bug, not a dark-mode-only color issue - it's just invisible in light
+   mode because the fallback happens to be a similar pale colour). */
+.main-content {
+  max-height: none !important;
+  height: auto !important;
+}
+
+body.mu-dark,
+body.mu-dark .main-content {
+  background-color: #1a2035 !important;
+}
+
+/* Accent modes - toggled by applyQlikTheme() (main.js) alongside the
+   matching "DTMashup<Color>" Qlik theme (DTMashupInfo, DTMashupSuccess,
+   DTMashupWarning, DTMashupDanger). These stay in LIGHT mode (unlike
+   body.mu-dark above, which fully re-themes backgrounds/surfaces/text) -
+   only --mu-primary/--mu-primary-dark/--mu-primary-light change, which is
+   enough to recolor everything built on them throughout this file (search
+   focus rings, self service highlights, buttons, chips, active states,
+   etc.) without a parallel rule per component. "Primary" (the brand
+   purple, DTMashupPrimary) and "Dark" (full dark mode above) both
+   use the base :root/.mu-dark values directly, so they don't need a class
+   here. Base hex values match this app's existing --bs-info/success/
+   warning/danger (theme.css) so the accent matches what bg-info/
+   bg-success/etc. already render elsewhere in the UI. */
+body.mu-accent-info {
+  --mu-primary: #1a73e8;
+  --mu-primary-dark: #0f4fa8;
+  --mu-primary-light: rgba(26, 115, 232, 0.14);
+  --bs-primary: var(--mu-primary);
+}
+
+body.mu-accent-success {
+  --mu-primary: #4caf50;
+  --mu-primary-dark: #357a38;
+  --mu-primary-light: rgba(76, 175, 80, 0.14);
+  --bs-primary: var(--mu-primary);
+}
+
+body.mu-accent-warning {
+  --mu-primary: #fb8c00;
+  --mu-primary-dark: #c26f00;
+  --mu-primary-light: rgba(251, 140, 0, 0.14);
+  --bs-primary: var(--mu-primary);
+}
+
+body.mu-accent-danger {
+  --mu-primary: #f44335;
+  --mu-primary-dark: #c62828;
+  --mu-primary-light: rgba(244, 67, 53, 0.14);
+  --bs-primary: var(--mu-primary);
+}
+
+/* Vendor theme.css's own dark-mode dropdown background rule targets
+   .dark-version .dropdown .dropdown-menu, but that class was replaced by
+   .mu-dark here (tied to the selected Qlik theme, not a separate manual
+   switch) - without this, the profile settings/selections/bookmarks
+   dropdowns never got a dark background while their own text still
+   correctly flipped light via --mu-text, leaving barely-visible white
+   text on a white dropdown. */
+.mu-dark .dropdown-menu {
+  background: var(--mu-surface);
+  border-color: var(--mu-border);
+}
+
+/* .card itself never sets its own background (it relied entirely on
+   vendor theme.css's OWN dark-mode override, .dark-version .card, which
+   no longer applies now that dark mode is tied to .mu-dark instead) -
+   without this, every card's text correctly flips light via --mu-text
+   while the card itself stayed the vendor's default white, making
+   basically everything on every card unreadable in dark mode, not just
+   this one table. */
+.mu-dark .card {
+  background: var(--mu-surface);
+}
+
+/* Dashboard's Sales/Orders/Margin cards wrap their chart in a vivid
+   bg-gradient-dark/success/info box - looks great in light mode, but in
+   dark mode it visually competes with the app's own dark palette instead
+   of complementing it. Transparent (plus dropping the matching colour
+   glow shadow, which would otherwise float around an now-invisible box)
+   lets the chart sit flush on the card's own dark background instead,
+   matching how every other dark-mode chart in the app reads. Scoped to
+   .dashboard-nl-card specifically so the sidebar rail and the KPI icon
+   badges - which use the same bg-gradient-* classes for an intentional
+   splash of colour - are left alone. */
+.mu-dark .dashboard-nl-card .bg-gradient-dark,
+.mu-dark .dashboard-nl-card .bg-gradient-success,
+.mu-dark .dashboard-nl-card .bg-gradient-info {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Vendor theme.css also has its own dark-mode heading override
+   (.dark-version h1..h6/.h1..h6/a/table th/.kanban-title-board, all
+   color: #fff !important) which - same as .card and .dropdown-menu above -
+   never fires now that dark mode is tied to .mu-dark instead of
+   .dark-version. Card titles (h6 "Sales"/"Orders"/etc.) were staying
+   whatever fixed dark heading color theme.css set as a baseline,
+   unreadable against the now-dark card background. Matches that same
+   selector list (plus its !important) so this genuinely overrides it
+   rather than losing a specificity/!important tie. */
+.mu-dark h1,
+.mu-dark .h1,
+.mu-dark h2,
+.mu-dark .h2,
+.mu-dark h3,
+.mu-dark .h3,
+.mu-dark h4,
+.mu-dark .h4,
+.mu-dark h5,
+.mu-dark .h5,
+.mu-dark h6,
+.mu-dark .h6,
+.mu-dark .table thead tr th,
+.mu-dark .kanban-title-board {
+  color: var(--mu-text) !important;
+}
+
+/* Plain <p> text inside a card (KPI labels like "Sales TY", the "+x% than
+   last year" comparison line, etc.) isn't a heading, so it wasn't covered
+   by the h1..h6 override above - it kept theme.css's own dark navy body
+   text colour, which is just as unreadable against the now-dark .card
+   background. Colour-class spans nested inside (.text-success/.text-danger
+   on the "+3%"/"-3%" part) keep their own !important colour regardless,
+   since this only sets the <p> element's own text colour. */
+.mu-dark .card p {
+  color: var(--mu-text-muted);
+}
+
+/* Vendor's own dark-mode form-control override
+   (.dark-version .form-control { color: rgba(255,255,255,.8) !important })
+   never fires now that dark mode is tied to .mu-dark - same orphaned-rule
+   pattern as .card/.dropdown-menu/headings above, just missed until now.
+   Without it, typed text in every modal input (New bookmark, Save layout)
+   stayed the vendor's light-mode grey (#495057) against the now-dark
+   .modal-content background, making it nearly impossible to read what
+   you've typed. */
+.mu-dark .form-control {
+  color: var(--mu-text);
+  border-color: var(--mu-border);
+}
+
+.mu-dark .form-control::placeholder {
+  color: var(--mu-text-muted);
+}
+
+/* .text-secondary/.btn-outline-secondary/.accordion-button all resolve
+   through vendor's --bs-secondary (#7b809a), which reads fine on a white
+   background (~4.6:1) but drops to ~3.7:1 - below the 4.5:1 body-text
+   minimum - against the dark card/modal/notebook backgrounds .mu-dark
+   introduces. Covers modal field labels, the Report/Self Service tab
+   subtitles, "Cancel" buttons, and the Rider Filter panel's accordion
+   headers. */
+.mu-dark .text-secondary,
+.mu-dark .accordion-button {
+  color: var(--mu-text-muted) !important;
+}
+
+.mu-dark .btn-outline-secondary {
+  color: var(--mu-text-muted);
+  border-color: var(--mu-border);
+}
+
+/* Settings dropdown's "Navbar fixed" toggle switch keeps a hardcoded white
+   track regardless of theme - not unreadable (no text on it), but a stray
+   bright-white pill looks out of place floating in an otherwise dark
+   settings menu. */
+.mu-dark .form-check-input {
+  background-color: var(--mu-surface-alt);
+  box-shadow: inset 0 0 0 1px var(--mu-border);
+}
+
+/* Report tab's "notebook" (paper journal) look uses its own literal
+   cream/gold palette rather than the --mu-* variables, same reasoning as
+   the Dashboard hero banner and Analysis 2's cream cards. Re-themed to a
+   dark "notebook" variant (charcoal page, dim gold rules) rather than
+   leaving the cream paper unchanged, so the whole notebook still reads as
+   one coherent surface in dark mode instead of a light patch floating in a
+   dark app. */
+.mu-dark .notebook-card {
+  background: var(--mu-surface);
+  border-color: var(--mu-border);
+}
+
+.mu-dark .notebook-spine {
+  background-color: #241f10;
+  background-image: repeating-linear-gradient(180deg, #6b5a2e 0, #6b5a2e 3px, transparent 3px, transparent 16px);
+  border-right-color: #6b5a2e;
+}
+
+.mu-dark .notebook-sidebar {
+  background: var(--mu-surface);
+  border-right-color: var(--mu-border);
+}
+
+.mu-dark .notebook-filter-label {
+  color: #d4b483;
+}
+
+.mu-dark .notebook-page {
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 27px, rgba(255, 255, 255, 0.06) 28px);
+}
+
+.mu-dark .notebook-page-header {
+  border-bottom-color: var(--mu-border);
+}
+
+.mu-dark .notebook-page-header i {
+  color: #e0b84c;
+}
+
+.mu-dark .notebook-page-header h6 {
+  color: var(--mu-text);
+}
+
+/* theme.css hardcodes gradient stops rather than reading a variable for
+   these two utilities, so they need a direct override to move off the
+   default pink/black palette and onto the new purple brand. */
+.bg-gradient-dark {
+  background-image: linear-gradient(180deg, var(--mu-navy-700) 0%, var(--mu-navy-900) 100%);
+}
+
+.bg-gradient-primary {
+  background-image: linear-gradient(310deg, var(--mu-primary-dark) 0%, var(--mu-primary) 100%);
+}
+
+/* Sidebar accent gradients (sidebarColor() in main.js) - picking an accent
+   swatch in the settings dropdown re-tints the sidebar's own background,
+   not just the active nav pill. "primary" restates the default purple
+   gradient explicitly so re-selecting it after another accent still
+   works (a class-based override, not just "absence of an accent class"). */
+#sidenav-main.sidenav-accent-primary {
+  background-image: linear-gradient(180deg, var(--mu-navy-700) 0%, var(--mu-navy-900) 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-dark {
+  background-image: linear-gradient(180deg, #42424a 0%, #191919 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-exchange {
+  background-image: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-info {
+  background-image: linear-gradient(180deg, #17a2b8 0%, #0f6674 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-success {
+  background-image: linear-gradient(180deg, #43a047 0%, #1b5e20 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-warning {
+  background-image: linear-gradient(180deg, #ffa726 0%, #e65100 100%) !important;
+}
+
+#sidenav-main.sidenav-accent-danger {
+  background-image: linear-gradient(180deg, #ef5350 0%, #b71c1c 100%) !important;
+}
+
+/* Blend of the brand purple and the vendor success-green, for the third
+   dashboard chart card (Orders) - not a Bootstrap utility, custom to this
+   mashup. */
+.bg-gradient-purple-green {
+  background-image: linear-gradient(135deg, var(--mu-primary) 0%, #43A047 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Modals - Bootstrap's default .modal/.modal-backdrop z-index (~1055/1050)
+   sits far below .sidenav's z-index: 9999 (theme.css), so on any screen
+   narrow enough for the sidebar to overlap the modal's horizontal
+   position, the sidebar rendered ON TOP of every modal in this app
+   (Terms, Business Glossary, Self Service's layout pickers, etc.),
+   clipping their left edge. Raised above the sidebar and every other
+   position: fixed layer in this app (chart fullscreen: 10000, chat
+   assistant: 10009/10010) so modals - being genuinely blocking UI - always
+   win. -------------------------------------------------------------------------- */
+
+.modal-backdrop {
+  z-index: 10015;
+}
+
+.modal {
+  z-index: 10016;
+}
+
+/* theme.css's own .btn-close hardcodes its icon as a WHITE X
+   (fill='%23fff' in its data-URI background-image) instead of vanilla
+   Bootstrap's black one - invisible on every plain white modal header in
+   this app (Choose a layout, Save layout, My layouts, New bookmark). Its
+   .btn-close-white then applies invert()/grayscale()/brightness() on top,
+   which - starting from white - actually flips the icon to black, so the
+   two classes have their normal Bootstrap meanings backwards here. Restoring
+   the standard black icon as the base makes plain white headers show a
+   visible icon again, AND makes .btn-close-white behave as its name
+   suggests (invert a black icon to white) on the gradient-header modals
+   (Glossary/Terms) that already carry that class. */
+.btn-close {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 16 16'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e");
+  opacity: 0.65;
+  border-radius: 50%;
+  padding: 0.4rem;
+  transition: opacity var(--mu-transition-fast), background-color var(--mu-transition-fast);
+}
+
+.btn-close:hover,
+.btn-close:focus {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.btn-close-white:hover,
+.btn-close-white:focus {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.mu-dark .modal-content {
+  background: var(--mu-surface);
+  color: var(--mu-text);
+}
+
+.mu-dark .modal-header,
+.mu-dark .modal-footer {
+  border-color: var(--mu-border);
+}
+
+/* Only the plain (non pre-coloured) close buttons need inverting in dark
+   mode - .btn-close-white is already used on the gradient-header modals
+   (Glossary, Terms) where the background stays coloured, not surface-toned,
+   regardless of theme. */
+.mu-dark .btn-close:not(.btn-close-white) {
+  filter: invert(1) grayscale(100%);
+  opacity: 0.75;
+}
+
+.mu-dark .btn-close:not(.btn-close-white):hover,
+.mu-dark .btn-close:not(.btn-close-white):focus {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   Base surface
+   -------------------------------------------------------------------------- */
+
+body.bg-gray-200 {
+  background: var(--mu-surface-alt) !important;
+}
+
+/* Fixed-width icon column for every top-level sidenav link (Dashboard,
+   Analysis, Report, Self Service, ...) - without this, each icon's
+   wrapper sizes to its own content, so an invalid/unrecognised Material
+   Icons ligature name (which falls back to rendering as literal text
+   instead of a square glyph) would end up in a differently-sized box than
+   its neighbours instead of just looking like a broken icon in a
+   correctly-sized slot. */
+.sidenav .nav-link > div.d-flex.align-items-center.justify-content-center {
+  width: 1.5rem;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Cards - the dominant unit of the dashboard (KPIs, charts, filters)
+   -------------------------------------------------------------------------- */
+
+.card {
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-md) !important;
+  box-shadow: var(--mu-shadow-sm) !important;
+  transition: box-shadow var(--mu-transition-base);
+  /* Bootstrap's grid columns already stretch to match the tallest column
+     in a row by default, but a .card only fills that extra height if it's
+     explicitly told to - without this, cards with less content (a shorter
+     title, no toggle button, etc.) stayed their own shorter natural
+     height even in a row with a taller sibling, breaking the visual
+     alignment of chart cards across a row. */
+  height: 100%;
+}
+
+/* Qlik can inject a success-green outline on native object hosts. The
+   dashboard uses the card edge as its only frame, so keep the embedded chart
+   surface neutral and let the card shadow provide separation instead. */
+.qvobject,
+.qvobject > div,
+.qvobject iframe,
+.qvobject canvas,
+.qvobject svg {
+  border-color: transparent !important;
+}
+
+/* Qlik's native theme applies the green success border to these internal
+   wrappers, so styling only the mashup host cannot remove it. The native
+   title is also hidden because the mashup heading above each object is now
+   populated from the object's actual Qlik title. */
+.qv-object,
+.qv-object-wrapper,
+.qv-object-content,
+.qv-inner-object,
+.qv-object-container,
+.qv-object-wrapper:focus,
+.qv-object-content:focus {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.qvobject [class*="qv-object"] {
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Qlik can collapse title-less visualizations to zero size inside a tab.
+   Keep the inner object and its content host in the flex layout so native
+   SVG, canvas, KPI, gauge, table, and nested analysis layers can render. */
+.qvobject .qv-inner-object.no-titles {
+  display: flex !important;
+  min-height: 0 !important;
+}
+
+.qvobject .qv-object-content-container,
+.qvobject .qv-object-content {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+}
+
+.qvobject .qv-object-content > div {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.qv-object-title,
+.qv-object-title-text,
+.qv-object .qv-object-title {
+  display: none !important;
+}
+
+/* Native Qlik chart labels and titles are SVG/foreignObject content, so the
+   page font alone cannot normalize them. Apply the dashboard type system at
+   the rendering surface while leaving Qlik icon fonts untouched. */
+.qvobject svg text,
+.qvobject svg tspan,
+.qvobject foreignObject,
+.qvobject foreignObject * {
+  font-family: "Fira Sans", "Segoe UI", sans-serif !important;
+}
+
+.qvobject svg text {
+  letter-spacing: 0 !important;
+}
+
+.qvobject .qv-object-title,
+.qvobject .qv-object-title-text,
+.qvobject [class*="title"] {
+  display: none !important;
+  font-family: "Fira Sans", "Segoe UI", sans-serif !important;
+}
+
+.tab-pane .card:has(.qvobject) {
+  overflow: hidden;
+}
+
+.tab-pane .card .card-body,
+.tab-pane .card .card-header {
+  position: relative;
+  z-index: 1;
+}
+
+[data-chart-title-for] {
+  color: var(--mu-text) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* The Qlik theme can collapse an empty-looking KPI host below its intended
+   ha-180 height. Reserve a stable presentation area so the KPI value and
+   supporting label remain visible after the object finishes rendering. */
+#incidentanalysis #INCIDENT-KPI-1,
+#incidentanalysis #INCIDENT-KPI-2,
+#incidentanalysis #INCIDENT-KPI-3 {
+  height: 200px !important;
+  min-height: 200px !important;
+}
+
+#incidentanalysis .row:first-child > [class*="col-"] .card {
+  min-height: 270px;
+}
+
+#incidentanalysis .row:first-child > [class*="col-"] .card-body,
+#safetyoverview .safety-kpi-row .card-body,
+#compliance .row:first-child .card-body {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+#incidentanalysis .row:first-child [data-chart-title-for],
+#safetyoverview .safety-kpi-row h6,
+#compliance .row:first-child h6 {
+  margin-bottom: 4px !important;
+}
+
+#safetyoverview #SAFETY-KPI-1 {
+  height: 150px !important;
+  min-height: 150px !important;
+}
+
+#safetyoverview #SAFETY-KPI-2,
+#safetyoverview #SAFETY-KPI-3,
+#safetyoverview #SAFETY-KPI-4,
+#safetyoverview #SAFETY-KPI-5,
+#safetyoverview #SAFETY-KPI-6 {
+  height: 80px !important;
+  min-height: 80px !important;
+}
+
+#compliance #COMPLIANCE-KPI-1,
+#compliance #COMPLIANCE-KPI-2,
+#compliance #COMPLIANCE-KPI-3,
+#compliance #COMPLIANCE-KPI-4 {
+  height: 130px !important;
+  min-height: 130px !important;
+}
+
+.kpi-secondary-label {
+  display: block;
+  margin-top: -2px;
+  color: var(--mu-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (min-width: 1200px) {
+  #safetyoverview .safety-kpi-row > .col-xl {
+    flex: 0 0 16.666667%;
+    max-width: 16.666667%;
+  }
+}
+
+/* Dashboard's 3 chart cards (Sales/Orders/Margin) toggle a collapsible NL
+   section per-card via toggleDashboardNlChart() - with the global .card
+   height: 100% rule above and the row's default flex stretch, expanding
+   just ONE card made the whole row grow to match it, so the other two
+   cards visually "expanded" too (same taller box, just empty space at the
+   bottom) even though their own collapse stayed shut. Their row uses
+   align-items-start so it no longer stretches short cards to match a
+   taller sibling, and this override makes sure the card itself doesn't
+   fight that by forcing its own height back up to 100%. */
+.dashboard-nl-card {
+  height: auto;
+}
+
+/* Shadow-only lift on hover (no transform) - cards embed Qlik/picasso
+   canvases that must never be repositioned or clipped mid-transition. */
+.card:hover {
+  box-shadow: var(--mu-shadow-md) !important;
+}
+
+.card .card-header,
+.card .card-footer {
+  background: transparent;
+  border-color: var(--mu-border);
+}
+
+/* KPI card icon badges (Sales/Orders/Margin's .icon.icon-lg.icon-shape
+   circles). theme.css centers/colours the icon inside these purely via
+   its OWN `.icon-shape i`/`.icon-lg i` rules (color: #fff, opacity: 0.8,
+   and a manual `top` offset compensating for the Material Icons webfont's
+   specific line-height/baseline) - all keyed to the tag name `i`, which
+   never matches our `<svg class="mu-icon">` replacement. Flex-centering
+   the badge itself is a font-quirk-proof way to center any icon type
+   (this SVG or a future one) without needing a hand-tuned pixel offset,
+   and the color/opacity/size are restated directly on .mu-icon to match
+   what the vendor rule used to provide. */
+.icon-shape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-shape .mu-icon {
+  color: #fff;
+  opacity: 0.8;
+}
+
+.icon-lg .mu-icon {
+  font-size: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar navigation - purple gradient rail (aside already gets the
+   gradient via .bg-gradient-dark, overridden above)
+   -------------------------------------------------------------------------- */
+
+#sidenav-main {
+  border-radius: var(--mu-radius-lg) !important;
+  box-shadow: var(--mu-shadow-lg);
+}
+
+/* Tighter vertical padding than theme.css's own 0.5rem default - matches
+   the reference REITMashup2New sidebar exactly, so more pages fit before
+   the sidebar needs its own scrollbar, which reads as noticeably less
+   polished than the rest of the app. */
+#sidenav-main .nav-link {
+  border-radius: var(--mu-radius-sm);
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+#sidenav-main .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Analysis/My Layouts dropdowns (collapsible groups of pages).
+   Structure/padding/active pill is the theme's own navbar-vertical
+   dropdown component - only a connecting guide-line and a subtle "open"
+   tint are added on top of it here. The chevron itself is an explicit
+   Material Icons <svg> in the markup (see index.html), NOT theme.css's
+   own ::after chevron - that one renders a raw Font Awesome character
+   code ("\f107") with no class-based hook, so it's the one thing in this
+   app that would have kept Font Awesome loaded for no other reason. Using
+   our own icon here instead means every icon in the app is the same
+   Material Icons set with nothing else to load, and gives us the same
+   rotate-on-expand control via a plain CSS class instead of a vendor
+   pseudo-element. */
+#sidenav-main .nav-link[data-bs-toggle="collapse"]::after {
+  content: none;
+}
+
+#sidenav-main .nav-dropdown-caret {
+  margin-left: auto;
+  color: rgba(206, 212, 218, 0.7);
+  transition: transform var(--mu-transition-base);
+}
+
+#sidenav-main .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] .nav-dropdown-caret {
+  color: #fff;
+  transform: rotate(180deg);
+}
+
+#sidenav-main .nav-link[data-bs-toggle="collapse"] {
+  cursor: pointer;
+}
+
+#sidenav-main .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--mu-radius-sm);
+}
+
+#sidenav-main .nav-item .collapse .nav {
+  margin: 0 1rem 0.15rem 2.35rem;
+  padding-left: var(--mu-space-sm);
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+#sidenav-main .nav-item .collapse .nav .nav-link {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+#sidenav-main .nav-item .collapse .nav .nav-link:hover {
+  opacity: 1;
+}
+
+#sidenav-main .nav-item .collapse .nav .nav-link.active {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar footer buttons (Business Glossary / Terms). Previously
+   btn-outline-primary (purple border+text) and bg-gradient-primary with no
+   text-color override (default gray-blue body text) - both land in the
+   same purple family as the sidebar's own gradient, so on this dark
+   background they read as barely-there/muddy rather than as buttons.
+   Explicit white-based colors here guarantee contrast regardless of where
+   the gradient sits behind them.
+   -------------------------------------------------------------------------- */
+
+.sidenav-footer-btn {
+  border-radius: var(--mu-radius-sm);
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast), transform var(--mu-transition-fast);
+}
+
+.sidenav-footer-btn:hover {
+  transform: translateY(-1px);
+}
+
+.sidenav-footer-btn-outline {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+}
+
+.sidenav-footer-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+  color: #fff;
+}
+
+.sidenav-footer-btn-solid {
+  background: #fff;
+  border: 1.5px solid #fff;
+  color: var(--mu-primary-dark);
+}
+
+.sidenav-footer-btn-solid:hover {
+  background: var(--mu-primary-light);
+  border-color: var(--mu-primary-light);
+  color: var(--mu-primary-dark);
+}
+
+/* Last reachable Font Awesome dependency in this app: theme.css draws a
+   small decorative "pointer" arrow at the top of every .dropdown-menu
+   (Current Selections, Bookmarks, Mashup Settings all use this class) via
+   a raw FontAwesome character code on ::before, in 3 near-duplicate rules
+   across a desktop and two mobile media queries. It's purely decorative
+   (not a functional affordance like the sidebar chevron), so rather than
+   rebuild it as an SVG it's just switched off - !important is needed
+   since the mobile-variant vendor selectors are more specific than a
+   plain .dropdown-menu::before would be. With this and the sidebar
+   chevron (see .nav-dropdown-caret above) both replaced/removed, nothing
+   in this app's actual rendered output depends on Font Awesome any more. */
+.dropdown-menu::before {
+  content: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Top navbar - rounded search pill + right-hand icon/profile cluster
+   -------------------------------------------------------------------------- */
+
+#navbarBlur {
+  border-radius: var(--mu-radius-lg) !important;
+}
+
+.navbar-search-wrap {
+  min-width: 260px;
+  max-width: 30rem;
+}
+
+.navbar-search-inner {
+  width: 100%;
+  background: var(--mu-surface-alt);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: background-color var(--mu-transition-fast);
+}
+
+.navbar-search-inner:focus-within {
+  background: var(--mu-primary-light);
+}
+
+.navbar-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+}
+
+.navbar-search-pill i {
+  flex: 0 0 auto;
+  color: var(--mu-text-muted);
+  font-size: 1.1rem;
+}
+
+/* Spins while a search request is in flight (search.js) - immediate
+   visible feedback that typing registered, so users aren't left
+   wondering whether anything happened and re-typing out of uncertainty. */
+.navbar-search-icon.is-searching {
+  animation: navbar-search-spin 0.8s linear infinite;
+  color: var(--mu-primary);
+}
+
+@keyframes navbar-search-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.navbar-search-pill input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  width: 100%;
+  color: var(--mu-text);
+}
+
+.navbar-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mu-text-muted);
+  background: transparent;
+  border: none;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast), transform var(--mu-transition-fast);
+}
+
+.navbar-icon-btn:hover {
+  background: var(--mu-primary-light);
+  color: var(--mu-primary);
+  transform: translateY(-1px);
+}
+
+.navbar-icon-btn.notification {
+  position: relative;
+}
+
+.navbar-icon-btn .badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--mu-danger);
+  color: #fff;
+  font-size: 0.6rem;
+  line-height: 16px;
+  text-align: center;
+}
+
+.navbar-icon-btn .badge:empty {
+  display: none;
+}
+
+/* Profile cluster (moved here from the sidebar footer) */
+.topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--mu-space-sm);
+  padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast);
+}
+
+.topbar-profile:hover {
+  background: var(--mu-primary-light);
+}
+
+.topbar-profile-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--mu-text);
+  white-space: nowrap;
+}
+
+.topbar-profile .mu-icon.caret {
+  font-size: 1.1rem;
+  color: var(--mu-text-muted);
+}
+
+/* Circular avatar slot - user.js fills #userProfile with either a gravatar
+   <img> (class stays "profile-pic") or, when no gravatar is set, swaps the
+   element's class to "userProfile" and drops in a plain username string.
+   Styling keys off the id so both states render as the same tidy circle. */
+#userProfile {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mu-primary-light);
+  color: var(--mu-primary-dark);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: normal;
+  word-break: break-word;
+}
+
+#userProfile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   Settings menu (accent color / Qlik theme / toggles) - the dropdown
+   triggered from the top-bar profile chip.
+   -------------------------------------------------------------------------- */
+
+.settings-menu {
+  width: 17rem;
+  padding: 0.9rem 1rem 1.1rem !important;
+  /* Same reasoning as .selections-menu above - guarantee this never
+     renders behind a card. */
+  z-index: 1051;
+}
+
+.settings-menu-header {
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--mu-border);
+}
+
+.settings-menu-header h6 {
+  font-weight: 700;
+  color: var(--mu-text);
+}
+
+.settings-section {
+  padding: 0.6rem 0;
+}
+
+.settings-section + .settings-section {
+  border-top: 1px solid var(--mu-border);
+}
+
+.settings-section-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mu-text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Current selections popup - dropdown triggered from the notification-style
+   icon button in the navbar (index.html). A dropdown floats above the page
+   rather than taking up layout space, so however many selections there are
+   can never shift/resize the navbar's own icon row.
+   -------------------------------------------------------------------------- */
+
+.selections-menu {
+  width: 22rem;
+  padding: 1.1rem 0 1.1rem !important;
+  box-shadow: 0 12px 32px rgba(17, 12, 46, 0.16);
+  border: none;
+  /* Bootstrap's default dropdown z-index (1000) should already beat any
+     card on the page, but a card establishes its own stacking context
+     (position: relative from theme.css's base .card rule) and some,
+     like Analysis 1's, also carried an explicit z-index utility - belt
+     and braces so this popup can never end up rendered behind a chart
+     card regardless of what other z-index a card picks up. */
+  z-index: 1051;
+}
+
+.selections-menu-header {
+  padding: 0 1.1rem 0.85rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid var(--mu-border);
+}
+
+.selections-menu-header h6 {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--mu-text);
+}
+
+.selections-clear-all {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--mu-primary);
+  text-decoration: none;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--mu-radius-sm);
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.selections-clear-all:hover {
+  color: var(--mu-primary-dark);
+  background: var(--mu-primary-light);
+}
+
+.selections-menu-body {
+  max-height: 19rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.2rem 0.7rem 0;
+}
+
+.selections-menu-body .qlik-filter-empty {
+  padding: 1rem 0.6rem 0.4rem;
+  text-align: center;
+  color: var(--mu-text-muted);
+  font-size: 0.85rem;
+}
+
+.selections-menu-body .selected-field-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  margin: 0.15rem 0;
+  max-width: none;
+  background: transparent;
+  color: inherit;
+  border-radius: var(--mu-radius-md);
+  font-size: inherit;
+  font-weight: normal;
+  transition: background-color var(--mu-transition-fast);
+}
+
+.selections-menu-body .selected-field-container:hover {
+  background: var(--mu-surface-alt);
+}
+
+.selections-menu-body .selected-field-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.selections-menu-body .selected-field {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--mu-primary);
+}
+
+.selections-menu-body .selected-value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--mu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selections-menu-body .clear-field {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  cursor: pointer;
+  color: var(--mu-text-muted);
+  background: none;
+  border: none;
+  transition: color var(--mu-transition-fast);
+}
+
+.selections-menu-body .clear-field .mu-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.selections-menu-body .clear-field:hover {
+  color: var(--mu-danger);
+}
+
+/* Bookmarks dropdown rows (#bookmarksList, populated by bookmarks.js) -
+   reuses .selections-menu-body's dropdown chrome, just a simpler clickable
+   row instead of a field/value/clear-button layout. */
+.selections-menu-body .bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: var(--mu-radius-md);
+  transition: background-color var(--mu-transition-fast);
+}
+
+.selections-menu-body .bookmark-item:hover {
+  background: var(--mu-surface-alt);
+}
+
+.selections-menu-body .bookmark-item-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  color: var(--mu-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.selections-menu-body .bookmark-item-label i {
+  color: var(--mu-primary);
+  font-size: 1.2rem;
+  flex: 0 0 auto;
+}
+
+.selections-menu-body .bookmark-item-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selections-menu-body .bookmark-item-delete {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--mu-text-muted);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.selections-menu-body .bookmark-item-delete .mu-icon {
+  font-size: 1.05rem;
+}
+
+.selections-menu-body .bookmark-item-delete:hover {
+  background: var(--mu-danger);
+  color: #fff;
+}
+
+.color-swatches {
+  gap: 0.5rem;
+}
+
+.color-swatches .badge.filter {
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--mu-border);
+  cursor: pointer;
+  transition: box-shadow var(--mu-transition-fast), transform var(--mu-transition-fast);
+}
+
+/* The Primary swatch uses Bootstrap's .bg-primary utility (background:
+   var(--bs-primary)) - but body.mu-accent-* redefines --bs-primary
+   app-wide to whichever accent is picked, so picking e.g. Info also
+   repainted this swatch's own background blue instead of leaving it as
+   the fixed brand purple it's meant to represent. Higher-specificity
+   attribute selector overrides it back to the stable, never-redefined
+   --mu-brand-primary regardless of the current accent. */
+.color-swatches .badge.filter[data-color="primary"] {
+  background-color: var(--mu-brand-primary) !important;
+}
+
+.color-swatches .badge.filter:hover {
+  transform: translateY(-1px);
+}
+
+/* White gap + colored ring reads as "selected" regardless of the swatch's
+   own hue, unlike a checkmark whose color would need to adapt per-swatch.
+   Uses the fixed --mu-brand-primary, NOT --mu-primary - the latter now
+   changes with the picked accent (see body.mu-accent-* overrides above),
+   which made the ring itself keep changing colour instead of staying a
+   stable "you are here" indicator. */
+.color-swatches .badge.filter.active {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--mu-brand-primary);
+}
+
+/* Small caption under the Appearance swatches, explaining that the same
+   click also switches the Qlik theme - the separate "Qlik theme" swatch
+   list this used to describe was merged into applyAppearance() (main.js). */
+.settings-section-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  color: var(--mu-text-muted);
+}
+
+.settings-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.3rem;
+  border-radius: var(--mu-radius-sm);
+  margin: 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mu-text);
+  transition: background-color var(--mu-transition-fast);
+}
+
+.settings-toggle-row:hover {
+  background: var(--mu-surface-alt);
+}
+
+.settings-toggle-row i {
+  font-size: 1.15rem;
+  color: var(--mu-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Welcome hero banner - decorative, personalises with the already-fetched
+   (previously unused) display-name value from user.js. No fabricated data.
+   -------------------------------------------------------------------------- */
+
+.hero-banner {
+  background: linear-gradient(120deg, #fdf1e3 0%, #fbe3c6 100%);
+  border: none;
+  overflow: hidden;
+}
+
+/* Collapsed by default (no .is-expanded on .hero-banner yet - toggleHeroBanner()
+   in main.js adds it) - the whole card shrinks to a slim title bar, not
+   just the text underneath it, so it actually gives back the vertical
+   real estate users asked for rather than leaving a half-empty banner. */
+.hero-banner .card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mu-space-lg);
+  padding: 0.65rem 1.5rem;
+  transition: padding var(--mu-transition-base);
+}
+
+.hero-banner.is-expanded .card-body {
+  padding: 1.75rem 2rem;
+}
+
+.hero-banner-content {
+  order: 1;
+  min-width: 0;
+}
+
+/* Only the title shows by default (toggleHeroBanner(), main.js) - the
+   reload-time eyebrow and summary text are tucked into .hero-banner-collapse
+   below, for users who don't need them every visit. */
+.hero-banner-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.hero-banner-toggle {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  color: #a15c1e;
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.hero-banner-toggle .mu-icon {
+  font-size: 1.2rem;
+}
+
+.hero-banner-toggle:hover {
+  background: #a15c1e;
+  color: #fff;
+}
+
+.hero-banner-collapse {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height var(--mu-transition-base), opacity var(--mu-transition-base);
+}
+
+.hero-banner.is-expanded .hero-banner-collapse {
+  max-height: 8rem;
+  opacity: 1;
+  margin-top: 0.6rem;
+}
+
+.hero-banner-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #b3763a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.hero-banner-eyebrow .mu-icon {
+  font-size: 0.95rem;
+}
+
+.hero-banner-title {
+  color: #a15c1e;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+  /* Scales down on very narrow phones without needing another breakpoint -
+     clamp() keeps it from ever growing past the desktop h4 size either. */
+  font-size: clamp(1.15rem, 1rem + 1vw, 1.5rem);
+}
+
+.hero-banner-text {
+  color: #7a5a3a;
+  max-width: 34rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+}
+
+/* Icon comes first in the markup (so it isn't lost/reordered awkwardly by
+   screen readers or when flex-wrap kicks in) but visually belongs on the
+   right on wide screens - order flips it back without touching the DOM. */
+.hero-banner-icon {
+  order: 2;
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: width var(--mu-transition-base), height var(--mu-transition-base), opacity var(--mu-transition-base);
+}
+
+.hero-banner.is-expanded .hero-banner-icon {
+  width: 84px;
+  height: 84px;
+  opacity: 1;
+}
+
+.hero-banner-icon i {
+  font-size: 2.75rem;
+  color: #d98a3d;
+}
+
+/* .hero-banner carries the .card class too, so in dark mode
+   .mu-dark .card's background (2 classes) wins over .hero-banner's own
+   cream gradient (1 class), turning the banner dark navy - but everything
+   below still had its ORIGINAL light-mode hardcoded colour (translucent
+   white badges, brown text/borders), which was tuned to sit on cream and
+   nearly disappears against navy instead. */
+.mu-dark .hero-banner-icon {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mu-dark .hero-banner-icon i {
+  color: var(--mu-primary);
+}
+
+.mu-dark .hero-banner-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mu-text);
+}
+
+.mu-dark .hero-banner-toggle:hover {
+  background: var(--mu-primary);
+  color: #fff;
+}
+
+/* Tablet: keep the icon beside the text (still reads fine at this width)
+   but trim the padding/icon size a little so the banner doesn't dominate
+   the viewport before content below it. Only applies once expanded - the
+   collapsed bar stays at its compact padding/icon-free size regardless of
+   viewport width. */
+@media (max-width: 991.98px) {
+  .hero-banner.is-expanded .card-body {
+    padding: 1.4rem 1.5rem;
+  }
+
+  .hero-banner.is-expanded .hero-banner-icon {
+    width: 68px;
+    height: 68px;
+  }
+
+  .hero-banner.is-expanded .hero-banner-icon i {
+    font-size: 2.1rem;
+  }
+}
+
+/* Phone: once expanded, stack icon above the text as a small centred badge
+   rather than letting it compete with the title for horizontal space, and
+   centre every line. Collapsed stays a simple title+toggle row even on
+   phone - there's no icon or text showing yet to need the column layout. */
+@media (max-width: 575.98px) {
+  .hero-banner.is-expanded .card-body {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.25rem 1.1rem;
+    gap: 0.75rem;
+  }
+
+  .hero-banner.is-expanded .hero-banner-icon {
+    order: 0;
+    width: 48px;
+    height: 48px;
+  }
+
+  .hero-banner.is-expanded .hero-banner-icon i {
+    font-size: 1.5rem;
+  }
+
+  .hero-banner.is-expanded .hero-banner-eyebrow {
+    justify-content: center;
+  }
+
+  .hero-banner-text {
+    max-width: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Report tab - notebook/journal shell. Left sidebar holds the two native
+   Qlik filter objects (REPORT-DIMENSIONS-FILTER/REPORT-MEASURES-FILTER);
+   the "page" area holds the real report table (Qlik object NjTUHd).
+
+   Full-screen: sized off the viewport (vh) rather than the ancestor chain's
+   percentage heights, since that chain isn't guaranteed to resolve
+   (percentage heights need every ancestor to have an explicit height, and
+   .tab-content/.tab-pane don't). --notebook-chrome-offset approximates
+   everything above the card (navbar + container padding) - nudge it if
+   the card runs a little short or gets clipped at the bottom on your setup.
+   -------------------------------------------------------------------------- */
+
+.notebook-card {
+  /* #report has no container-fluid/py-4 wrapper (unlike the other tabs),
+     so there's no padding left to account for here - just the navbar
+     above it. */
+  --notebook-chrome-offset: 96px;
+  display: flex;
+  width: 100%;
+  height: calc(100vh - var(--notebook-chrome-offset));
+  min-height: 26rem;
+  margin: 0;
+  background: #fdfaf1;
+  border: 1px solid #e7dcb8;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.notebook-spine {
+  flex: 0 0 28px;
+  background-color: #f4e8c4;
+  background-image: repeating-linear-gradient(180deg, #d8b86a 0, #d8b86a 3px, transparent 3px, transparent 16px);
+  background-position: center;
+  border-right: 3px solid #d8b86a;
+}
+
+/* Native Qlik filter panes render a fixed 2-column layout regardless of
+   container width, so the sidebar needs to be wide enough for both
+   columns to fit their longer values (e.g. "PurchaseOrderNumber") without
+   truncating and needing a horizontal scrollbar. */
+.notebook-sidebar {
+  flex: 0 0 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem;
+  background: #f9f3e2;
+  border-right: 1px solid #e7dcb8;
+  overflow: hidden;
+}
+
+/* Each group (Dimensions/Measures) scrolls its own list internally rather
+   than sharing one short, whole-sidebar scrollbar. Dimensions has
+   noticeably more values than Measures in this app, so it gets a bigger
+   share of the sidebar's height (roughly 2:1) instead of an even 50/50
+   split, cutting down how much a user has to scroll to see the rest of
+   the dimension list. */
+.notebook-filter-group {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notebook-filter-group--dimensions {
+  flex: 2 1 0;
+}
+
+.notebook-filter-group--measures {
+  flex: 1 1 0;
+}
+
+/* Bridges the flex-grow chain from .notebook-filter-group down to the
+   native Qlik filter object rendered inside it: #REPORT-DIMENSIONS-FILTER/
+   #REPORT-MEASURES-FILTER are plain divs declared in index.html that
+   app.getObject() renders into, so without this they size to their full
+   content height instead of respecting their allotted half of the
+   sidebar - which is what let the two lists visually overlap. */
+.notebook-filter-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notebook-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: #8a7452;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.notebook-filter-label i {
+  font-size: 1rem;
+}
+
+.notebook-page {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  overflow: auto;
+  background-image: repeating-linear-gradient(180deg, transparent 0, transparent 27px, #eee2c4 28px);
+}
+
+.notebook-page-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e7dcb8;
+}
+
+.notebook-page-header i {
+  font-size: 1.75rem;
+  color: #c9a227;
+}
+
+.notebook-page-header h6 {
+  font-weight: 700;
+  color: #4a3c22;
+}
+
+.notebook-report-table {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: auto;
+}
+
+@media (max-width: 767px) {
+  .notebook-card {
+    --notebook-chrome-offset: 76px;
+    flex-direction: column;
+  }
+
+  .notebook-spine {
+    display: none;
+  }
+
+  .notebook-sidebar {
+    flex: 0 0 auto;
+    height: 46vh;
+    border-right: none;
+    border-bottom: 1px solid #e7dcb8;
+  }
+
+  .notebook-page {
+    padding: 1rem;
+  }
+
+  .notebook-report-table {
+    min-height: 16rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Buttons + interactive controls
+   -------------------------------------------------------------------------- */
+
+.btn {
+  border-radius: var(--mu-radius-sm);
+  transition: box-shadow var(--mu-transition-fast), transform var(--mu-transition-fast), background-color var(--mu-transition-fast);
+}
+
+.btn:hover {
+  box-shadow: var(--mu-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-outline-primary {
+  border-color: var(--mu-primary);
+  color: var(--mu-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--mu-primary);
+  border-color: var(--mu-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Filters panel (accordion) + selection chips
+   -------------------------------------------------------------------------- */
+
+.fixed-plugin .card {
+  border-radius: var(--mu-radius-lg) !important;
+}
+
+/* This close button uses Bootstrap's .text-dark (vendor's hardcoded
+   #344767 navy) - fine on the panel's light-mode white card, but the
+   panel is a .card too, so .mu-dark .card flips its background dark while
+   this text colour stays put, going navy-on-navy. */
+.mu-dark .fixed-plugin-close-button.text-dark {
+  color: var(--mu-text) !important;
+}
+
+.accordion-button {
+  border-radius: var(--mu-radius-sm) !important;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--mu-primary);
+  background-color: var(--mu-primary-light);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Qlik hypercube table (assets/js/charts/hypercubeTable.js).
+   Horizontal scroll on the wrapper handles narrow screens/many columns;
+   sticky header keeps column names visible while scrolling long tables.
+   -------------------------------------------------------------------------- */
+
+.qlik-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-md);
+}
+
+.qlik-table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.qlik-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--mu-border);
+}
+
+.qlik-table tbody td {
+  padding: 0.65rem 1rem;
+  color: var(--mu-text);
+  border-bottom: 1px solid var(--mu-border);
+  white-space: nowrap;
+}
+
+.qlik-table tbody tr:nth-child(even) {
+  background: var(--mu-surface-alt);
+}
+
+.qlik-table tbody tr:hover {
+  background: var(--mu-primary-light);
+}
+
+.qlik-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.qlik-table .text-end {
+  text-align: right;
+}
+
+.qlik-table-empty {
+  text-align: center;
+  white-space: normal;
+  padding: 2rem 1rem;
+  color: var(--mu-text-muted);
+}
+
+.qlik-table-avatar-cell {
+  width: 1%;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.qlik-table-avatar {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--mu-surface-alt);
+}
+
+.qlik-table-negative {
+  color: var(--mu-danger);
+  font-weight: 600;
+}
+
+/* Selectable dimension cells (renderHypercubeTable() in
+   hypercubeTable.js, only when called with the app reference) - state
+   classes mirror the hypercube filter list's own is-selected/is-excluded
+   convention for consistency across the mashup. */
+.qlik-table-row-selectable {
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.qlik-table-row-selectable:hover {
+  background: var(--mu-primary-light);
+}
+
+.qlik-table-row-selectable.is-selected {
+  background: var(--mu-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.qlik-table-row-selectable.is-selected .qlik-table-negative {
+  color: #fff;
+}
+
+.qlik-table-row-selectable.is-excluded {
+  color: var(--mu-text-muted);
+  opacity: 0.55;
+}
+
+/* Generic "nothing to show yet" empty-state text, reused by the bookmarks
+   dropdown, self-service palette, and current-selections popup - NOT tied
+   to any one feature. */
+.qlik-filter-empty {
+  color: var(--mu-text-muted);
+  font-size: 0.8rem;
+  padding: 0.5rem;
+  margin: 0;
+}
+
+@media (max-width: 576px) {
+  .qlik-table {
+    font-size: 0.8rem;
+  }
+
+  .qlik-table thead th,
+  .qlik-table tbody td {
+    padding: 0.5rem 0.65rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Exchange skin
+   -------------------------------------------------------------------------- */
+
+:root {
+  --exchange-ink: #102033;
+  --exchange-muted: #5d6b7c;
+  --exchange-bg: #eef3f7;
+  --exchange-surface: #ffffff;
+  --exchange-line: #dbe4ec;
+  --exchange-blue: #155eef;
+  --exchange-blue-dark: #0d3f9d;
+  --exchange-green: #10a56b;
+  --exchange-glow: rgba(21, 94, 239, 0.12);
+}
+
+body {
+  background: var(--exchange-bg) !important;
+  color: var(--exchange-ink);
+  font-family: "Fira Sans", "Segoe UI", sans-serif !important;
+}
+
+body.mu-dark,
+body.mu-accent-exchange {
+  --exchange-ink: #f4f8fc;
+  --exchange-muted: #9aabba;
+  --exchange-bg: #07111e;
+  --exchange-surface: #0d1a2b;
+  --exchange-line: #23364b;
+  --exchange-blue: #6d9cff;
+  --exchange-blue-dark: #9ab8ff;
+  --exchange-green: #39d99a;
+  --exchange-glow: rgba(109, 156, 255, 0.16);
+}
+
+body,
+.main-content,
+.tab-content,
+.tab-pane {
+  background-color: var(--exchange-bg) !important;
+}
+
+.exchange-brand small {
+  display: block;
+  color: #79a9ff;
+  font-family: "Fira Code", Consolas, monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  margin: 0.25rem 0 0 2.05rem;
+}
+
+.exchange-context {
+  display: block !important;
+  min-width: 13rem;
+  padding: 0.35rem 0;
+}
+
+.exchange-context .tab-title {
+  color: var(--exchange-ink) !important;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
+}
+
+.exchange-eyebrow {
+  color: var(--exchange-muted);
+  display: block;
+  font-family: "Fira Code", Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.exchange-hero {
+  align-items: flex-end;
+  background: linear-gradient(118deg, var(--exchange-surface) 0%, color-mix(in srgb, var(--exchange-surface) 86%, var(--exchange-blue)) 100%);
+  border: 1px solid var(--exchange-line);
+  border-radius: 1.1rem;
+  box-shadow: 0 14px 34px rgba(25, 55, 90, 0.08);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+  min-height: 9.5rem;
+  overflow: hidden;
+  padding: 1.8rem 2rem;
+  position: relative;
+}
+
+.exchange-hero::after {
+  background: linear-gradient(135deg, transparent 30%, var(--exchange-glow));
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.exchange-hero-copy,
+.exchange-hero-status {
+  position: relative;
+  z-index: 1;
+}
+
+.exchange-hero h1 {
+  color: var(--exchange-ink) !important;
+  font-size: clamp(1.65rem, 3vw, 2.65rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  margin: 0.5rem 0;
+  max-width: 34rem;
+}
+
+.exchange-hero p {
+  color: var(--exchange-muted);
+  font-size: 0.94rem;
+  margin: 0;
+  max-width: 36rem;
+}
+
+.exchange-hero-status {
+  align-items: center;
+  background: color-mix(in srgb, var(--exchange-surface) 80%, transparent);
+  border: 1px solid var(--exchange-line);
+  border-radius: 0.8rem;
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.8rem 1rem;
+  white-space: nowrap;
+}
+
+.exchange-hero-status strong,
+.exchange-hero-status small {
+  display: block;
+}
+
+.exchange-hero-status strong {
+  color: var(--exchange-ink);
+  font-size: 0.76rem;
+}
+
+.exchange-hero-status small {
+  color: var(--exchange-muted);
+  font-size: 0.65rem;
+  margin-top: 0.15rem;
+}
+
+.exchange-status-dot {
+  background: var(--exchange-green);
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--exchange-green) 16%, transparent);
+  display: block;
+  height: 0.6rem;
+  width: 0.6rem;
+}
+
+.exchange-trust-strip {
+  align-items: center;
+  color: var(--exchange-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin: 0 0 1.2rem 0.25rem;
+}
+
+.exchange-trust-strip span {
+  align-items: center;
+  display: inline-flex;
+  font-family: "Fira Code", Consolas, monospace;
+  font-size: 0.67rem;
+  font-weight: 600;
+  gap: 0.35rem;
+  text-transform: uppercase;
+}
+
+.exchange-trust-strip .mu-icon {
+  color: var(--exchange-green);
+  font-size: 0.9rem;
+}
+
+.card {
+  background: var(--exchange-surface) !important;
+  border: 1px solid var(--exchange-line) !important;
+  border-radius: 0.9rem !important;
+  box-shadow: 0 8px 22px rgba(25, 55, 90, 0.06) !important;
+}
+
+.card:hover {
+  box-shadow: 0 14px 32px var(--exchange-glow) !important;
+}
+
+.card .card-header,
+.card .card-footer {
+  border-color: var(--exchange-line) !important;
+}
+
+[data-chart-title-for],
+.card-header h6,
+.tab-pane .card-body > h6 {
+  color: var(--exchange-muted) !important;
+  font-family: "Fira Code", Consolas, monospace;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.navbar-main {
+  background: transparent;
+  border-bottom: 1px solid var(--exchange-line);
+  margin-bottom: 0.5rem;
+}
+
+.navbar-search-pill {
+  background: var(--exchange-surface) !important;
+  border: 1px solid var(--exchange-line) !important;
+  box-shadow: none !important;
+}
+
+.navbar-search-pill input {
+  color: var(--exchange-ink) !important;
+}
+
+.navbar-icon-btn,
+.topbar-profile {
+  color: var(--exchange-muted) !important;
+}
+
+.navbar-icon-btn:hover,
+.topbar-profile:hover {
+  color: var(--exchange-blue) !important;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--exchange-blue) !important;
+  outline-offset: 3px;
+}
+
+body.mu-dark .exchange-hero,
+body.mu-accent-exchange .exchange-hero {
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
+}
+
+@media (max-width: 767px) {
+  .exchange-hero {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding: 1.3rem;
+  }
+
+  .exchange-hero-status {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Business glossary cards
+   -------------------------------------------------------------------------- */
+
+.card-flip {
+  perspective: 1000px;
+}
+
+.card-inner {
+  transition: transform var(--mu-transition-base);
+}
+
+/* .card-front's background is theme.css's own hardcoded light grey
+   (#f8f9fa), never flips dark on its own - but its <h5> term title DOES
+   flip light via the global .mu-dark h1..h6 !important rule regardless of
+   what's behind it, so without this the term title becomes near-white
+   text on a near-white card. .card-back already uses --bs-primary +
+   explicit white text, which stays readable in both modes unchanged. */
+.mu-dark .card-front {
+  background-color: var(--mu-surface-alt);
+  border-color: var(--mu-border);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive tightening for small screens
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 576px) {
+  .container-fluid.py-4 {
+    padding-left: var(--mu-space-sm);
+    padding-right: var(--mu-space-sm);
+  }
+}
+
+/* Dashboard's Map/By Country charts (was a fixed .ha-300 = 300px on every
+   device) - a map and a 6-bar chart both need real vertical room to stay
+   readable, and a flat 300px never adapted to the device at all. clamp()
+   ties the height to the viewport instead of a fixed breakpoint list, so
+   it scales smoothly on everything from a phone in portrait up through a
+   large monitor: never shorter than 320px (still readable on a small
+   phone), targets just over half the viewport height in between, and
+   never grows past 600px even on a very tall screen. */
+.dashboard-wide-chart {
+  height: clamp(320px, 55vh, 600px);
+}
+
+/* Analysis 1's interactive picasso.js bar chart - horizontal bars, one row
+   per salesperson, sitting next to the "Sales by Salesperson" table so a
+   row in one lines up with the same person's row in the other. The exact
+   height is set in JS (picassoBarChart.js), sized off the actual row
+   count so there's no dead space below the last bar - this is just the
+   pre-render fallback so the card isn't zero-height for an instant. */
+.analysis1-picasso-chart {
+  min-height: 240px;
+  /* Belt-and-braces alongside the value scale's expand (see
+     picassoBarChart.js) - clips anything picasso ever lays out slightly
+     outside its own box instead of letting it bleed into the card header
+     above. */
+  overflow: hidden;
+  position: relative;
+}
+
+/* Overlay housing each bar's circular photo marker (picassoBarChart.js) -
+   sits on top of picasso's own SVG but never intercepts clicks, so
+   click-to-select on the bars underneath still works. */
+.picasso-photo-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.picasso-photo-marker {
+  position: absolute;
+  /* Same 32px as .qlik-table-avatar - the two sit at the same row height
+     specifically so a glance across from the table to the chart lands on
+     the same size photo, not just the same person. */
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: var(--mu-surface-alt);
+  /* Horizontal bars: the marker sits at the bar's right-hand end, vertically
+     centred on it - only the y-axis needs centring, x is already the bar's
+     own right edge. */
+  transform: translate(0, -50%);
+}
+
+/* --------------------------------------------------------------------------
+   Large/ultra-wide displays (e.g. a billboard-style screen) - with no cap,
+   Bootstrap's fluid containers stretch every row edge-to-edge, so on a very
+   wide viewport the KPI/chart cards end up far wider than tall (Qlik's
+   chart height classes like .ha-200/.ha-250/.ha-450 are fixed pixel
+   values, not proportional), reading as flat/stretched rather than simply
+   "more spacious". Capping content width and centering it keeps card
+   proportions sane, and the taller .ha-* overrides give charts back some
+   of the vertical room the extra width would otherwise exaggerate away.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1800px) {
+  .main-content .container-fluid.py-4,
+  .notebook-card {
+    max-width: 1800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .ha-200 {
+    height: 260px;
+  }
+
+  .ha-250 {
+    height: 320px;
+  }
+
+  .ha-450 {
+    height: 520px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Preloader - shown until the dashboard's Qlik objects have rendered
+   (toggled by qliksense.js). Bike icon "rides" back and forth with a
+   rotating wheel, built entirely from the Material icon font already
+   loaded - no image assets needed.
+   -------------------------------------------------------------------------- */
+
+.mashup-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: var(--mu-surface-alt);
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.mashup-preloader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-bike-track {
+  position: relative;
+  width: 180px;
+  height: 90px;
+  overflow: hidden;
+}
+
+.preloader-bike-track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  height: 2px;
+  background: var(--mu-border);
+}
+
+.preloader-bike-icon {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  font-size: 3rem;
+  color: var(--mu-primary);
+  animation: preloader-ride 1.2s ease-in-out infinite;
+}
+
+/* Combines the left-right ride and a small pedaling bounce in one
+   animation - both need the transform property, and a second animation
+   on the same property would just override this one rather than combine. */
+@keyframes preloader-ride {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(55px, -4px);
+  }
+
+  50% {
+    transform: translate(110px, 0);
+  }
+
+  75% {
+    transform: translate(55px, -4px);
+  }
+
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-bike-icon {
+    animation: none;
+  }
+}
+
+.preloader-text {
+  color: var(--mu-text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Top-bar search autocomplete (assets/js/header/search.js). jQueryui.css
+   only supplies bare structural rules (no theme/skin), so without this the
+   dropdown was an unstyled white box with default browser list markers.
+   Targets the plain <li> our own _renderItem() creates rather than
+   jQuery UI's internal wrapper classes, since that override replaces
+   jQuery UI's default item markup and may not carry those classes.
+   -------------------------------------------------------------------------- */
+
+.ui-autocomplete {
+  z-index: 3000;
+  max-height: 22rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--mu-surface);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-md);
+  box-shadow: var(--mu-shadow-lg);
+  padding: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+/* Neutralize jQueryui.css's own classic theme at the source (not just
+   nested under .ui-autocomplete li below) - it defines a plain blue
+   (#007fff) for .ui-state-hover/-focus/-active generally, which is what
+   was actually showing on hover, not the lavender this app intends. */
+.ui-state-hover,
+.ui-state-focus,
+.ui-state-active {
+  border-color: transparent !important;
+  background: var(--mu-primary-light) !important;
+  color: var(--mu-primary-dark) !important;
+}
+
+.ui-autocomplete li {
+  list-style: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--mu-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast);
+}
+
+/* !important here because jQueryui.css ships a full classic theme (not
+   just structural rules) with its own .ui-state-active { background:
+   #007fff; ... } - a plain blue - which is what made the label/value text
+   unreadable in this state; without !important that vendor rule was
+   winning regardless of this rule's own specificity. */
+.ui-autocomplete li:hover,
+.ui-autocomplete li.ui-state-focus,
+.ui-autocomplete li.ui-state-active {
+  background: var(--mu-primary-light) !important;
+  border-color: transparent !important;
+}
+
+.search-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-value {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--mu-primary);
+  margin-top: 0.1rem;
+}
+
+/* Force both lines' text color explicitly in the hover/active state too -
+   belt and braces alongside the background !important above, so label/
+   value stay readable regardless of what state jQuery UI toggles. */
+.ui-autocomplete li:hover .search-label,
+.ui-autocomplete li.ui-state-focus .search-label,
+.ui-autocomplete li.ui-state-active .search-label {
+  color: var(--mu-primary-dark) !important;
+}
+
+.ui-autocomplete li:hover .search-value,
+.ui-autocomplete li.ui-state-focus .search-value,
+.ui-autocomplete li.ui-state-active .search-value {
+  color: var(--mu-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Analysis 2 - demographic metric cards (Age/Gender/Have Children/
+   Education/Occupation/Home Owner). Labels/icons only for now, per
+   project decision - each .demo-metric-panel is an empty, ready-to-use
+   slot; bind a real Qlik object or hypercube-driven chart into it later
+   the same way every other container in this mashup does.
+   -------------------------------------------------------------------------- */
+
+.demo-metrics-page {
+  background: #fdf6ee;
+  min-height: 100%;
+}
+
+.demo-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.demo-metric-label i {
+  font-size: 1.4rem;
+  color: var(--mu-text);
+}
+
+.demo-metric-label h6 {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.95rem;
+  color: var(--mu-text);
+  margin: 0;
+}
+
+.demo-metric-panel {
+  background: #f6efe6;
+  border: 1px solid #e8ddd0;
+  border-radius: var(--mu-radius-md);
+  width: 100%;
+  height: 280px;
+}
+
+/* Analysis 2's warm cream palette is a deliberate, literal color choice
+   (not built on the --mu-* variables), so it needs its own explicit dark
+   variant rather than inheriting one - left as-is it would float as a
+   bright cream page in the middle of an otherwise dark app. */
+body.mu-dark .demo-metrics-page {
+  background: #1a2035;
+}
+
+body.mu-dark .demo-metric-panel {
+  background: #29304a;
+  border-color: #3b4463;
+}
+
+/* --------------------------------------------------------------------------
+   Chart toolbar (assets/js/charts/chartToolbar.js) - floating expand/
+   collapse + export buttons over any native Qlik chart container. Hidden
+   until hover so it doesn't clutter charts at rest; always shown while
+   that chart is in its fullscreen state.
+   -------------------------------------------------------------------------- */
+
+.chart-toolbar-host {
+  overflow: visible;
+}
+
+.chart-toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 5;
+  display: flex;
+  gap: 0.3rem;
+  opacity: 0;
+  transition: opacity var(--mu-transition-fast);
+  pointer-events: none;
+}
+
+.chart-toolbar-host:hover .chart-toolbar,
+.chart-toolbar-host.chart-toolbar-fullscreen .chart-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chart-toolbar-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--mu-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mu-surface);
+  color: var(--mu-text-muted);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.chart-toolbar-btn .mu-icon {
+  font-size: 1.05rem;
+}
+
+.chart-toolbar-btn:hover {
+  background: var(--mu-primary);
+  border-color: var(--mu-primary);
+  color: #fff;
+}
+
+/* Fullscreen state: the SAME element Qlik rendered into is toggled to
+   cover the viewport, so calling qlik.resize() afterwards (see
+   chartToolbar.js) makes Qlik redraw the chart at this larger size. */
+.chart-toolbar-fullscreen {
+  position: fixed !important;
+  inset: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  /* Above .sidenav's z-index: 9999 (theme.css) - otherwise the sidebar,
+     which is also position: fixed, painted on top of the chart instead of
+     being covered by it. */
+  z-index: 10000;
+  background: #fff;
+  padding: 3rem 1.25rem 1.25rem;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Self Service report builder (Self Service tab, assets/js/selfService.js).
+   Layout picker + a chart library users can drag master visualizations
+   from, onto slots in a chosen canvas layout.
+   -------------------------------------------------------------------------- */
+
+/* Layout picker popup (Bootstrap modal, see index.html) - a grid of
+   layout cards with a small preview of each, similar to Qlik's own
+   "choose a template" picker. Kept out of the canvas itself so there's
+   more room to drag and drop. */
+.self-service-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 1rem;
+}
+
+.self-service-layout-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.75rem;
+  border-radius: var(--mu-radius-md);
+  border: 1px solid var(--mu-border);
+  background: var(--mu-surface);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), border-color var(--mu-transition-fast);
+}
+
+.self-service-layout-card:hover {
+  border-color: var(--mu-primary);
+  background: var(--mu-primary-light);
+}
+
+.self-service-layout-card.active {
+  border-color: var(--mu-primary);
+  background: var(--mu-primary-light);
+}
+
+.self-service-layout-card-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mu-text);
+  text-align: center;
+}
+
+.self-service-layout-preview {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  height: 4.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.self-service-layout-preview span {
+  background: var(--mu-primary-light);
+  border: 1px solid var(--mu-primary);
+  border-radius: 4px;
+}
+
+/* Used only in the "My layouts" gallery preview - a filled-in slot
+   (mostly opaque) vs. an empty one (the plain outline above) so users can
+   tell at a glance which slots actually have a chart before loading. */
+.self-service-layout-preview span.is-filled {
+  background: var(--mu-primary);
+}
+
+.self-service-workspace {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.self-service-palette {
+  flex: 0 0 19rem;
+  background: var(--mu-surface);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-md);
+  padding: 1rem;
+  /* Fills the available viewport height (minus the space already taken by
+     the navbar/tab header above it) instead of a fixed height, so far
+     fewer items need the internal scrollbar to be reached at all. */
+  max-height: calc(100vh - 14rem);
+  overflow-y: auto;
+  position: sticky;
+  top: 1rem;
+}
+
+.self-service-palette-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mu-text-muted);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.self-service-palette-search {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--mu-radius-sm);
+  background: var(--mu-surface-alt);
+}
+
+.self-service-palette-search i {
+  font-size: 1.05rem;
+  color: var(--mu-text-muted);
+}
+
+.self-service-palette-search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--mu-text);
+}
+
+.self-service-palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.self-service-palette-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.self-service-palette-group-label {
+  margin: 0;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--mu-primary);
+}
+
+.self-service-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: var(--mu-radius-sm);
+  background: var(--mu-surface-alt);
+  color: var(--mu-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: grab;
+  border: 1px solid transparent;
+  transition: background-color var(--mu-transition-fast), border-color var(--mu-transition-fast);
+}
+
+/* Fixed-width icon column (rather than each icon's own natural glyph
+   width) so every item's label starts at the same horizontal position,
+   regardless of which icon it uses. */
+.self-service-palette-item i {
+  color: var(--mu-primary);
+  font-size: 1.4rem;
+  width: 1.6rem;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.self-service-palette-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.self-service-palette-item:hover {
+  border-color: var(--mu-primary);
+  background: var(--mu-primary-light);
+}
+
+.self-service-palette-item:active {
+  cursor: grabbing;
+}
+
+/* grid-template-columns/rows are set inline per layout (see
+   buildSelfServiceCanvas() in selfService.js) since there are now many
+   layout shapes, not a fixed handful of CSS classes. Height matches
+   .self-service-palette's max-height 1:1 so the canvas's bottom edge lines
+   up with the chart library panel instead of trailing off short or long -
+   the mismatch users flagged as "gaps". */
+.self-service-canvas {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+  height: calc(100vh - 14rem);
+}
+
+/* Fills its grid cell completely (rows are 1fr, canvas has a fixed
+   height) rather than a fixed min-height, so every card in every layout -
+   including uneven ones like "3 Small + 1 Wide Bottom" - lines up flush
+   with its neighbours instead of leaving ragged gaps. resize: both lets
+   users drag a card larger/smaller (see the ResizeObserver in
+   selfService.js that nudges Qlik to redraw when this changes). */
+.self-service-slot {
+  display: flex;
+  flex-direction: column;
+  background: var(--mu-surface);
+  border: 1px solid var(--mu-border);
+  border-radius: var(--mu-radius-md);
+  height: 100%;
+  min-width: 8rem;
+  min-height: 8rem;
+  overflow: auto;
+  resize: both;
+}
+
+.self-service-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--mu-border);
+}
+
+.self-service-slot-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--mu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.self-service-slot-remove {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.self-service-slot-remove .mu-icon {
+  font-size: 1rem;
+}
+
+.self-service-slot-remove:hover {
+  background: var(--mu-danger);
+  color: #fff;
+}
+
+.self-service-slot-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+}
+
+.self-service-slot-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--mu-text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.self-service-slot-placeholder .mu-icon {
+  font-size: 1.8rem;
+  opacity: 0.6;
+}
+
+.self-service-slot-dragover {
+  border-color: var(--mu-primary);
+  box-shadow: 0 0 0 3px var(--mu-primary-light);
+}
+
+@media (max-width: 991.98px) {
+  .self-service-workspace {
+    flex-direction: column;
+  }
+
+  .self-service-palette {
+    flex: 1 1 auto;
+    width: 100%;
+    max-height: none;
+    position: static;
+  }
+
+  /* Every layout - regardless of its normal column/row shape or spanning
+     cells - collapses to a single stacked column on small screens, and
+     the canvas no longer needs to match the (now full-width, natural-
+     height) palette's height. */
+  .self-service-canvas {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+    height: auto;
+  }
+
+  .self-service-slot {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    height: auto;
+    min-height: 18rem;
+    resize: vertical;
+  }
+}
+
+/* Save button pulses gently while there are unsaved changes on the
+   canvas (see markSelfServiceUnsaved()/markSelfServiceSaved() in
+   selfService.js) - autosave was removed in favor of an explicit save
+   step, so this is the visible cue that there's something to save. */
+.self-service-save-pending {
+  animation: self-service-save-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes self-service-save-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(108, 75, 214, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(108, 75, 214, 0);
+  }
+}
+
+/* "My layouts" gallery (index.html #selfServiceSavedLayoutsModal) - a
+   grid of previously saved layouts, each with a mini preview showing
+   which slots have a chart in them. */
+.self-service-saved-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.self-service-saved-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem;
+  border-radius: var(--mu-radius-md);
+  border: 1px solid var(--mu-border);
+  background: var(--mu-surface);
+}
+
+.self-service-saved-card-name {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--mu-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.self-service-saved-card-meta {
+  margin: 0.1rem 0 0.6rem;
+  font-size: 0.72rem;
+  color: var(--mu-text-muted);
+}
+
+.self-service-saved-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.self-service-saved-card-actions .btn {
+  flex: 1 1 auto;
+}
+
+.self-service-saved-card-delete {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.self-service-saved-card-delete:hover {
+  background: var(--mu-danger);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Floating chat assistant button + slide-in panel (initChatAssistantPanel()
+   in main.js). Above .sidenav's z-index: 9999 (theme.css) and the chart
+   fullscreen z-index: 10000 (see .chart-toolbar-fullscreen above), same
+   reasoning as both - a position: fixed element needs to out-rank every
+   other fixed element it could otherwise render underneath.
+   -------------------------------------------------------------------------- */
+
+.chat-assistant-fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 10010;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mu-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--mu-shadow-lg);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), transform var(--mu-transition-fast);
+}
+
+.chat-assistant-fab:hover {
+  background: var(--mu-primary-dark);
+  transform: translateY(-2px);
+}
+
+.chat-assistant-fab .mu-icon {
+  font-size: 1.6rem;
+}
+
+.chat-assistant-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10009;
+  width: 30rem;
+  max-width: 92vw;
+  background: var(--mu-surface);
+  box-shadow: var(--mu-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--mu-transition-base);
+}
+
+.chat-assistant-panel.show {
+  transform: translateX(0);
+}
+
+.chat-assistant-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--mu-border);
+  flex: 0 0 auto;
+}
+
+.chat-assistant-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.chat-assistant-panel-close,
+.chat-assistant-panel-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.chat-assistant-panel-close:hover {
+  background: var(--mu-danger);
+  color: #fff;
+}
+
+.chat-assistant-panel-theme-toggle:hover {
+  background: var(--mu-primary);
+  color: #fff;
+}
+
+.chat-assistant-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* qlik-embed is a custom element with no default display/sizing of its
+   own - without this it can collapse to zero height instead of filling
+   the panel. */
+.chat-assistant-panel-body qlik-embed {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Mirrors the assistant's OWN light/dark toggle (toggleChatAssistantAppearance()
+   in main.js, tracked via body[data-qlik-theme]) onto the panel chrome
+   around it - the qlik-embed content itself already switches fine, but the
+   header/buttons stayed light regardless, jarring against a dark assistant
+   below them. Deliberately separate from this mashup's own .mu-dark app
+   theme (a different toggle entirely) - hardcoded colors here, not the
+   --mu-* variables, so this panel's look doesn't depend on which mode the
+   rest of the app happens to be in. */
+body[data-qlik-theme="qlik-dark"] .chat-assistant-panel {
+  background: #202124;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-panel-header {
+  border-bottom-color: #3c4043;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-panel-header h6 {
+  color: #e8eaed;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-panel-close,
+body[data-qlik-theme="qlik-dark"] .chat-assistant-panel-theme-toggle {
+  background: #303134;
+  color: #e8eaed;
+}
+
+/* --------------------------------------------------------------------------
+   Chat assistant picker - shown once, the first time the panel is opened
+   (renderChatAssistantPicker(), main.js), letting a user choose between the
+   two embeddable assistants before either one loads.
+   -------------------------------------------------------------------------- */
+
+.chat-assistant-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.chat-assistant-picker-intro {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mu-text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.chat-assistant-picker-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: var(--mu-radius-md);
+  border: 1px solid var(--mu-border);
+  background: var(--mu-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--mu-transition-fast), box-shadow var(--mu-transition-fast), transform var(--mu-transition-fast);
+}
+
+.chat-assistant-picker-card:hover {
+  border-color: var(--mu-primary);
+  box-shadow: var(--mu-shadow-sm);
+  transform: translateY(-1px);
+}
+
+.chat-assistant-picker-icon {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--mu-primary-light);
+  color: var(--mu-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-assistant-picker-icon .mu-icon {
+  font-size: 1.4rem;
+}
+
+.chat-assistant-picker-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.chat-assistant-picker-title {
+  font-weight: 700;
+  color: var(--mu-text);
+  font-size: 0.92rem;
+}
+
+.chat-assistant-picker-desc {
+  font-size: 0.78rem;
+  color: var(--mu-text-muted);
+  line-height: 1.35;
+}
+
+.chat-assistant-picker-arrow {
+  flex: 0 0 auto;
+  color: var(--mu-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Chat assistant switcher - pinned above whichever assistant is currently
+   embedded (renderChatAssistantEmbedElement(), main.js), so a user can jump
+   straight to the other one without going back through the picker.
+   -------------------------------------------------------------------------- */
+
+.chat-assistant-switcher {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--mu-border);
+  flex: 0 0 auto;
+}
+
+.chat-assistant-switcher-btn {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--mu-radius-pill, 999px);
+  border: 1px solid var(--mu-border);
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast), border-color var(--mu-transition-fast);
+}
+
+.chat-assistant-switcher-btn .mu-icon {
+  font-size: 1rem;
+  flex: 0 0 auto;
+}
+
+.chat-assistant-switcher-btn.active {
+  background: var(--mu-primary);
+  border-color: var(--mu-primary);
+  color: #fff;
+  cursor: default;
+}
+
+.chat-assistant-switcher-btn:not(.active):hover {
+  background: var(--mu-primary-light);
+  color: var(--mu-primary-dark);
+  border-color: var(--mu-primary);
+}
+
+.chat-assistant-embed-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Dark variants for the picker/switcher - same hardcoded palette as the
+   panel chrome above (independent of this mashup's own .mu-dark mode). */
+body[data-qlik-theme="qlik-dark"] .chat-assistant-picker-intro {
+  color: #9aa0a6;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-picker-card {
+  background: #202124;
+  border-color: #3c4043;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-picker-title {
+  color: #e8eaed;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-picker-desc {
+  color: #9aa0a6;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-switcher {
+  border-bottom-color: #3c4043;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-switcher-btn {
+  background: #303134;
+  color: #9aa0a6;
+  border-color: #3c4043;
+}
+
+body[data-qlik-theme="qlik-dark"] .chat-assistant-switcher-btn.active {
+  background: var(--mu-primary);
+  border-color: var(--mu-primary);
+  color: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .chat-assistant-panel {
+    width: 100vw;
+    max-width: 100vw;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard NL charts (DASHBOARD-CHART-NL-1..3) - collapsed by default,
+   toggled by toggleDashboardNlChart() (main.js). max-height/overflow, not
+   display: none, so the object stays properly sized/rendered while
+   collapsed - same reasoning as the Rider Filter panel already in this
+   mashup, which also never removes its content from the DOM.
+   -------------------------------------------------------------------------- */
+
+.dashboard-nl-collapse {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height var(--mu-transition-base), opacity var(--mu-transition-base);
+}
+
+.dashboard-nl-collapse.show {
+  max-height: 20rem;
+  opacity: 1;
+}
+
+.dashboard-nl-toggle {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--mu-surface-alt);
+  color: var(--mu-text-muted);
+  cursor: pointer;
+  transition: background-color var(--mu-transition-fast), color var(--mu-transition-fast);
+}
+
+.dashboard-nl-toggle .mu-icon {
+  font-size: 1.1rem;
+}
+
+.dashboard-nl-toggle:hover {
+  background: var(--mu-primary);
+  color: #fff;
+}
+
+/* Navbar Fixed (settings dropdown toggle, navbarFixed() in main.js) adds
+   position-sticky/left-auto/mt-4 etc. (vendor theme.css utility classes)
+   to #navbarBlur - on narrow viewports those margins/insets, designed
+   around the sidebar's fixed desktop width, left it too narrow/oddly
+   inset instead of spanning the available width cleanly. */
+@media (max-width: 767.98px) {
+  #navbarBlur[navbar-scroll="true"] {
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    width: auto !important;
+    margin-left: 0.75rem !important;
+    margin-right: 0.75rem !important;
+  }
+}

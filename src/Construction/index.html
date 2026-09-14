@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description"
+    content="A Mashup developed by DataTechnology from a Qlik Sense SaaS Application. Using HTML, CSS and JavaScript and native Qlik charts">
+  <meta name="keywords" content="Construction, Safety, Incident Management, Qlik Sense">
+  <meta name="author" content="DataTechnology">
+  <!-- iphone icon -->
+  <link rel="apple-touch-icon" sizes="76x76" href="./assets/img/DT tab icon.ico">
+
+  <!-- page icon -->
+  <link rel="icon" type="image/png" href="./assets/img/DT tab icon.ico">
+
+  <!-- page title -->
+  <title>Construction - Safety &amp; Incident Management</title>
+
+
+
+  <!-- CSS Files -->
+  <link id="pagestyle" href="./assets/css/theme.css" rel="stylesheet" />
+  <link id="pagestyle" href="./assets/css/jQueryui.css" rel="stylesheet" />
+  <link href="./assets/css/custom.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="assets/js/icons.js"></script>
+
+  <!-- jquery -->
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+  <!-- boostrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+  <!-- jquery ui -->
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+  <!-- Gravatar -->
+  <script type="text/javascript" src="assets/js/md5.js"></script>
+
+  <!-- Main JS -->
+  <script src="assets/js/main.js" defer></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <script src="assets/js/charts/chartToolbar.js"></script>
+
+  <script src="assets/js/selfService.js"></script>
+
+  <!-- qliksense -->
+  <script type="module" src="assets/js/qliksense.js"></script>
+</head>
+
+<body class="g-sidenav-show  bg-gray-200">
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="icon-dashboard" viewBox="0 0 24 24"><path d="M4 13h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zm0 8h6c.55 0 1-.45 1-1v-4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1zm10 0h6c.55 0 1-.45 1-1v-8c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1zM13 4v4c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1z"/></symbol>
+    <symbol id="icon-table_rows" viewBox="0 0 24 24"><path d="M19 8H5c-1.1 0-2-.9-2-2s.9-2 2-2h14c1.1 0 2 .9 2 2s-.9 2-2 2zm0 2H5c-1.1 0-2 .9-2 2s.9 2 2 2h14c1.1 0 2-.9 2-2s-.9-2-2-2zm0 6H5c-1.1 0-2 .9-2 2s.9 2 2 2h14c1.1 0 2-.9 2-2s-.9-2-2-2z"/></symbol>
+    <symbol id="icon-description" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2v16c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-1-5V3.5L18.5 9H15z"/></symbol>
+    <symbol id="icon-dashboard_customize" viewBox="0 0 24 24"><path d="M4 3h6c.55 0 1 .45 1 1v6c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1zm10 0h6c.55 0 1 .45 1 1v6c0 .55-.45 1-1 1h-6c-.55 0-1-.45-1-1V4c0-.55.45-1 1-1zM4 13h6c.55 0 1 .45 1 1v6c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-6c0-.55.45-1 1-1zm13 0c-.55 0-1 .45-1 1v2h-2c-.55 0-1 .45-1 1s.45 1 1 1h2v2c0 .55.45 1 1 1s1-.45 1-1v-2h2c.55 0 1-.45 1-1s-.45-1-1-1h-2v-2c0-.55-.45-1-1-1z"/></symbol>
+    <symbol id="icon-view_agenda" viewBox="0 0 24 24"><path d="M19 13H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm0-10H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0c.41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14z"/></symbol>
+    <symbol id="icon-filter_alt" viewBox="0 0 24 24"><path d="M4.25 5.61C6.57 8.59 10 13 10 13v5c0 1.1.9 2 2 2s2-.9 2-2v-5s3.43-4.41 5.75-7.39c.51-.66.04-1.61-.8-1.61H5.04c-.83 0-1.3.95-.79 1.61z"/></symbol>
+    <symbol id="icon-fullscreen" viewBox="0 0 24 24"><path d="M6 14c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1H7v-2c0-.55-.45-1-1-1zm0-4c.55 0 1-.45 1-1V7h2c.55 0 1-.45 1-1s-.45-1-1-1H6c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1zm11 7h-2c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1s-1 .45-1 1v2zM14 6c0 .55.45 1 1 1h2v2c0 .55.45 1 1 1s1-.45 1-1V6c0-.55-.45-1-1-1h-3c-.55 0-1 .45-1 1z"/></symbol>
+    <symbol id="icon-fullscreen_exit" viewBox="0 0 24 24"><path d="M6 16h2v2c0 .55.45 1 1 1s1-.45 1-1v-3c0-.55-.45-1-1-1H6c-.55 0-1 .45-1 1s.45 1 1 1zm2-8H6c-.55 0-1 .45-1 1s.45 1 1 1h3c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1s-1 .45-1 1v2zm7 11c.55 0 1-.45 1-1v-2h2c.55 0 1-.45 1-1s-.45-1-1-1h-3c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1zm1-11V6c0-.55-.45-1-1-1s-1 .45-1 1v3c0 .55.45 1 1 1h3c.55 0 1-.45 1-1s-.45-1-1-1h-2z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="M9 16.17L5.53 12.7a.996.996 0 1 0-1.41 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71a.996.996 0 1 0-1.41-1.41L9 16.17z"/></symbol>
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3l7 3V5c0-1.1-.9-2-2-2z"/></symbol>
+    <symbol id="icon-add" viewBox="0 0 24 24"><path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"/></symbol>
+    <symbol id="icon-expand_more" viewBox="0 0 24 24"><path d="M15.88 9.29L12 13.17L8.12 9.29a.996.996 0 1 0-1.41 1.41l4.59 4.59c.39.39 1.02.39 1.41 0l4.59-4.59a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.39-1.42 0z"/></symbol>
+    <symbol id="icon-expand_less" viewBox="0 0 24 24"><path d="M11.29 8.71L6.7 13.3a.996.996 0 1 0 1.41 1.41L12 10.83l3.88 3.88a.996.996 0 1 0 1.41-1.41L12.7 8.71a.996.996 0 0 0-1.41 0z"/></symbol>
+    <symbol id="icon-push_pin" viewBox="0 0 24 24"><path d="M19 12.87c0-.47-.34-.85-.8-.98A2.997 2.997 0 0 1 16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.38-.93 2.54-2.2 2.89c-.46.13-.8.51-.8.98V13c0 .55.45 1 1 1h4.98l.02 7c0 .55.45 1 1 1s1-.45 1-1l-.02-7H18c.55 0 1-.45 1-1v-.13z" fill-rule="evenodd"/></symbol>
+    <symbol id="icon-show_chart" viewBox="0 0 24 24"><path d="M4.2 17.78l5.3-5.3l3.25 3.25c.41.41 1.07.39 1.45-.04l7.17-8.07c.35-.39.33-.99-.04-1.37a1 1 0 0 0-1.45.04l-6.39 7.18l-3.29-3.29a.996.996 0 0 0-1.41 0l-6.09 6.1a.996.996 0 0 0 0 1.41l.09.09c.39.39 1.03.39 1.41 0z"/></symbol>
+    <symbol id="icon-payments" viewBox="0 0 24 24"><path d="M23 8v10c0 1.1-.9 2-2 2H5c-.55 0-1-.45-1-1s.45-1 1-1h16V8c0-.55.45-1 1-1s1 .45 1 1zM4 16c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3h12c1.66 0 3 1.34 3 3v7c0 1.1-.9 2-2 2H4zm3-6c0 1.66 1.34 3 3 3s3-1.34 3-3s-1.34-3-3-3s-3 1.34-3 3z"/></symbol>
+    <symbol id="icon-groups" viewBox="0 0 24 24"><path d="M12 12.75c1.63 0 3.07.39 4.24.9c1.08.48 1.76 1.56 1.76 2.73V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-.61c0-1.18.68-2.26 1.76-2.73c1.17-.52 2.61-.91 4.24-.91zM4 13c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2zm1.13 1.1c-.37-.06-.74-.1-1.13-.1c-.99 0-1.93.21-2.78.58A2.01 2.01 0 0 0 0 16.43V17c0 .55.45 1 1 1h3.5v-1.61c0-.83.23-1.61.63-2.29zM20 13c1.1 0 2-.9 2-2s-.9-2-2-2s-2 .9-2 2s.9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85A6.95 6.95 0 0 0 20 14c-.39 0-.76.04-1.13.1c.4.68.63 1.46.63 2.29V18H23c.55 0 1-.45 1-1v-.57zM12 6c1.66 0 3 1.34 3 3s-1.34 3-3 3s-3-1.34-3-3s1.34-3 3-3z"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z"/></symbol>
+    <symbol id="icon-filter_alt_off" viewBox="0 0 24 24"><path d="M19.79 5.61A.998.998 0 0 0 19 4H6.83l7.97 7.97l4.99-6.36zm.7 14.88L3.51 3.51A.996.996 0 1 0 2.1 4.92L10 13v5c0 1.1.9 2 2 2s2-.9 2-2v-1.17l5.07 5.07c.39.39 1.02.39 1.41 0s.4-1.02.01-1.41z"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 9h10c.55 0 1 .45 1 1s-.45 1-1 1H7c-.55 0-1-.45-1-1s.45-1 1-1zm6 5H7c-.55 0-1-.45-1-1s.45-1 1-1h6c.55 0 1 .45 1 1s-.45 1-1 1zm4-6H7c-.55 0-1-.45-1-1s.45-1 1-1h10c.55 0 1 .45 1 1s-.45 1-1 1z"/></symbol>
+    <symbol id="icon-dark_mode" viewBox="0 0 24 24"><path d="M11.01 3.05C6.51 3.54 3 7.36 3 12a9 9 0 0 0 9 9c4.63 0 8.45-3.5 8.95-8c.09-.79-.78-1.42-1.54-.95A5.403 5.403 0 0 1 11.1 7.5c0-1.06.31-2.06.84-2.89c.45-.67-.04-1.63-.93-1.56z"/></symbol>
+    <symbol id="icon-light_mode" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5s5-2.24 5-5s-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0a.996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0a.996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 0 0 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41a.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41a.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59L7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12L5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 1 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/></symbol>
+    <symbol id="icon-folder_open" viewBox="0 0 24 24"><path d="M20 6h-8l-1.41-1.41C10.21 4.21 9.7 4 9.17 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 12H5c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v8c0 .55-.45 1-1 1z"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M17.59 3.59c-.38-.38-.89-.59-1.42-.59H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7.83c0-.53-.21-1.04-.59-1.41l-2.82-2.83zM12 19c-1.66 0-3-1.34-3-3s1.34-3 3-3s3 1.34 3 3s-1.34 3-3 3zm1-10H7c-1.1 0-2-.9-2-2s.9-2 2-2h6c1.1 0 2 .9 2 2s-.9 2-2 2z"/></symbol>
+    <symbol id="icon-chevron_right" viewBox="0 0 24 24"><path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"/></symbol>
+    <symbol id="icon-bookmark_border" viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3l7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V6c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v12z"/></symbol>
+    <symbol id="icon-delete_outline" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v10zM9 9h6c.55 0 1 .45 1 1v8c0 .55-.45 1-1 1H9c-.55 0-1-.45-1-1v-8c0-.55.45-1 1-1zm6.5-5l-.71-.71c-.18-.18-.44-.29-.7-.29H9.91c-.26 0-.52.11-.7.29L8.5 4H6c-.55 0-1 .45-1 1s.45 1 1 1h12c.55 0 1-.45 1-1s-.45-1-1-1h-2.5z"/></symbol>
+    <symbol id="icon-grid_on" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H5c-.55 0-1-.45-1-1v-3h4v4zm0-6H4v-4h4v4zm0-6H4V5c0-.55.45-1 1-1h3v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm5 12h-3v-4h4v3c0 .55-.45 1-1 1zm1-6h-4v-4h4v4zm0-6h-4V4h3c.55 0 1 .45 1 1v3z"/></symbol>
+    <symbol id="icon-image" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.9 13.98l2.1 2.53l3.1-3.99c.2-.26.6-.26.8.01l3.51 4.68a.5.5 0 0 1-.4.8H6.02c-.42 0-.65-.48-.39-.81L8.12 14c.19-.26.57-.27.78-.02z"/></symbol>
+    <symbol id="icon-picture_as_pdf" viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v1.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2c-.28 0-.5-.22-.5-.5v-5c0-.28.22-.5.5-.5h2c.83 0 1.5.67 1.5 1.5v3zm4-3.75c0 .41-.34.75-.75.75H19v1h.75c.41 0 .75.34.75.75s-.34.75-.75.75H19v1.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V8c0-.55.45-1 1-1h1.25c.41 0 .75.34.75.75zM9 9.5h1v-1H9v1zM3 6c-.55 0-1 .45-1 1v13c0 1.1.9 2 2 2h13c.55 0 1-.45 1-1s-.45-1-1-1H5c-.55 0-1-.45-1-1V7c0-.55-.45-1-1-1zm11 5.5h1v-3h-1v3z"/></symbol>
+    <symbol id="icon-add_chart" viewBox="0 0 24 24"><path d="M16 17c.55 0 1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1z"/><path d="M20 10c-.55 0-1 .45-1 1v8H5V5h8c.55 0 1-.45 1-1s-.45-1-1-1H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-.55-.45-1-1-1z"/><path d="M7 11v5c0 .55.45 1 1 1s1-.45 1-1v-5c0-.55-.45-1-1-1s-1 .45-1 1zm4-3v8c0 .55.45 1 1 1s1-.45 1-1V8c0-.55-.45-1-1-1s-1 .45-1 1zm5-1h1v1c0 .55.45 1 1 1s1-.45 1-1V7h1c.55 0 1-.45 1-1s-.45-1-1-1h-1V4c0-.55-.45-1-1-1s-1 .45-1 1v1h-1c-.55 0-1 .45-1 1s.45 1 1 1z"/></symbol>
+    <symbol id="icon-error_outline" viewBox="0 0 24 24"><path d="M12 7c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1s-1-.45-1-1V8c0-.55.45-1 1-1zm-.01-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8s8 3.58 8 8s-3.58 8-8 8zm1-3h-2v-2h2v2z"/></symbol>
+    <symbol id="icon-widgets" viewBox="0 0 24 24"><path d="M13 14v6c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1h-6c-.55 0-1 .45-1 1zm-9 7h6c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1zM3 4v6c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1zm12.95-1.6L11.7 6.64a.996.996 0 0 0 0 1.41l4.25 4.25c.39.39 1.02.39 1.41 0l4.25-4.25a.996.996 0 0 0 0-1.41L17.37 2.4c-.39-.39-1.03-.39-1.42 0z"/></symbol>
+    <symbol id="icon-bar_chart" viewBox="0 0 24 24"><path d="M6 20c1.1 0 2-.9 2-2v-7c0-1.1-.9-2-2-2s-2 .9-2 2v7c0 1.1.9 2 2 2zm10-5v3c0 1.1.9 2 2 2s2-.9 2-2v-3c0-1.1-.9-2-2-2s-2 .9-2 2zm-4 5c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2s-2 .9-2 2v12c0 1.1.9 2 2 2z"/></symbol>
+    <symbol id="icon-stacked_line_chart" viewBox="0 0 24 24"><path d="M2.79 14.78l-.09-.09a.996.996 0 0 1 0-1.41l6.09-6.1a.996.996 0 0 1 1.41 0l3.29 3.29l6.39-7.18a1 1 0 0 1 1.45-.04c.37.38.39.98.04 1.37l-7.17 8.07a.992.992 0 0 1-1.45.04L9.5 9.48l-5.3 5.3a.996.996 0 0 1-1.41 0zm1.41 6l5.3-5.3l3.25 3.25c.41.41 1.07.39 1.45-.04l7.17-8.07c.35-.39.33-.99-.04-1.37a1 1 0 0 0-1.45.04l-6.39 7.18l-3.29-3.29a.996.996 0 0 0-1.41 0l-6.09 6.1a.996.996 0 0 0 0 1.41l.09.09c.39.39 1.03.39 1.41 0z"/></symbol>
+    <symbol id="icon-pie_chart" viewBox="0 0 24 24"><path d="M11 3.18v17.64c0 .64-.59 1.12-1.21.98C5.32 20.8 2 16.79 2 12s3.32-8.8 7.79-9.8a.998.998 0 0 1 1.21.98zm2.03 0v6.81c0 .55.45 1 1 1h6.79c.64 0 1.12-.59.98-1.22c-.85-3.76-3.8-6.72-7.55-7.57c-.63-.14-1.22.34-1.22.98zm0 10.83v6.81c0 .64.59 1.12 1.22.98c3.76-.85 6.71-3.82 7.56-7.58c.14-.62-.35-1.22-.98-1.22h-6.79c-.56.01-1.01.46-1.01 1.01z"/></symbol>
+    <symbol id="icon-speed" viewBox="0 0 24 24"><path d="M19.46 10a1 1 0 0 0-.07 1a7.55 7.55 0 0 1 .52 1.81a8 8 0 0 1-.69 4.73a1 1 0 0 1-.89.53H5.68a1 1 0 0 1-.89-.54A8 8 0 0 1 13 6.06a7.69 7.69 0 0 1 2.11.56a1 1 0 0 0 1-.07a1 1 0 0 0-.17-1.76A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1a10 10 0 0 0 .55-8.89a1 1 0 0 0-1.75-.11z"/><path d="M10.59 12.59a2 2 0 0 0 2.83 2.83l5.66-8.49z"/></symbol>
+    <symbol id="icon-table_chart" viewBox="0 0 24 24"><path d="M10 10.02h5V21h-5V10.02zM17 21h3c1.1 0 2-.9 2-2v-9h-5v11zm3-18H5c-1.1 0-2 .9-2 2v3h19V5c0-1.1-.9-2-2-2zM3 19c0 1.1.9 2 2 2h3V10H3v9z"/></symbol>
+    <symbol id="icon-scatter_plot" viewBox="0 0 24 24"><circle cx="7" cy="14" r="3"/><circle cx="11" cy="6" r="3"/><circle cx="16.6" cy="17.6" r="3"/></symbol>
+    <symbol id="icon-map" viewBox="0 0 24 24"><path d="M14.65 4.98l-5-1.75c-.42-.15-.88-.15-1.3-.01L4.36 4.56C3.55 4.84 3 5.6 3 6.46v11.85c0 1.41 1.41 2.37 2.72 1.86l2.93-1.14c.22-.09.47-.09.69-.01l5 1.75c.42.15.88.15 1.3.01l3.99-1.34c.81-.27 1.36-1.04 1.36-1.9V5.69c0-1.41-1.41-2.37-2.72-1.86l-2.93 1.14c-.22.08-.46.09-.69.01zM15 18.89l-6-2.11V5.11l6 2.11v11.67z"/></symbol>
+    <symbol id="icon-account_tree" viewBox="0 0 24 24"><path d="M17 11h3a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2v1H9.01V5a2 2 0 0 0-2-2H4c-1.1 0-2 .9-2 2v4a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V8h2v7.01c0 1.65 1.34 2.99 2.99 2.99H15v1a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-3a2 2 0 0 0-2 2v1h-1.01c-.54 0-.99-.45-.99-.99V8h2v1c0 1.1.9 2 2 2z"/></symbol>
+    <symbol id="icon-candlestick_chart" viewBox="0 0 24 24"><path d="M8 4c-.55 0-1 .45-1 1v1H6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h1v1c0 .55.45 1 1 1s1-.45 1-1v-1h1c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1H9V5c0-.55-.45-1-1-1zm10 4h-1V5c0-.55-.45-1-1-1s-1 .45-1 1v3h-1c-.55 0-1 .45-1 1v5c0 .55.45 1 1 1h1v4c0 .55.45 1 1 1s1-.45 1-1v-4h1c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1z"/></symbol>
+    <symbol id="icon-ssid_chart" viewBox="0 0 24 24"><path d="M3 9.03a1 1 0 0 1 .41-.81L7.14 5.5c.4-.29.95-.25 1.3.1l3.78 3.78l7.2-5.23c.65-.48 1.58-.01 1.58.81a1 1 0 0 1-.41.81l-7.9 5.73c-.4.29-.95.25-1.29-.1L7.62 7.62L4.59 9.84c-.66.48-1.59.01-1.59-.81zM21 16c0-.55-.45-1-1-1h-3.35c-.23 0-.45.08-.62.22l-3.9 3.12l-5.53-5.35a.987.987 0 0 0-1.27-.1l-1.9 1.35c-.27.19-.43.5-.43.82c0 .81.92 1.29 1.58.81L5.8 15l5.57 5.39c.36.35.93.38 1.32.06L17 17h3c.55 0 1-.45 1-1z"/></symbol>
+    <symbol id="icon-person" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></symbol>
+    <symbol id="icon-shopping_cart" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></symbol>
+    <symbol id="icon-work" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2v2h-4V4h4z"/></symbol>
+    <symbol id="icon-school" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6L21 9 12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></symbol>
+  </svg>
+  <!-- Preloader -->
+  <div id="mashup-preloader" class="mashup-preloader">
+    <div class="preloader-bike-track">
+      <svg class="mu-icon preloader-bike-icon" aria-hidden="true"><use href="#icon-dashboard"></use></svg>
+    </div>
+    <p class="preloader-text">Loading your dashboard&hellip;</p>
+  </div>
+  <aside
+    class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-gradient-dark"
+    id="sidenav-main">
+    <div class="sidenav-header">
+      <svg class="mu-icon p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
+        aria-hidden="true" id="iconSidenav"><use href="#icon-close"></use></svg>
+      <a class="navbar-brand m-0 exchange-brand">
+        <img src="./assets/img/DT_Logo.png" class="navbar-brand-img h-100" alt="main_logo">
+        <span class="ms-1 font-weight-bold text-white">DataTechnology <small>CONSTRUCTION SAFETY</small></span>
+      </a>
+    </div>
+    <hr class="horizontal light mt-0 mb-2">
+    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+      <ul class="navbar-nav flex-column nav" id="mainTab">
+        <li class="nav-item">
+          <a class="nav-link text-white bg-primary active" data-bs-toggle="tab" href="#incidentanalysis" onclick="setActiveTab(this)">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <svg class="mu-icon opacity-10" aria-hidden="true"><use href="#icon-dashboard"></use></svg>
+            </div>
+            <span class="nav-link-text ms-1">Incident Analysis</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" data-bs-toggle="tab" href="#safetyoverview" onclick="setActiveTab(this)">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <svg class="mu-icon opacity-10" aria-hidden="true"><use href="#icon-speed"></use></svg>
+            </div>
+            <span class="nav-link-text ms-1">Safety Overview</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" data-bs-toggle="tab" href="#compliance" onclick="setActiveTab(this)">
+            <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+              <svg class="mu-icon opacity-10" aria-hidden="true"><use href="#icon-check"></use></svg>
+            </div>
+            <span class="nav-link-text ms-1">Compliance &amp; Inspections</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+      <div class="mx-3">
+        <a class="btn sidenav-footer-btn sidenav-footer-btn-solid w-100" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+      </div>
+    </div>
+  </aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" navbar-scroll="false">
+      <div class="container-fluid py-1 px-3">
+        <nav aria-label="breadcrumb" class="exchange-context">
+          <span class="exchange-eyebrow">CONTROL CENTER</span>
+          <h6 class="font-weight-bolder mb-0 tab-title">Construction - Safety &amp; Incident Management</h6>
+        </nav>
+        <div class="navbar-search-wrap d-none d-md-flex">
+          <div class="navbar-search-inner">
+            <div class="navbar-search-pill">
+              <svg class="mu-icon navbar-search-icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+              <input type="search" id="barSearch" placeholder="Search">
+            </div>
+          </div>
+        </div>
+        <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+          <ul class="navbar-nav justify-content-end ms-auto align-items-center">
+            <li class="nav-item d-flex align-items-center">
+              <a class="navbar-icon-btn" id="clear" data-control="clear" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Clear">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-refresh"></use></svg>
+              </a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+              <a class="navbar-icon-btn" id="forward" data-control="forward" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Forward">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-chevron_right"></use></svg>
+              </a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+              <a class="navbar-icon-btn" id="undo" data-control="back" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Back">
+                <svg class="mu-icon mu-icon-flip" aria-hidden="true"><use href="#icon-chevron_right"></use></svg>
+              </a>
+            </li>
+            <li class="nav-item d-xl-none d-flex align-items-center">
+              <a href="javascript:;" class="navbar-icon-btn" id="iconNavbarSidenav" data-bs-placement="bottom" title="Menu">
+                <div class="sidenav-toggler-inner">
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                  <i class="sidenav-toggler-line"></i>
+                </div>
+              </a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+              <a href="javascript:;" class="navbar-icon-btn" data-bs-placement="bottom" title="Filters">
+                <svg class="mu-icon fixed-plugin-button-nav cursor-pointer" aria-hidden="true"><use href="#icon-filter_alt"></use></svg>
+              </a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+              <a href="javascript:;" class="navbar-icon-btn" id="pageFullscreenToggle" onclick="togglePageFullscreen()" data-bs-placement="bottom" title="Full screen">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-fullscreen"></use></svg>
+              </a>
+            </li>
+            <li class="nav-item dropdown d-flex align-items-center">
+              <a href="#" id="selections-dropdown" class="navbar-icon-btn notification" data-bs-toggle="dropdown" aria-expanded="false" data-bs-placement="bottom" title="Current selections">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+                <span class="badge"></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end selections-menu" aria-labelledby="selections-dropdown">
+                <div class="selections-menu-header d-flex align-items-center justify-content-between">
+                  <h6 class="mb-0">Current Selections</h6>
+                  <a href="javascript:;" data-control="clear" class="selections-clear-all">Clear all</a>
+                </div>
+                <div id="currSelections" class="selections-menu-body">
+                  <p class="qlik-filter-empty mb-0">No selections made</p>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item dropdown d-flex align-items-center">
+              <a href="#" id="bookmarks-dropdown" class="navbar-icon-btn" data-bs-toggle="dropdown" aria-expanded="false" data-bs-placement="bottom" title="Bookmarks">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-bookmark"></use></svg>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end selections-menu" aria-labelledby="bookmarks-dropdown">
+                <div class="selections-menu-header d-flex align-items-center justify-content-between">
+                  <h6 class="mb-0">Bookmarks</h6>
+                  <a href="javascript:;" id="createBookmarkBtn" class="selections-clear-all" data-bs-toggle="modal" data-bs-target="#createBookmarkModal">
+                    <svg class="mu-icon align-middle" aria-hidden="true" style="font-size: 1rem;"><use href="#icon-add"></use></svg> New
+                  </a>
+                </div>
+                <div class="self-service-palette-search mx-3 mb-2">
+                  <svg class="mu-icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+                  <input type="search" id="bookmarksSearch" placeholder="Search bookmarks">
+                </div>
+                <div id="bookmarksList" class="selections-menu-body">
+                  <p class="qlik-filter-empty mb-0">Loading bookmarks&hellip;</p>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item d-flex align-items-center ms-2">
+              <a href="#" id="profile-dropdown" class="topbar-profile" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="profile-pic" id="userProfile"></div>
+                <span class="topbar-profile-name d-none d-lg-inline user-display-name">Account</span>
+                <svg class="mu-icon caret" aria-hidden="true"><use href="#icon-expand_more"></use></svg>
+              </a>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end settings-menu"
+                aria-labelledby="profile-dropdown">
+                <div class="settings-menu-header">
+                  <h6 class="mb-0">Mashup Settings</h6>
+                </div>
+
+                <div class="settings-section">
+                  <p class="settings-section-label">Appearance</p>
+                  <div class="d-flex color-swatches">
+                    <span class="badge filter bg-primary active" data-color="primary" onclick="applyAppearance(this)" title="Primary"></span>
+                    <span class="badge filter bg-dark" data-color="dark" onclick="applyAppearance(this)" title="Dark"></span>
+                    <span class="badge filter bg-exchange" data-color="exchange" onclick="applyAppearance(this)" title="Construction"></span>
+                    <span class="badge filter bg-info" data-color="info" onclick="applyAppearance(this)" title="Info"></span>
+                    <span class="badge filter bg-success" data-color="success" onclick="applyAppearance(this)" title="Success"></span>
+                    <span class="badge filter bg-warning" data-color="warning" onclick="applyAppearance(this)" title="Warning"></span>
+                    <span class="badge filter bg-danger" data-color="danger" onclick="applyAppearance(this)" title="Danger"></span>
+                  </div>
+                  <p class="settings-section-hint" id="appearanceThemeHint">Also switches the Qlik theme to match.</p>
+                </div>
+
+                <div class="settings-section settings-toggles">
+                  <label class="settings-toggle-row">
+                    <svg class="mu-icon" aria-hidden="true"><use href="#icon-push_pin"></use></svg>
+                    <span>Navbar fixed</span>
+                    <div class="form-check form-switch ms-auto my-0">
+                      <input class="form-check-input" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)">
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <div class="modal fade" id="createBookmarkModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title mb-0">New bookmark</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label for="createBookmarkNameInput" class="form-label text-sm text-secondary mb-1">Name</label>
+            <input type="text" class="form-control mb-3" id="createBookmarkNameInput" placeholder="e.g. Q3 EMEA Review" maxlength="60">
+            <label for="createBookmarkDescInput" class="form-label text-sm text-secondary mb-1">Description (optional)</label>
+            <textarea class="form-control" id="createBookmarkDescInput" rows="2" maxlength="200"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="createBookmarkConfirmBtn">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="incidentanalysis">
+        <div class="container-fluid py-4">
+          <section class="exchange-hero" aria-labelledby="exchangeHeroTitle">
+            <div class="exchange-hero-copy">
+              <span class="exchange-eyebrow">CONSTRUCTION OPERATIONS / TRUSTED DATA</span>
+              <h1 id="exchangeHeroTitle">Construction safety, under control.</h1>
+              <p>One governed view of incidents, exposure and operational response across every project.</p>
+            </div>
+            <div class="exchange-hero-status" aria-label="System status">
+              <span class="exchange-status-dot"></span>
+              <span><strong>System healthy</strong><small>Qlik data connection active</small></span>
+            </div>
+          </section>
+          <div class="exchange-trust-strip" aria-label="Platform trust indicators">
+            <span><svg class="mu-icon" aria-hidden="true"><use href="#icon-check"></use></svg> Governed metrics</span>
+            <span><svg class="mu-icon" aria-hidden="true"><use href="#icon-refresh"></use></svg> Live selections</span>
+            <span><svg class="mu-icon" aria-hidden="true"><use href="#icon-speed"></use></svg> Decision-ready</span>
+          </div>
+          <div class="row mb-4">
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-KPI-1">Incident KPI 1</h6>
+                  <div id="INCIDENT-KPI-1" class="qvobject ha-100"></div><span class="kpi-secondary-label">LTI Count (YTD)</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-KPI-2">Incident KPI 2</h6>
+                  <div id="INCIDENT-KPI-2" class="qvobject ha-100"></div><span class="kpi-secondary-label">Programme Pressure Rate</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-KPI-3">Incident KPI 3</h6>
+                  <div id="INCIDENT-KPI-3" class="qvobject ha-100"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-BAR-1">Incident Trend</h6>
+                  <div id="INCIDENT-BAR-1" class="qvobject ha-300"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-BAR-2">Incident by Area</h6>
+                  <div id="INCIDENT-BAR-2" class="qvobject ha-300"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="mb-2" data-chart-title-for="INCIDENT-BAR-3">Incidents by Type</h6>
+                  <div id="INCIDENT-BAR-3" class="qvobject ha-300"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-7 mb-4">
+              <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0" data-chart-title-for="INCIDENT-TABLE">Incident Detail Table</h6>
+                </div>
+                <div class="card-body">
+                  <div id="INCIDENT-TABLE" class="qvobject ha-400"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5 mb-4">
+              <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0" data-chart-title-for="INCIDENT-PIE">Incident Mix</h6>
+                </div>
+                <div class="card-body">
+                  <div id="INCIDENT-PIE" class="qvobject ha-400"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="safetyoverview">
+        <div class="container-fluid py-4">
+          <div class="row mb-4 safety-kpi-row">
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 1</h6><div id="SAFETY-KPI-1" class="qvobject ha-170"></div></div></div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 2</h6><div id="SAFETY-KPI-2" class="qvobject ha-100"></div></div></div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 3</h6><div id="SAFETY-KPI-3" class="qvobject ha-100"></div></div></div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 4</h6><div id="SAFETY-KPI-4" class="qvobject ha-100"></div></div></div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 5</h6><div id="SAFETY-KPI-5" class="qvobject ha-100"></div></div></div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Safety KPI 6</h6><div id="SAFETY-KPI-6" class="qvobject ha-100"></div></div></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body"><h6 class="mb-2">Safety Overview by Area</h6><div id="SAFETY-BAR-1" class="qvobject ha-300"></div></div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card">
+                <div class="card-body"><h6 class="mb-2">Safety Incidents by Type</h6><div id="SAFETY-BAR-2" class="qvobject ha-300"></div></div>
+              </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+              <div class="card">
+                <div class="card-body"><h6 class="mb-2">Safety Performance</h6><div id="SAFETY-BAR-3" class="qvobject ha-300"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12 mb-4">
+              <div class="card">
+                <div class="card-header"><h6 class="mb-0">Safety Trend</h6></div>
+                <div class="card-body"><div id="SAFETY-LINE" class="qvobject ha-400"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="compliance">
+        <div class="container-fluid py-4">
+          <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance KPI 1</h6><div id="COMPLIANCE-KPI-1" class="qvobject ha-150"></div></div></div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance KPI 2</h6><div id="COMPLIANCE-KPI-2" class="qvobject ha-150"></div><span class="kpi-secondary-label">Toolbox Talk Sessions</span></div></div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance KPI 3</h6><div id="COMPLIANCE-KPI-3" class="qvobject ha-150"></div><span class="kpi-secondary-label">CDM Inspections Overdue</span></div></div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance KPI 4</h6><div id="COMPLIANCE-KPI-4" class="qvobject ha-150"></div></div></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance by Area</h6><div id="COMPLIANCE-BAR-1" class="qvobject ha-300"></div></div></div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance by Category</h6><div id="COMPLIANCE-BAR-2" class="qvobject ha-300"></div></div></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-body"><h6 class="mb-2">Compliance Comparison</h6><div id="COMPLIANCE-SCATTER" class="qvobject ha-350"></div></div></div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-header"><h6 class="mb-0">Inspection Trend</h6></div><div class="card-body"><div id="COMPLIANCE-LINE" class="qvobject ha-350"></div></div></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-header"><h6 class="mb-0">Compliance Detail</h6></div><div class="card-body"><div id="COMPLIANCE-TABLE-1" class="qvobject ha-300"></div></div></div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card"><div class="card-header"><h6 class="mb-0">Inspection Results</h6></div><div class="card-body"><div id="COMPLIANCE-TABLE-2" class="qvobject ha-300"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+     
+      <div class="tab-pane fade" id="report">
+          <div class="notebook-card">
+            <div class="notebook-spine"></div>
+            <div class="notebook-sidebar">
+              <div class="notebook-filter-group notebook-filter-group--dimensions">
+                <p class="notebook-filter-label"><svg class="mu-icon" aria-hidden="true"><use href="#icon-search"></use></svg>Dimensions</p>
+                <div id="REPORT-DIMENSIONS-FILTER" class="notebook-filter-body qvobject"></div>
+              </div>
+              <div class="notebook-filter-group notebook-filter-group--measures">
+                <p class="notebook-filter-label"><svg class="mu-icon" aria-hidden="true"><use href="#icon-search"></use></svg>Measures</p>
+                <div id="REPORT-MEASURES-FILTER" class="notebook-filter-body qvobject"></div>
+              </div>
+            </div>
+            <div class="notebook-page">
+              <div class="notebook-page-header">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-description"></use></svg>
+                <div>
+                  <h6 class="mb-0">Report</h6>
+                  <p class="text-sm text-secondary mb-0">Full report table</p>
+                </div>
+              </div>
+              <div id="REPORT-TABLE" class="qvobject notebook-report-table"></div>
+            </div>
+          </div>
+      </div>
+
+      <div class="tab-pane fade" id="selfservice">
+        <div class="container-fluid py-4 self-service-page">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div>
+              <h5 class="mb-0">Self Service Report Builder</h5>
+              <p class="text-sm text-secondary mb-0">Choose a layout, then drag a chart from the library onto a slot.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-primary mb-0" data-bs-toggle="modal" data-bs-target="#selfServiceLayoutModal">
+                <svg class="mu-icon align-middle" aria-hidden="true" style="font-size: 1rem;"><use href="#icon-dashboard"></use></svg>
+                <span id="selfServiceCurrentLayoutLabel">Choose layout</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary mb-0" id="selfServiceSaveBtn">
+                <svg class="mu-icon align-middle" aria-hidden="true" style="font-size: 1rem;"><use href="#icon-save"></use></svg>
+                <span>Save layout</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary mb-0" id="selfServiceClearBtn">Clear canvas</button>
+            </div>
+          </div>
+
+          <div class="self-service-workspace">
+            <aside class="self-service-palette">
+              <p class="self-service-palette-title">Chart Library</p>
+              <div class="self-service-palette-search">
+                <svg class="mu-icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+                <input type="search" id="selfServicePaletteSearch" placeholder="Search visualisations">
+              </div>
+
+              <div id="selfServicePalette" class="self-service-palette-list">
+                <p class="qlik-filter-empty mb-0">Loading master items&hellip;</p>
+              </div>
+            </aside>
+
+
+            <div class="self-service-canvas" id="selfServiceCanvas"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="selfServiceLayoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title mb-0">Choose a layout</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="self-service-layout-grid" id="selfServiceLayoutPicker"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="selfServiceSaveModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title mb-0">Save layout</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <label for="selfServiceSaveNameInput" class="form-label text-sm text-secondary mb-1">Layout name</label>
+              <input type="text" class="form-control" id="selfServiceSaveNameInput" placeholder="e.g. Regional Sales Overview" maxlength="60">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" id="selfServiceSaveConfirmBtn">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="selfServiceSavedLayoutsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title mb-0">My layouts</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="self-service-saved-grid" id="selfServiceSavedLayoutsGallery"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </main>
+
+  <!-- Rider Filter -->
+  <div class="fixed-plugin">
+    <div class="card shadow-lg">
+      <div class="card-header pb-0 pt-3">
+        <div class="float-start">
+          <h5 class="mt-3 mb-0">Filters</h5>
+        </div>
+        <div class="float-end mt-4">
+          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+            <svg class="mu-icon" aria-hidden="true"><use href="#icon-filter_alt_off"></use></svg>
+          </button>
+        </div>
+        <!-- End Toggle Button -->
+      </div>
+      <hr class="horizontal dark my-1">
+      <div class="card-body pt-sm-3 pt-0">
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                aria-expanded="true" aria-controls="collapseOne">
+                Date Filters
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+              data-bs-parent="#accordionExample">
+              <div class="accordion-body ha-75 qvobject" id="GLOBAL-FILTER"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Glossary Modal -->
+  <div class="modal fade" id="glossaryModal" tabindex="-1" aria-labelledby="glossaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-primary">
+          <h5 class="modal-title text-white" id="glossaryModalLabel">Business Glossary</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Glossary Letters -->
+          <div class="d-flex flex-wrap justify-content-center mb-4 glossaryLetters" id="glossaryLetters">
+            
+          </div>
+          <!-- End Glossary Letters -->
+      
+          <!-- Glossary Cards -->
+          <div class="row g-4" id="glossaryContentContainer">
+            
+          
+          </div>
+          <!-- End Glossary Cards -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Business Glossary Modal -->
+
+  <!-- Terms and Conditions Modal -->
+  <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-primary">
+          <h5 class="modal-title text-white" id="termsModalLabel">Terms and Conditions</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p style="text-align:center"><b>END USER TERMS</b></p>
+          <p style="margin-left:0cm;text-indent:0cm">By using the Distribution Platform, you accept and agree to be
+            bound by these End User Terms (<b>"Terms"</b>). If you do not agree to these Terms, you are not entitled to
+            use the Platform and must refrain from doing so.</p>
+          <p><b><span style="border:none windowtext 1.0pt;padding:0cm">PLEASE READ CAREFULLY</span></b></p>
+          <p>This Distribution platform ("<b>Platform</b>") is owned and operated by Data Technology Limited (registered
+            company no. 02154023), with
+            registered office at C/O Sterlings Ltd, Lawford House, Albert Place, London N3
+            1QA ("<b>us"</b>&nbsp;or&nbsp;"<b>we</b>").</p>
+          <p>These Terms form the basis on which you may access and use
+            the Platform. <span style="color:black;background:white">We do not sell the Distribution Platform to you,
+              and we remain the owners of the Platform at all times.</span></p>
+          <p><span style="font-weight:normal">1<span
+                style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span></span><span style="color:black;background:white">Changes to these End User Terms</span></p>
+          <p>We may make changes to these Terms from time to time. If we do this, we will alert you to the updated Terms
+            the next time you access the Platform. You understand and agree that your continued use of the Platform
+            after we have made any such changes constitutes your acceptance of the new Terms.</p>
+          <p><span style="font-weight:normal">2<span
+                style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span></span>Who do these terms apply to?</p>
+
+          <p>2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>These Terms apply to you as an individual once you access (or attempt to
+            access) the Platform.</p>
+
+          <p>2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>In accessing the Platform, you confirm that:</p>
+
+          <p>2.2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>you are at least eighteen (18) years of age; and</p>
+
+          <p>2.2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>the details you provide on creation of your account are correct and
+            complete and that you will update these details if they change for any reason.</p>
+
+          <p><span style="font-weight:normal">3<span
+                style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span></span>Accessing the Platform</p>
+
+          <p>3.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>The Platform may be used for the purpose of providing
+            management services in the UK only.</p>
+
+          <p>3.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You may only access the Platform for so long as your employer or
+            organisation names you as an authorised user ("<b>Authorised User</b>") under its
+            agreement with us. Where you are removed or replaced as an Authorised User, you
+            may no longer access the Platform.</p>
+
+          <p>3.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>We grant to you a world-wide, nonexclusive, non-transferable and
+            non-sublicensable right to use the Platform for the duration of the time you
+            are an Authorised User, provided you access and use the Platform only in
+            accordance with these Terms." </p>
+
+          <p>3.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You must keep your access details safe and secure, and you must not allow anyone else to use your
+            details to access or use the Platform. </p>
+
+
+          <p>3.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>The rights that we grant to you in these Terms are limited to those set
+            out in these Terms and are fully revocable. This means that your access to the
+            Platform is permitted on a temporary basis at our discretion, and we reserve
+            the right to suspend or withdraw your access to the Platform or otherwise
+            withdraw or amend any or all of the services provided through the Platform
+            without notice.</p>
+
+          <p><a name="_Ref23247887">3.6<span
+                style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span>You are responsible for making all arrangements necessary for you to
+              have access to the Platform, including your own network connections,
+              telecommunications links and mobile and desktop hardware and software (<b>Your
+                Systems</b>). Please note that we will have no responsibility for or liability
+              to you </a>for any problems, delays, or any other loss or damage relating to or
+            resulting from Your Systems and their interaction with the Platform and you
+            acknowledge that the Platform may be subject to limitations, delays and other
+            problems inherent in the use of Your Systems.</p>
+
+          <p><a name="_Ref90393306"><span style="font-weight:normal">4<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>Restrictions on your use of the Platform</a></p>
+
+          <p>4.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You may only use the Platform for lawful purposes and in accordance with
+            these Terms. You may not use any part of the Platform:</p>
+
+          <p>4.1.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>in any way that breaches any applicable local, national or international
+            law or regulation;</p>
+
+          <p>4.1.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>in any way that is unlawful or fraudulent, or has any unlawful or
+            fraudulent purpose or effect;</p>
+
+          <p>4.1.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>for the purpose of harming or attempting to harm minors in any way;</p>
+
+          <p>4.1.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>to send, knowingly receive, upload, download, use or re-use any material
+            which does not comply with our Acceptable Use Standards (see Clause 5);</p>
+
+          <p>4.1.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>to transmit, or procure the sending of, any unsolicited or unauthorised
+            advertising or promotional material or any other form of similar solicitation
+            (spam); or</p>
+
+          <p>4.1.6<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>to knowingly transmit any data, send or upload any material that
+            contains viruses, trojan horses, worms, time-bombs, keystroke loggers, spyware,
+            adware or any other harmful programs or similar computer code designed to
+            adversely affect the operation of any computer software or hardware.</p>
+
+          <p>4.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>In using the Platform, you agree that you will not:</p>
+
+          <p>4.2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>copy any underlying software or code (including third party software) except
+            where such copying is incidental to the normal use of the Platform;</p>
+
+          <p>4.2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><span style="color:black;background:white">make alterations to, or
+              modifications or adaptions of, the whole or any part of the Platform (including
+              any third party components), including by combining it with any other software,
+              platforms or programmes; </span></p>
+
+          <p>4.2.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><span style="color:black;background:white">sell, rent, sublicense,
+              publish, display, loan, distribute or lease the Platform or any component of it
+              (including any third party software, product, service or software keys); or</span></p>
+
+          <p>4.2.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><span style="color:black;background:white">disassemble, decompile,
+              reverse-engineer or create derivative works based on the whole or any part of
+              the Platform or its third party components.</span></p>
+
+          <p>4.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You acknowledge that all intellectual property rights in the Platform
+            anywhere in the world belong to us or our licensors, that rights in the use of
+            the Platform are licensed to you, and that you have no rights in, or to, the Platform
+            other than the right to use it in accordance with these Terms.</p>
+
+
+          <p>4.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You acknowledge that you have no right to have access to any underlying
+            software in source code form.</p>
+
+          <p><a name="_Ref23242234"><span style="font-weight:normal">5<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>Acceptable Use Standards</a></p>
+
+          <p>5.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>The acceptable use standards set out in this Clause 5
+            (<b>Acceptable Use Standards</b>) apply to any and all of the materials or
+            content you upload to or otherwise make available on the Platform ("<b>Your
+              Content</b>"), and to your use of the Platform and any interactive services
+            associated with them. You must comply with the spirit and the letter of these
+            Acceptable Use Standards.</p>
+
+          <p>5.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You are entirely responsible for Your Content, what it contains and how
+            you use it. This includes ensuring you have sufficient permission from the
+            content originator (e.g. the person originally responsible for producing the
+            content or from whom you have obtained the content) to upload and use Your
+            Content on the Platform. We have no involvement in your upload or use of Your
+            Content and cannot and will not take any responsibility or be liable to you for
+            Your Content or any reports derived from it, including what they contain and
+            how they are used.</p>
+
+          <p>5.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Whenever you make use of a feature that allows you to upload Your
+            Content to the Platform, you warrant and represent that Your Content complies
+            with the Acceptable Use Standards.</p>
+
+          <p>5.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Because you are entirely responsible for Your Content you agree to bear
+            any loss or damage (and repay a sum to us in respect of that) that we suffer
+            which arises in connection with Your Content failing to, or being alleged to
+            fail to, comply with our Acceptable Use Standards.</p>
+
+          <p>5.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>We operate a "take down" process with respect to all content which we
+            consider does not comply with our Acceptable Use Standards. This means that we
+            can remove any of Your Content at any time from the Platform without any
+            liability to you. </p>
+
+          <p>5.6<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Your Content must comply with applicable law in the UK and in any
+            country from which it is posted.</p>
+
+          <p>5.7<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><b>Your Content must not</b>:</p>
+
+          <p>5.7.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>contain any material which is defamatory of any person;</p>
+
+          <p>5.7.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>contain any material which is obscene, offensive, hateful or
+            inflammatory;</p>
+
+          <p>5.7.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>promote sexually explicit material;</p>
+
+          <p>5.7.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>promote violence;</p>
+
+          <p>5.7.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>promote discrimination based on race, sex, religion, nationality,
+            disability, sexual orientation or age;</p>
+
+          <p>5.7.6<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>infringe any rights of any other person;</p>
+
+          <p>5.7.7<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>be likely to deceive any person;</p>
+
+          <p>5.7.8<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>be made in breach of any legal duty owed to a third party, such as a
+            contractual duty or a duty of confidence;</p>
+
+          <p>5.7.9<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>promote any illegal activity;</p>
+
+          <p>5.7.10<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp; </span>be
+            threatening, abuse or invade another's privacy, or cause upset, annoyance,
+            inconvenience, harassment, embarrassment, alarm or anxiety;</p>
+
+          <p>5.7.11<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp; </span>be
+            used to impersonate any person, or to misrepresent your identity or affiliation
+            with any person;</p>
+
+          <p>5.7.12<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp; </span>give
+            the impression that your content emanates from us, if this is not the case; or</p>
+
+          <p>5.7.13<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp; </span>advocate,
+            promote or assist any unlawful act such as (by way of example only) copyright
+            infringement or computer misuse.</p>
+
+          <p><a name="_Ref23243389"><span style="font-weight:normal">6<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>Our CONTENT</a></p>
+
+          <p>6.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><b>Ownership of Our Content</b></p>
+
+          <p style="margin-left:35.45pt;text-indent:0cm">Other than your rights in your
+            Content or any other third party content, the content on the Platform shall
+            remain owned by us or our licensors ("<b>Our Content</b>"), and you shall have
+            no rights in and to Our Content save as specifically set out in these Terms.</p>
+
+          <p>6.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><b>How you can use Our Content</b></p>
+
+          <p><a name="_Ref23247055">6.2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span>You are entitled to use Our Content as may reasonably be required to
+              enable you to access and use the Platform for your own personal use and we
+              hereby grant you a limited, revocable, non-transferable licence to use of Our
+              Content for these purposes only</a>.</p>
+
+          <p>6.2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>If you or any connected parties wish to use Our Content for any
+            commercial purpose then you or the relevant connected party must first obtain a
+            specific licence from us or our licensors for such purpose. Neither us nor our
+            licensors will be obliged to grant any such licence.</p>
+
+
+          <p>6.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><b>Accuracy of Our Content</b></p>
+
+          <p>6.3.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Although we make reasonable efforts to update Our Content, we make no
+            representations, warranties or guarantees, whether express or implied, that Our
+            Content is accurate, complete or up-to-date and we accept no responsibility for
+            any reliance you may place on the Our Content.</p>
+
+          <p><a name="_Ref23246871"><span style="font-weight:normal">7<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>termination and suspension of your account and access to </a>the
+            platform</p>
+
+          <p>7.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>If, in our opinion, you breach these Terms, and without prejudice to any
+            other rights we may have (e.g. to commence legal proceedings against you), we
+            may:</p>
+
+          <p>7.1.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>issue a warning to you specifying that you have breached these Terms and
+            requiring you to rectify the breach;</p>
+
+          <p>7.1.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>immediately suspend or terminate your right to use the Platform;</p>
+
+          <p>7.1.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>immediately remove (either permanently or temporarily) any of Your
+            Content; or</p>
+
+          <p>7.1.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>disclose any pertinent information to law enforcement or other
+            regulatory authorities as we reasonably feel is necessary.</p>
+
+          <p>7.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Termination of your right to use the Platform shall not affect:</p>
+
+          <p>7.2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>any right or liabilities which have accrued prior to the date of such
+            termination; or</p>
+
+          <p>7.2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>the continuance in force of any provision hereof which expressly or by
+            implication is intended to come into or continue in force after termination or
+            expiry, including Clauses 4, 7, 8 and 9.</p>
+
+          <p>7.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Upon termination of your right to access the <a name="_Ref454184167">Platform
+              your right to access and use the Platform</a> and Your Content shall cease
+            immediately.</p>
+
+          <p><a name="_Ref23253344"><span style="font-weight:normal">8<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>OUR LIABILITY TO YOU</a></p>
+
+          <p>8.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>If we fail to comply with these Terms, we are responsible for any loss
+            or damage you suffer that is a foreseeable result of our breach of these Terms
+            or our negligence. Loss or damage is foreseeable if they were an obvious
+            consequence of our breach or negligence. We do not accept liability for any
+            loss or damage which was not foreseeable. </p>
+
+          <p>8.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>To the extent we may lawfully do so:</p>
+
+          <p>8.2.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>we exclude liability for any implied terms and conditions including
+            those implied by statute, common law or the law of equity; and</p>
+
+          <p>8.2.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>we do not give any warranty, representation or other commitment that the
+            Platform, Your Content, the reports downloaded from the Platform or Our Content
+            will be accurate, uninterrupted, error free, perform in any particular manner,
+            give any particular result or be suitable for any particular purpose.</p>
+
+          <p>8.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>In addition to the above, we are not liable to you for the following:</p>
+
+          <p>8.3.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>any loss or damage you suffer as a result of any change to the Platform
+            or lack of availability of the Platform;</p>
+
+          <p>8.3.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>any problems, delays, or any other loss or damage relating to or
+            resulting from Your System and its interaction with the Platform;</p>
+
+          <p>8.3.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>Your Content, what it contains and whether you have the rights to use it
+            or upload it in connection with your use of the Platform; </p>
+
+          <p>8.3.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>your use of Our Content other than in accordance with these Terms; and</p>
+
+          <p>8.3.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>any loss or damage caused by a distributed denial-of-service attack,
+            viruses, malware, or other technologically harmful material that may infect
+            Your Systems, data or other proprietary material (including Your Content) due
+            to your use of the Platform or to you downloading any reports from the Platform,
+            any other material posted on our Platform, or on any website linked to the
+            Platform.</p>
+
+          <p>8.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>However, nothing in these terms shall affect our liability for death or
+            personal injury caused by our negligence, nor our liability for fraud or
+            serious misrepresentation, nor any other liability which cannot be excluded or
+            limited under applicable law.</p>
+
+          <p><a name="_Ref23253350"><span style="font-weight:normal">9<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>Information about you</a></p>
+
+          <p style="margin-left:0cm;text-indent:0cm">We process information about you
+            (including your personal data) in accordance with our Privacy Notice. You can
+            view a copy of our Privacy Notice <a href="https://datatechnology.ai/privacy-policy/"
+              target="_blank">https://datatechnology.ai/privacy-policy/</a><span style="background:yellow"> </span></p>
+
+          <p><a name="_Ref23250562"><span style="font-weight:normal">10<span
+                  style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </span></span>VIRUSES, HACKING AND OTHER OFFENCES</a></p>
+
+          <p>10.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>We do not guarantee that any element of the Platform will be secure or
+            free from bugs or viruses, and we recommend that you use your own virus
+            protection software.</p>
+
+          <p>10.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>We will not be liable for any loss or damage caused by a distributed
+            denial-of-service attack, viruses, malware, or other technologically harmful
+            material that may infect Your Systems, data or other proprietary material
+            (including Your Content) due to your use of the Platform or your downloading of
+            any reports or other content.</p>
+
+          <p><span style="font-weight:normal">11<span
+                style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </span></span>OTHER IMPORTANT INFORMATION</p>
+
+          <p>11.1<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>If any of the Terms is or becomes invalid or contravenes any law then
+            the remaining provisions shall not be affected.</p>
+
+          <p>11.2<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>We may transfer our rights and obligations under these Terms to another
+            organisation, but this will not affect your rights under these Terms.</p>
+
+          <p>11.3<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>You may only transfer your rights or obligations under these Terms to
+            another person if we agree in writing.</p>
+
+          <p>11.4<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><span style="color:black;background:white">If we fail to insist that you
+              perform any of your obligations under these Terms, or if we do not enforce our
+              rights against you, or if we delay in doing so, that will not mean that we have
+              waived our rights against you and will not mean that you do not have to comply
+              with those obligations. If we do waive a default by you, we will only do so in
+              writing, and that will not mean that we will automatically waive any later
+              default by you.</span></p>
+
+          <p>11.5<span style="font:7.0pt 'sans-serif'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </span><span style="color:black;background:white">These Terms, their subject
+              matter and their formation (and any non-contractual disputes or claims) are
+              governed by English law. We both irrevocably agree to the exclusive jurisdiction
+              of the courts of England and Wales.</span></p>
+        </div>
+
+       
+      </div>
+    </div>
+  </div>
+  <!-- End Terms and Conditions Modal -->
+
+  <button type="button" class="chat-assistant-fab" id="chatAssistantFab" title="Chat assistant">
+    <svg class="mu-icon" aria-hidden="true"><use href="#icon-chat"></use></svg>
+  </button>
+
+  <div class="chat-assistant-panel" id="chatAssistantPanel">
+    <div class="chat-assistant-panel-header">
+      <h6 class="mb-0">Chat Assistant</h6>
+      <div class="chat-assistant-panel-header-actions">
+        <button type="button" class="chat-assistant-panel-theme-toggle" id="chatAssistantPanelThemeToggle" title="Switch to dark mode">
+          <svg class="mu-icon" aria-hidden="true"><use href="#icon-dark_mode"></use></svg>
+        </button>
+        <button type="button" class="chat-assistant-panel-close" id="chatAssistantPanelClose" title="Close">
+          <svg class="mu-icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+        </button>
+      </div>
+    </div>
+    <div class="chat-assistant-panel-body" id="chatAssistantPanelBody">
+    
+    </div>
+  </div>
+
+</body>
+
+</html>
