@@ -536,8 +536,8 @@ function ensureChatAssistantScriptLoaded() {
   script.crossOrigin = 'anonymous';
   script.type = 'application/javascript';
   script.src = 'https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js';
-  script.setAttribute('data-host', 'https://dtworks.eu.qlikcloud.com');
-  script.setAttribute('data-web-integration-id', 'XPEePd2Ykd-yJO6tBms9AoNtc0dgt12o');
+  script.setAttribute('data-host', 'https://ukdemosaas.eu.qlikcloud.com');
+  script.setAttribute('data-web-integration-id', 'qL1hJ7TCYbbSL8lN8GfwIuRtt3XYCiU6');
   script.setAttribute('data-cross-site-cookies', 'true');
   document.head.appendChild(script);
 }
