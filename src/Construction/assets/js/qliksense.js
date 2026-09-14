@@ -149,7 +149,7 @@ window.onload = function () {
                 // themes (paired with an accent color) from the profile
                 // settings dropdown (Mashup Settings > Appearance), which
                 // calls applyAppearance() in main.js.
-                qlik.theme.apply('DTMashupPrimary');
+                qlik.theme.apply('Altura infrastructure Theme');
 
                 //Dashboard
                 BuildDashboardKPI(app);
