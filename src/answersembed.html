@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qlik Answers</title>
+
+  <!--
+    qlik-embed connection script.
+    Replace the three placeholders below with your own values:
+      data-host          your Qlik Cloud tenant, e.g. https://mytenant.eu.qlikcloud.com
+      data-client-id      the Client ID of an OAuth2 SPA client on that tenant
+      data-redirect-uri    the full URL to oauth-callback.html once this is hosted
+                            (must exactly match a Redirect URI on the OAuth client)
+
+    Creating the OAuth client: https://qlik.dev/authenticate/oauth/create/create-oauth-client-spa/
+    When creating it, add this page's origin (e.g. https://yourdomain.com) to
+    "Allowed Origins" and the oauth-callback.html URL to "Redirect URIs".
+  -->
+  <script
+    crossorigin="anonymous"
+    type="application/javascript"
+    src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components@1/dist/index.min.js"
+    data-host="https://https://centerparcssandbox.uk.qlikcloud.com"
+    data-auth-type="Oauth2"
+    data-client-id="01a0f1e8bdaca65172b82ec7ae228edd"
+    data-redirect-uri="https://witty-field-0c6615903.3.azurestaticapps.net/oauth-callback.html"
+    data-access-token-storage="session"
+    data-auto-redirect="true"
+  ></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      background-color: #f5f5f5;
+    }
+    header {
+      padding: 16px 24px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+    main {
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+      height: calc(100% - 64px);
+    }
+    qlik-embed {
+      width: 100%;
+      max-width: 900px;
+      height: 100%;
+      min-height: 500px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      background-color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Qlik Answers</h1>
+  </header>
+
+  <main>
+    <!--
+      Replace assistant-id with your Assistant's ID.
+      Find it in the URL when the assistant is open in Qlik Cloud, e.g.
+      https://tenant.region.qlikcloud.com/assistant/<ASSISTANT_ID>/summary
+
+      ui="ai/assistant" is the standard (legacy) Qlik Answers assistant.
+      Use ui="ai/agentic-assistant" instead if your tenant is on the newer
+      agentic Qlik Answers assistant.
+    -->
+    <qlik-embed
+      ui="ai/assistant"
+      assistant-id="ea84afef-d5aa-4c2e-a2c4-c2071fff7ef5"
+      appearance="qlik-light"
+    ></qlik-embed>
+  </main>
+</body>
+</html>
