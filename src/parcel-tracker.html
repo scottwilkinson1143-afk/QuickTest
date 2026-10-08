@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parcel Tracker</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#667085; --line:#e4e7ec; --accent:#009845; --err:#b42318; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width: 1200px; margin: 40px auto; padding: 0 16px; }
+    h1 { font-size: 1.5rem; margin: 0 0 16px; }
+    form { display:flex; gap:8px; margin-bottom: 12px; }
+    input { flex:1; padding:10px 12px; font-size:1rem; border:1px solid var(--line); border-radius:6px; }
+    button { padding:10px 18px; font-size:1rem; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    #status { min-height:1.4em; color:var(--muted); margin: 0 0 12px; }
+    #status.error { color: var(--err); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:auto; max-height: 75vh; }
+    table { border-collapse: collapse; width:100%; font-size:.875rem; }
+    th, td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); white-space:nowrap; }
+    th { background:#fafbfc; position:sticky; top:0; }
+    tr.newParcel td { border-top: 2px solid var(--line); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Parcel tracking</h1>
+  <form id="search">
+    <input id="trackingId" placeholder="Tracking number (or the start of one)" autocomplete="off" required />
+    <button id="go" type="submit">Track</button>
+  </form>
+  <p id="status"></p>
+  <div id="result"></div>
+</main>
+
+<script type="module">
+  import { auth, qix } from "https://cdn.jsdelivr.net/npm/@qlik/api@1/+esm";
+
+  // ===========================================================================
+  // CONFIG — edit these
+  // ===========================================================================
+  const CONFIG = {
+    host: "ukdemosaas.eu.qlikcloud.com",
+    clientId: "a6c0a95b5e3ad86f95aa94a9de35c610",
+    redirectUri: location.origin + location.pathname,
+
+    // Only letters/digits, min 3 chars. No % or _ (MySQL LIKE wildcards), no quotes.
+    // An empty or very short prefix would pull back a huge slice of the table.
+    idPattern: /^[A-Za-z0-9]{3,40}$/,
+
+    // Max rows shown in the table
+    maxRows: 5000,
+
+    // Load script. {{FILTER}} is replaced with the validated search text.
+    script: `
+LET vFilter = '{{FILTER}}';
+
+LIB CONNECT TO 'App Build (Basic):MySQL_Enterprise_Edition_swimysql.westeurope.cloudapp.azure.com';
+
+[parcels]:
+LOAD parcel_id,
+     tracking_number,
+     mailmark_barcode,
+     origin_postcode,
+     destination_postcode,
+     service_class,
+     created_at;
+SELECT \`parcel_id\`, \`tracking_number\`, \`mailmark_barcode\`, \`origin_postcode\`,
+       \`destination_postcode\`, \`service_class\`, \`created_at\`
+FROM \`parcel_tracking\`.parcels
+WHERE \`tracking_number\` LIKE '$(vFilter)%';
+
+[scans]:
+LOAD scan_id,
+     parcel_id,
+     sequence_number,
+     scan_timestamp,
+     scanner_id,
+     depot_id,
+     event_type
+WHERE Exists(parcel_id);
+SELECT \`scan_id\`, \`parcel_id\`, \`sequence_number\`, \`scan_timestamp\`,
+       \`scanner_id\`, \`depot_id\`, \`event_type\`
+FROM \`parcel_tracking\`.scans
+WHERE \`tracking_number\` LIKE '$(vFilter)%';
+
+[scanners]:
+LOAD scanner_id,
+     scanner_type,
+     display_name
+WHERE Exists(scanner_id);
+SELECT \`scanner_id\`, \`scanner_type\`, \`display_name\`
+FROM \`parcel_tracking\`.scanners;
+`,
+
+    // Columns in the results table (each one is a field from the script).
+    // hidden: used for grouping and uniqueness but not displayed.
+    // sort: "num" or "text"; sortOrder sets which column sorts first.
+    columns: [
+      { field: "tracking_number",      label: "Tracking no.",  sort: "text", sortOrder: 1 },
+      { field: "service_class",        label: "Service" },
+      { field: "origin_postcode",      label: "From" },
+      { field: "destination_postcode", label: "To" },
+      { field: "sequence_number",      label: "#",             sort: "num",  sortOrder: 2 },
+      { field: "scan_timestamp",       label: "Scanned at" },
+      { field: "event_type",           label: "Event" },
+      { field: "display_name",         label: "Scanner" },
+      { field: "scanner_type",         label: "Scanner type" },
+      { field: "depot_id",             label: "Depot" },
+      { field: "scan_id",              hidden: true },
+    ],
+  };
+
+  // ===========================================================================
+  // Auth: OAuth2 (PKCE) full-page redirect, handled by @qlik/api
+  // ===========================================================================
+  auth.setDefaultHostConfig({
+    host: CONFIG.host,
+    authType: "oauth2",
+    clientId: CONFIG.clientId,
+    redirectUri: CONFIG.redirectUri,
+    accessTokenStorage: "session",
+    autoRedirect: true,
+  });
+
+  const $ = (id) => document.getElementById(id);
+  const setStatus = (msg, isError = false) => {
+    $("status").textContent = msg;
+    $("status").classList.toggle("error", isError);
+  };
+
+  let currentSession = null;
+
+  // ===========================================================================
+  // Main flow
+  // ===========================================================================
+  async function track(raw) {
+    const filter = raw.trim();
+    if (!CONFIG.idPattern.test(filter)) {
+      setStatus("Enter at least 3 letters or digits (no spaces or symbols).", true);
+      return;
+    }
+    try { sessionStorage.setItem("pendingTrackingId", filter); } catch {}
+
+    $("go").disabled = true;
+    $("result").replaceChildren();
+
+    try {
+      if (currentSession) { try { await currentSession.close(); } catch {} }
+
+      setStatus("Connecting to Qlik…");
+      currentSession = qix.openAppSession({ appId: `SessionApp_${crypto.randomUUID()}` });
+      const app = await currentSession.getDoc();
+
+      setStatus("Loading parcel data…");
+      await app.setScript(CONFIG.script.replace("{{FILTER}}", filter));
+      const ok = await app.doReload(0, false, false);
+      if (!ok) throw new Error("Reload failed. Check the connection name and that you can access its space.");
+
+      const parcelCount = Number(await app.evaluate("Count(DISTINCT parcel_id)")) || 0;
+      if (!parcelCount) { setStatus(`No parcels found starting with "${filter}".`); return; }
+
+      setStatus("Building table…");
+      const { headers, rows, total } = await fetchTable(app);
+      renderTable(headers, rows);
+
+      const scanCount = Number(await app.evaluate("Count(DISTINCT scan_id)")) || 0;
+      let msg = `${parcelCount} parcel${parcelCount === 1 ? "" : "s"}, ${scanCount} scan${scanCount === 1 ? "" : "s"} matching "${filter}".`;
+      if (total > rows.length) msg += ` Showing the first ${rows.length} of ${total} rows. Try a longer tracking number.`;
+      setStatus(msg);
+      try { sessionStorage.removeItem("pendingTrackingId"); } catch {}
+    } catch (err) {
+      console.error(err);
+      setStatus(err?.message || "Something went wrong talking to Qlik.", true);
+    } finally {
+      $("go").disabled = false;
+    }
+  }
+
+  // Build a hypercube over the associated tables and page through it
+  async function fetchTable(app) {
+    const cols = CONFIG.columns;
+    const sortCols = cols
+      .map((c, i) => ({ i, o: c.sortOrder ?? 99 }))
+      .sort((a, b) => a.o - b.o)
+      .map((x) => x.i);
+
+    const cube = await app.createSessionObject({
+      qInfo: { qType: "table" },
+      qHyperCubeDef: {
+        qDimensions: cols.map((c) => ({
+          qDef: {
+            qFieldDefs: [c.field],
+            qSortCriterias: [c.sort === "num" ? { qSortByNumeric: 1 } : { qSortByAscii: 1 }],
+          },
+          qNullSuppression: false,   // keep parcels that have no scans yet
+        })),
+        qInterColumnSortOrder: sortCols,
+        qSuppressMissing: false,
+        qInitialDataFetch: [],
+      },
+    });
+
+    const layout = await cube.getLayout();
+    const total = layout.qHyperCube.qSize.qcy;
+    const width = cols.length;
+    const pageHeight = Math.floor(10000 / width);
+    const wanted = Math.min(total, CONFIG.maxRows);
+
+    const rows = [];
+    for (let top = 0; top < wanted; top += pageHeight) {
+      const [page] = await cube.getHyperCubeData("/qHyperCubeDef", [
+        { qTop: top, qLeft: 0, qWidth: width, qHeight: Math.min(pageHeight, wanted - top) },
+      ]);
+      rows.push(...page.qMatrix);
+    }
+
+    // Drop hidden columns
+    const visible = cols.map((c, i) => (c.hidden ? -1 : i)).filter((i) => i >= 0);
+    return {
+      headers: visible.map((i) => cols[i].label || cols[i].field),
+      rows: rows.map((r) => visible.map((i) => r[i])),
+      total,
+    };
+  }
+
+  function renderTable(headers, matrix) {
+    const table = document.createElement("table");
+    const head = table.createTHead().insertRow();
+    headers.forEach((h) => { const th = document.createElement("th"); th.textContent = h; head.appendChild(th); });
+
+    const tbody = table.createTBody();
+    let lastParcel = null;
+    matrix.forEach((row) => {
+      const tr = tbody.insertRow();
+      const parcel = row[0]?.qText;
+      if (lastParcel !== null && parcel !== lastParcel) tr.className = "newParcel";
+      lastParcel = parcel;
+      row.forEach((cell) => { tr.insertCell().textContent = cell.qIsNull ? "" : cell.qText; });
+    });
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.appendChild(table);
+    $("result").replaceChildren(card);
+  }
+
+  // ===========================================================================
+  // Wire up: form submit, ?id= URL parameter, or a search pending after login
+  // ===========================================================================
+  $("search").addEventListener("submit", (e) => { e.preventDefault(); track($("trackingId").value); });
+
+  const params = new URLSearchParams(location.search);
+  let startId = params.get("id");
+  try { startId = startId || sessionStorage.getItem("pendingTrackingId"); } catch {}
+  if (startId) { $("trackingId").value = startId; track(startId); }
+
+  window.addEventListener("beforeunload", () => { currentSession?.close?.(); });
+</script>
+</body>
+</html>
