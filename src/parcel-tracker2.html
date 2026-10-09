@@ -261,9 +261,16 @@ RESIDENT [parcels];
       visuals.push(await nebbie.render({
         element: $(k.el),
         type: "kpi",
+        // Deep-merge with the KPI's defaults rather than replacing them
+        extendProperties: true,
         properties: {
           showTitles: false,
-          qHyperCubeDef: { qMeasures: [{ qDef: { qDef: k.expr, qLabel: k.label } }] },
+          showMeasureTitle: true,
+          qHyperCubeDef: {
+            qMeasures: [{ qDef: { qDef: k.expr, qLabel: k.label } }],
+            // The KPI reads its value from this initial data page, so it must be present
+            qInitialDataFetch: [{ qTop: 0, qLeft: 0, qWidth: 2, qHeight: 1 }],
+          },
         },
       }));
     }
