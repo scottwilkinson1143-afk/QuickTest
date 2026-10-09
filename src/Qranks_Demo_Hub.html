@@ -1,0 +1,725 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Qranks Demo Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: Qlik.com feel — floating rounded nav card, white space, deep-blue headlines, green pill actions.
+   Home = scene-setter + portfolio coverage + chapter cards; each chapter = 4 selectable stages. */
+:root{
+  --bg:#ffffff; --surface:#f3f6f7; --surface-2:#e9eef0; --card:#ffffff; --line:#dfe5e8;
+  --head:#19426c; --body:#54565a; --muted:#6f7479;
+  --green:#009845; --btn:#16833f; --btn-hover:#0f6d33; --on-btn:#ffffff;
+  --ocean:#006580; --sky:#10cfc9; --soft-green:#e6f5ec; --soft-blue:#e8eef5;
+  --shadow:0 10px 30px rgba(25,66,108,.10);
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1724; --surface:#102234; --surface-2:#163049; --card:#122a40; --line:#21405c;
+  --head:#e4eef8; --body:#b8c4ce; --muted:#8fa0ad;
+  --green:#3cc277; --btn:#1d9a4c; --btn-hover:#23ad57; --on-btn:#ffffff;
+  --ocean:#5bbdd6; --sky:#3fded8; --soft-green:#123a2a; --soft-blue:#16304a;
+  --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1724; --surface:#102234; --surface-2:#163049; --card:#122a40; --line:#21405c;
+  --head:#e4eef8; --body:#b8c4ce; --muted:#8fa0ad;
+  --green:#3cc277; --btn:#1d9a4c; --btn-hover:#23ad57; --on-btn:#ffffff;
+  --ocean:#5bbdd6; --sky:#3fded8; --soft-green:#123a2a; --soft-blue:#16304a;
+  --shadow:0 10px 30px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--body);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:24px}
+@media (max-width:600px){.wrap{padding-inline:16px}}
+h1,h2,h3,h4{color:var(--head);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3vw,2.25rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:600}
+p{margin:0}
+a{color:var(--ocean)}
+.eyebrow{font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ocean)}
+.lead{font-size:1.2rem;font-weight:300;max-width:62ch}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:6px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 1rem/1 var(--font);padding:14px 26px;border-radius:999px;border:2px solid var(--btn);cursor:pointer;text-decoration:none;transition:background .15s,color .15s}
+.btn-primary{background:var(--btn);color:var(--on-btn)}
+.btn-primary:hover{background:var(--btn-hover);border-color:var(--btn-hover)}
+.btn-ghost{background:transparent;color:var(--green)}
+.btn-ghost:hover{background:var(--soft-green)}
+.btn[aria-disabled="true"]{background:var(--surface-2);border-color:var(--line);color:var(--muted);cursor:not-allowed}
+.btn-sm{padding:9px 18px;font-size:.9rem}
+
+/* Header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding-block:14px}
+.navcard{background:var(--card);border-radius:28px;box-shadow:var(--shadow);border:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:12px 16px 12px 24px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--head);white-space:nowrap;padding-right:18px;border-right:1px solid var(--line)}
+.brand b{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+.brand span{font-size:.82rem;color:var(--muted);font-weight:500}
+.chapnav{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.chapnav::-webkit-scrollbar{display:none}
+.chapnav a{flex:none;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;padding:8px 12px;border-radius:999px;white-space:nowrap}
+.chapnav a:hover{color:var(--head);background:var(--surface)}
+.chapnav a[aria-current="page"]{color:var(--green);background:var(--soft-green)}
+.chapnav a .n{font-variant-numeric:tabular-nums;font-weight:700;margin-right:6px}
+@media (max-width:760px){.brand span{display:none}.navcard{gap:12px;padding-left:16px}.brand{padding-right:12px}}
+
+main{padding-block:16px 80px}
+section{padding-block:56px}
+
+/* Home hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding-block:48px 40px}
+.hero h1 .g{color:var(--green);display:block}
+.hero .lead{margin-top:22px}
+.actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.factcard{background:linear-gradient(160deg,var(--head) 0%,var(--ocean) 100%);border-radius:24px;padding:28px;color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}
+:root[data-theme="dark"] .factcard{background:linear-gradient(160deg,#173a5e 0%,#0b5a6f 100%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .factcard{background:linear-gradient(160deg,#173a5e 0%,#0b5a6f 100%)}}
+.factcard h3{color:#fff;font-size:1rem;font-weight:500;opacity:.85}
+.factcard .co{font-size:1.6rem;font-weight:700;margin-top:4px;color:#fff}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;color:#fff;line-height:1.1}
+.stat span{font-size:.82rem;color:rgba(255,255,255,.82)}
+.facts{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:6px;font-size:.9rem;color:rgba(255,255,255,.88)}
+.facts li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.15);padding-top:6px}
+.facts li b{font-weight:600;color:#fff;text-align:right}
+@media (max-width:900px){.hero{grid-template-columns:1fr;gap:32px}}
+
+.sechead{display:grid;gap:12px;margin-bottom:32px;max-width:760px}
+.sechead.center{margin-inline:auto;text-align:center;justify-items:center}
+
+/* How to use */
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.howto div{background:var(--surface);border-radius:20px;padding:24px}
+.howto h3{margin-bottom:8px}
+@media (max-width:800px){.howto{grid-template-columns:1fr}}
+
+/* Portfolio coverage */
+.picker{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;justify-content:center}
+.picker button{font:500 .9rem var(--font);color:var(--body);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
+.picker button:hover{border-color:var(--green)}
+.picker button[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--on-btn)}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pillar{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}
+.pillar h3{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ocean);font-weight:600}
+.pillar p.tag{font-size:.9rem;color:var(--muted);margin:4px 0 16px}
+.caps{display:flex;flex-wrap:wrap;gap:8px}
+.cap{font-size:.86rem;padding:7px 12px;border-radius:10px;background:var(--surface);color:var(--muted);border:1px solid transparent;transition:all .2s}
+.cap.on{background:var(--soft-green);color:var(--head);border-color:var(--green);font-weight:500}
+.cap .ct{font-variant-numeric:tabular-nums;font-size:.75rem;margin-left:6px;color:var(--green);font-weight:700}
+.covnote{text-align:center;margin-top:18px;font-size:.92rem;color:var(--muted)}
+@media (max-width:900px){.pillars{grid-template-columns:1fr}}
+
+/* Story cards */
+.stories{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.story{display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;text-decoration:none;color:inherit;transition:box-shadow .2s,transform .2s,border-color .2s}
+.story:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--green)}
+.story .num{font-size:.8rem;font-weight:700;letter-spacing:.12em;color:var(--green)}
+.story h3{font-size:1.3rem;font-weight:700}
+.story .pos{font-size:.9rem}
+.story .prods{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px}
+.chip{font-size:.76rem;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--soft-blue);color:var(--head);white-space:nowrap}
+.story .go{font-weight:600;color:var(--green);font-size:.92rem}
+@media (max-width:980px){.stories{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.stories{grid-template-columns:1fr}}
+
+/* Environment */
+.env{background:var(--surface);border-radius:24px;padding:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.env div{min-width:0}
+.env dt{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.env dd{margin:6px 0 0;color:var(--head);font-weight:500;overflow-wrap:anywhere}
+@media (max-width:900px){.env{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.env{grid-template-columns:1fr}}
+
+/* Chapter */
+.crumb{font-size:.9rem;color:var(--muted);display:flex;gap:8px;align-items:center;padding-top:20px}
+.crumb a{color:var(--muted);text-decoration:none}
+.crumb a:hover{color:var(--green)}
+.chead{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end;padding-block:24px 28px;border-bottom:1px solid var(--line)}
+.chead h1{font-size:clamp(2rem,4.4vw,3.1rem);margin-top:10px}
+.chead .sub{margin-top:14px;font-size:1.1rem;font-weight:300;max-width:64ch}
+.chead .prods{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.launch{display:grid;gap:8px;justify-items:end;text-align:right}
+.launch small{font-size:.8rem;color:var(--muted)}
+@media (max-width:800px){.chead{grid-template-columns:1fr}.launch{justify-items:start;text-align:left}}
+
+.stages{display:flex;gap:6px;margin-block:28px 32px;overflow-x:auto;padding-bottom:4px}
+.stages button{flex:1 0 auto;display:flex;align-items:center;gap:10px;font:500 .95rem var(--font);color:var(--muted);background:var(--surface);border:1.5px solid transparent;border-radius:16px;padding:12px 18px;cursor:pointer;text-align:left;white-space:nowrap}
+.stages button .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--card);color:var(--muted);font-weight:700;font-size:.8rem;font-variant-numeric:tabular-nums}
+.stages button:hover{color:var(--head)}
+.stages button[aria-selected="true"]{background:var(--card);border-color:var(--green);color:var(--head);box-shadow:var(--shadow)}
+.stages button[aria-selected="true"] .n{background:var(--btn);color:var(--on-btn)}
+
+.panel{animation:fade .25s ease}
+@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}.story,.cap{transition:none}}
+
+/* Problem */
+.scenario{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:300;line-height:1.5;color:var(--head);max-width:58ch;position:relative;padding-left:44px}
+.scenario::before{content:"\201C";position:absolute;left:0;top:-14px;font-size:4.2rem;font-weight:700;color:var(--green);line-height:1}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px}
+.tile{background:var(--surface);border-radius:18px;padding:20px}
+.tile b{display:block;font-size:2rem;font-weight:700;color:var(--head);font-variant-numeric:tabular-nums;line-height:1.1}
+.tile span{font-size:.9rem;display:block;margin-top:6px}
+@media (max-width:860px){.tiles{grid-template-columns:1fr 1fr}}
+.ask{margin-top:28px;display:flex;gap:16px;align-items:flex-start;background:var(--soft-blue);border-radius:18px;padding:18px 22px;max-width:760px}
+.ask .lbl{flex:none;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ocean);padding-top:4px}
+.ask p{color:var(--head);font-weight:500}
+
+/* Capability map */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+.node{flex:1 1 180px;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.node .area{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ocean)}
+.node h4{font-size:1.05rem;margin-top:6px}
+.node p{font-size:.92rem;margin-top:8px}
+.arrow{flex:none;display:grid;place-items:center;color:var(--green);font-size:1.4rem;font-weight:700}
+@media (max-width:760px){.arrow{display:none}}
+.journey{margin-top:36px}
+.journey h3{margin-bottom:14px}
+.journey ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:j}
+.journey li{counter-increment:j;display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start}
+.journey li::before{content:counter(j);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--soft-green);color:var(--green);font-weight:700;font-size:.85rem}
+.journey li b{color:var(--head);font-weight:600}
+
+/* Walkthrough */
+.walk{display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+.steps{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.steps button{width:100%;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center;text-align:left;font:500 .95rem/1.35 var(--font);color:var(--body);background:var(--surface);border:1.5px solid transparent;border-radius:14px;padding:12px 14px;cursor:pointer}
+.steps button .n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--card);font-weight:700;font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.steps button:hover{color:var(--head)}
+.steps button[aria-current="step"]{background:var(--card);border-color:var(--green);color:var(--head);box-shadow:var(--shadow)}
+.steps button[aria-current="step"] .n{background:var(--btn);color:var(--on-btn)}
+.stepview{min-width:0;display:grid;gap:20px}
+.stepview .kicker{font-size:.8rem;font-weight:700;letter-spacing:.12em;color:var(--green);text-transform:uppercase}
+.stepview h3{font-size:1.5rem;font-weight:700;margin-top:6px}
+.shot{aspect-ratio:16/9;max-width:100%;border-radius:18px;border:2px dashed var(--line);background:var(--surface);display:grid;place-items:center;text-align:center;color:var(--muted);font-size:.92rem;padding:16px}
+.shot img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.box{border-radius:18px;padding:18px 20px;min-width:0}
+.box .lbl{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.box p{margin-top:8px}
+.box.click{background:var(--surface)}
+.box.click .lbl{color:var(--ocean)}
+.box.say{background:var(--soft-green)}
+.box.say .lbl{color:var(--green)}
+.box.say p{color:var(--head);font-weight:500;font-size:1.08rem}
+.stepnav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.stepnav small{color:var(--muted);font-size:.82rem}
+@media (max-width:900px){.walk{grid-template-columns:1fr}.duo{grid-template-columns:1fr}}
+
+/* Value */
+.tagline{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:var(--head);letter-spacing:-.01em;max-width:30ch}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+.ba > div{border-radius:20px;padding:24px;min-width:0}
+.ba .before{background:var(--surface)}
+.ba .after{background:var(--soft-green)}
+.ba h3{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.ba .before h3{color:var(--muted)}
+.ba .after h3{color:var(--green)}
+.ba ul{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.ba li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:.96rem}
+.ba .before li::before{content:"\2013";color:var(--muted);font-weight:700}
+.ba .after li::before{content:"\2713";color:var(--green);font-weight:700}
+.ba .after li{color:var(--head)}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.result{border:1px solid var(--line);border-radius:18px;padding:20px;background:var(--card)}
+.result b{display:block;font-size:2.1rem;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;line-height:1.1}
+.result span{display:block;margin-top:6px;font-size:.92rem}
+@media (max-width:800px){.ba{grid-template-columns:1fr}.results{grid-template-columns:1fr}}
+
+/* Showcase */
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.menu article{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.menu .num{font-size:.78rem;font-weight:700;color:var(--green);letter-spacing:.1em}
+.menu h4{font-size:1.05rem}
+.menu p{font-size:.9rem}
+.menu .val{color:var(--head);font-weight:500;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+.tbd{color:var(--muted);font-style:italic}
+@media (max-width:1000px){.menu{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.menu{grid-template-columns:1fr}}
+
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:56px;padding-top:28px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pager a{text-decoration:none;display:grid;gap:4px;max-width:46%;min-width:0}
+.pager a small{color:var(--muted);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+.pager a span{color:var(--head);font-weight:600}
+.pager a:hover span{color:var(--green)}
+.pager .next{text-align:right;margin-left:auto}
+footer{border-top:1px solid var(--line);padding-block:28px;font-size:.85rem;color:var(--muted)}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <nav class="navcard" aria-label="Demo chapters">
+      <a class="brand" href="#home"><b>Qranks</b><span>Qlik End-to-End Demo</span></a>
+      <div class="chapnav" id="chapnav"></div>
+    </nav>
+  </div>
+</header>
+
+<main id="app" class="wrap"></main>
+
+<footer>
+  <div class="wrap">Qranks is a fictional company for Qlik demonstrations. For Qlik employee use.</div>
+</footer>
+
+<script>
+/* ============================================================
+   CONTENT — edit here. Add demo links in `launch` (leave '' for "Link to come").
+   Screenshots: set `img` on a walkthrough step to an image URL or data: URI.
+   ============================================================ */
+const COMPANY = {
+  name: "Qranks Cycles",
+  intro: "Qranks Cycles is a UK bicycle retailer and distributor, founded in 2018 and headquartered in the North East of England. It runs its whole analytics operation on the Qlik platform — sales, stock, supplier lead times and customer demand, in real time.",
+  stats: [["19,820","Customers"],["504","Products / SKUs"],["31,465","Sales orders"],["6","Source systems"]],
+  facts: [["Distribution centres","12 regional"],["Units sold","12,000+ a year"],["Revenue","~£4.2M"],["Ranges","Trail · Road · Urban · e-Qrank"]],
+  env: [
+    ["Qlik Cloud tenant", '<a href="https://qranks.uk.qlikcloud.com/" target="_blank" rel="noopener">qranks.uk.qlikcloud.com</a>'],
+    ["Snowflake (AWS)", 'Account ANDDG_UKDEMO · <a href="https://app.snowflake.com/" target="_blank" rel="noopener">app.snowflake.com</a>'],
+    ["Data refresh", "New data roughly every hour (1–1.5 hrs, TBC)"],
+    ["Tenancy", "One shared tenant today; per-presenter spaces via Git later"]
+  ]
+};
+
+/* Portfolio — the trusted intelligence layer */
+const PORTFOLIO = [
+  {pillar:"Data", tag:"We make your data work wherever it lives", caps:["Real-Time Pipelines","Data Transformation","Quality & Governance","Catalog & Lineage","Data Products","Agentic Data Engineering","Open Lakehouse","Application & API Integration"]},
+  {pillar:"Analytics", tag:"We make your data work with AI", caps:["Visualization & Dashboards","Conversational AI","Predictive AI","Anomaly Detection","AI Agents","Embedded Analytics","Enterprise Reporting"]},
+  {pillar:"Platform", tag:"We make your data work for AI", caps:["MCP Server","Workflow Automation","Governance, Security & Compliance","Semantic Layer","Hybrid Deployment"]}
+];
+
+const STORIES = [
+ {
+  id:1, title:"From dirty data to trusted insights",
+  summary:"Six conflicting sources become one certified revenue number the CFO can trace to its source row, and anyone can query in plain English.",
+  products:["Qlik Talend Cloud","Qlik Analytics","Qlik Answers"],
+  positioning:"Qlik 101 — a bit of both, not much depth",
+  covers:["Real-Time Pipelines","Data Transformation","Quality & Governance","Catalog & Lineage","Visualization & Dashboards","Conversational AI","Enterprise Reporting"],
+  launch:"",
+  problem:{
+    scenario:"It's Monday morning. The CFO opens the board pack. Revenue shows £42.1M. The VP Sales says £44.8M. Finance says £41.3M. Three teams, three systems, three different answers. The board meeting starts in 90 minutes.",
+    stats:[["6","Source systems — overlapping, conflicting"],["0","Agreed revenue definition"],["4 hrs","Pre-board reconciliation time"],["Manual","ETL breaks every month"]],
+    ask:"It's Monday morning — does this sound familiar in your organisation?"
+  },
+  map:[
+    {area:"Qlik Talend Cloud", name:"Ingest & cleanse", text:"Connects to all 6 sources. Quality rules, deduplication, standardisation."},
+    {area:"Analytics", name:"Certified dashboards", text:"Qlik Sense loads certified data into one associative model. One truth across Finance, Sales and Ops."},
+    {area:"Answers", name:"Natural language Q&A", text:"Plain-English questions against the certified dataset. Cited, grounded answers — no SQL, no ticket."}
+  ],
+  journeyTitle:"Key talking points",
+  journey:[
+    ["Talend Cloud","Ingest raw data from SQL Server ERP, Salesforce CRM, the e-commerce API and CSV flat files — all 6 sources on one nightly pipeline."],
+    ["Talend Cloud","Apply quality rules: dedupe customer records, standardise product codes, validate order dates, flag anomalies for review."],
+    ["Talend Cloud","Full lineage auto-logged in the data catalog."],
+    ["Analytics","Certified data lands in the cloud warehouse. Qlik Sense loads one associative model — revenue, pipeline and returns unified."],
+    ["Answers","Users ask “What was Q3 revenue by territory?” and get cited answers linked to the underlying Sense sheet."]
+  ],
+  walk:[
+    {title:"Show the 6-source data model", click:"Open the Qlik Sense data model viewer. All 6 source tables unified; CustomerID links across systems with no manual joins.", say:"Previously, 3 analysts spent Fridays reconciling this. Now it's automated."},
+    {title:"Open the data lineage view", click:"In the Qlik data catalog, click the Total Revenue KPI. Trace through Talend transformations back to the source ERP row.", say:"Your CFO can do this in 30 seconds — permanently."},
+    {title:"Open the Sales Command Center", click:"Certified executive dashboard: revenue by period, territory and product line. All numbers match the board pack.", say:"One app. One number. Always the same."},
+    {title:"Ask Qlik Answers a revenue question", click:"Type: “What was total revenue for Southwest in Q3 vs Q2?” Answers searches the certified model and returns a cited answer.", say:"No SQL. No ticket. No waiting."}
+  ],
+  value:{
+    tagline:"One number. One source. Zero arguments.",
+    before:["Finance, Sales and IT each had a different revenue number — sometimes varying by millions","4-hour pre-board reconciliation every quarter, burning the same three people","No agreed lineage — nobody could trace where a number came from","Manual ETL in spreadsheets that broke monthly"],
+    after:["One certified revenue number — defined in Talend code, version-controlled, signed off by Finance and IT","Board pack auto-generates from Qlik Sense — the reconciliation no longer exists","Any KPI traces to its source row in 3 clicks via the Qlik data catalog","Nightly pipeline runs automatically — no Friday afternoon spreadsheet heroics"],
+    results:[["6 → 1","Source systems unified"],["100%","Lineage on every KPI"],["0 hrs","Board prep reconciliation"]]
+  }
+ },
+ {
+  id:2, title:"Predicting churn before it happens",
+  summary:"A Discovery Agent spots falling revenue, Qlik Predict scores every customer for churn and explains why, and Qlik Automate triggers re-engagement.",
+  products:["Discovery Agent","Qlik Analytics","Qlik Predict","Qlik Automate"],
+  positioning:"Qlik Predict + Automate",
+  covers:["Anomaly Detection","AI Agents","Predictive AI","Visualization & Dashboards","Workflow Automation"],
+  launch:"",
+  problem:{
+    scenario:"It's end of Q3. Revenue is down 8% vs plan. You pull the customer list — 23 accounts spending £50k+ annually haven't ordered since January. That's £1.1M that walked out quietly. The data was there — smaller orders, longer gaps, more returns — but nobody was watching it together.",
+    stats:[["14.8%","Annual churn rate (baseline)"],["£7,200","Avg spend before churning"],["6.3 mo","Warning window missed"],["£1.4M","Revenue lost per year"]],
+    ask:"What does that 6-month warning window look like in your business?"
+  },
+  map:[
+    {area:"Discovery Agent", name:"Anomaly detection", text:"Surfaces that revenue is down, and where."},
+    {area:"Analytics", name:"Customer features", text:"RFM features, return rates, category breadth."},
+    {area:"Qlik Predict", name:"Churn model training", text:"Trains XGBoost, random forest and logistic regression in parallel. Handles class imbalance. Scores all customers daily."},
+    {area:"Analytics", name:"Embedded churn scores", text:"ChurnProbability and RiskTier in the existing sales app. No new tool to learn."},
+    {area:"Qlik Automate", name:"Re-engagement trigger", text:"Score > 0.75 + LTV > £5k + not contacted in 30 days fires a CRM campaign."}
+  ],
+  walk:[
+    {title:"Discovery Agent — automated insights", click:"Click the Southwest territory bubble. The app filters to 341 high-risk customers, £2.4M at risk.", say:"One click, the whole picture changes."},
+    {title:"Analyse accounts", click:"Filter: high risk, LTV > £5k, not contacted 30 days. 847 high-risk customers ranked by the model.", say:"This rep has 12. The AI ranked them."},
+    {title:"Automated machine learning", click:"24-month order trend and SHAP drivers (recency + return rate dominant). The full picture of why this customer is at risk.", say:"Not just the score — the WHY."},
+    {title:"Automated actions", click:"Model quality: AUC 0.87, precision 81%, recall 74%, feature importance, per-customer SHAP. Then show the automated engagement firing.", say:"Automated engagement with at-risk customers."}
+  ],
+  value:{
+    tagline:"From reactive to predictive. No data scientists needed.",
+    before:["£1.4M of revenue leaving every year as customers quietly stopped ordering","Sales found out at the quarterly review, typically 6 months after signals appeared","Churn signals spread across 3 disconnected systems","No prioritised view — everyone treated as equal, so nothing got actioned"],
+    after:["Every customer scored for churn risk overnight — reps start each day with a prioritised watchlist","At-risk accounts identified 2–3 months earlier than the quarterly review could","Each score shows WHY — reps walk into retention calls knowing what to address","Re-engagement campaigns triggered automatically for high-risk, high-LTV accounts"],
+    results:[["23%","Churn reduction — pilot"],["£322k","Revenue retained, year 1"],["0","Data scientists required"]]
+  }
+ },
+ {
+  id:3, title:"The analyst who never waits for IT",
+  summary:"Business users ask in plain English and get cited answers from certified data and documents in 30 seconds, instead of a 3-day BI ticket.",
+  products:["Qlik Data Products","Qlik Analytics","Qlik Answers","Agentic analytics"],
+  positioning:"Pure Qlik Analytics — self-service + MCP",
+  covers:["Data Products","Catalog & Lineage","Visualization & Dashboards","Conversational AI","AI Agents","MCP Server","Semantic Layer"],
+  launch:"",
+  problem:{
+    scenario:"Every ad-hoc question means a 3-day ticket to the BI team. By the time the answer arrives, the decision has already been made — often badly. Sales managers are running reports in Excel. Product teams are emailing analysts at 10pm. The BI backlog has 47 open requests.",
+    stats:[["3 days","Avg wait for an ad-hoc answer"],["47","Open BI tickets at any time"],["70%","Ad-hoc questions are one-time queries"],["0","Business users with SQL knowledge"]],
+    ask:"Every ad-hoc question means a 3-day ticket — does this sound familiar?"
+  },
+  map:[
+    {area:"Analytics", name:"Certified data foundation", text:"A Qlik Sense app with a certified model provides the governed dataset Answers searches."},
+    {area:"Answers", name:"Natural language Q&A", text:"Indexes Qlik apps, data models and uploaded documents. Cited answers with links to source sheets."}
+  ],
+  journeyTitle:"Platform journey",
+  journey:[
+    ["Analytics","Build the certified app — sales, product, territory and customer sheets."],
+    ["Answers","New knowledge base: connect the Sense app, upload the product catalogue PDF, pricing contracts and territory guide."],
+    ["Answers","Ask “Which product subcategory had the highest return rate?” — cited answer with a source link."],
+    ["Answers","Ask a document question — Answers searches the PDF alongside structured data."],
+    ["Analytics","Click the citation to jump into the Sense sheet, pre-filtered. Answers is the entry point; Sense is the exploration layer."]
+  ],
+  walk:[
+    {title:"Set up the Answers knowledge base", click:"Qlik Answers → New knowledge base. Connect the app. Upload the product catalogue PDF and territory guide.", say:"One-time setup — every app reload updates the knowledge base."},
+    {title:"Ask a product performance question", click:"Type: “Which product subcategory had the highest return rate in 2023?”", say:"30 seconds. That would have been a 3-day BI ticket."},
+    {title:"Ask a territory comparison question", click:"Type: “How does Southwest revenue compare to Northeast in Q3?”", say:"Notice the citation — it's searching certified data, not making things up."},
+    {title:"Ask a document-grounded question", click:"Type: “What is the list price for Road-150 Red in the current pricing guide?”", say:"Structured data AND documents — one search, one answer."},
+    {title:"Click through to Qlik Sense", click:"Click the source link in the Answers response. It opens the Sense sheet, pre-filtered.", say:"Answers is the starting point. Sense is the exploration layer."}
+  ],
+  value:{
+    tagline:"Any question. Any user. 30 seconds.",
+    before:["Every ad-hoc question meant a 3-day BI ticket — decisions were made before the answer arrived","47 open requests on the BI backlog, most of them one-off lookups","Shadow Excel reports; product teams emailing analysts at 10pm","BI team spent 70% of its time on operational questions"],
+    after:["Plain-English questions, cited answers in under 30 seconds","Answers searches the certified model AND uploaded documents in one query","Every answer links back to its source in Qlik Sense","BI team freed for strategic work; ad-hoc tickets down 70%"],
+    results:[["3 days → 30s","Time to answer"],["70%","Fewer ad-hoc BI tickets"],["Any user","No SQL or training needed"]]
+  }
+ },
+ {
+  id:4, title:"Supply chain risk — detected automatically",
+  summary:"Every supplier is risk-scored each morning, and procurement is alerted while there is still time to act.",
+  products:["Qlik Talend Cloud","Qlik Predict","Qlik Analytics","APIs"],
+  positioning:"Advanced — Predict, embedded, API integration",
+  covers:["Real-Time Pipelines","Application & API Integration","Predictive AI","Visualization & Dashboards","Embedded Analytics","Workflow Automation"],
+  launch:"",
+  problem:{
+    scenario:"Qranks sources components from 40+ suppliers. One late delivery cascades into missed sales targets. The ops team finds out about problems when orders are already delayed — never before. Supplier reviews happen quarterly. By then, the damage is done.",
+    stats:[["40+","Suppliers — mixed risk profiles"],["Quarterly","Supplier reviews — far too slow"],["−18%","On-time delivery vs target"],["£2.1M","Revenue impacted by supply delays"]],
+    ask:"How quickly do you find out when a key supplier is about to fail you?"
+  },
+  map:[
+    {area:"Qlik Talend Cloud", name:"ERP data ingestion", text:"Purchase orders, goods receipts, quality inspections and invoices pulled daily into a clean supplier dataset."},
+    {area:"Qlik Predict", name:"Supplier risk scoring", text:"Risk model on on-time %, defect rate, lead-time variance and price volatility. Scores all 40+ suppliers each morning."},
+    {area:"Analytics", name:"Risk heatmap + alerts", text:"Suppliers by risk tier. Alert to procurement when score > 0.7 AND open order value > £50k."}
+  ],
+  walk:[
+    {title:"Supplier information in one place", click:"All 40+ suppliers plotted: X = risk score, Y = open order value. Top-right quadrant = urgent.", say:"One view of the entire supply base."},
+    {title:"Analyse supplier information", click:"Select a supplier in the red quadrant. Drill to its scorecard: on-time trend (declining), defect rate (rising), open POs.", say:"The direction of travel over 6 months is the key."},
+    {title:"Predict when it's going to go wrong", click:"Open the Manufacturing impact sheet: work orders at risk from this supplier and the downstream sales orders affected.", say:"If this supplier is late, what does it cost us in lost sales?"},
+    {title:"Alert & action", click:"Last 30 days of supplier alerts: which were actioned, and the outcome (resolved / escalated).", say:"Every resolved alert becomes training data for next month's retrain."}
+  ],
+  value:{
+    tagline:"From quarterly reviews to daily risk scores.",
+    before:["Supplier problems discovered only when orders were already delayed","Quarterly reviews meant 3 months of problems before anyone looked","On-time delivery 18% below target; £2.1M revenue impacted","No link from a supplier risk signal to the sales orders it would affect"],
+    after:["All 40+ suppliers scored every morning before procurement arrives","Automated alert when risk and open order value are both high","Procurement sees which work and customer orders sit downstream of any at-risk supplier","Dual-sourcing decisions made with data — alternatives ranked side by side"],
+    results:[["40+","Suppliers scored daily"],["−62%","Late delivery incidents"],["Early","Warning, not late reaction"]]
+  }
+ },
+ {
+  id:5, title:"One version of sales truth, everywhere",
+  summary:"Three conflicting revenue figures are replaced by one canonical rule in Talend, with full lineage and a certified board pack.",
+  products:["Qlik Talend Cloud","Data Products","Agentic Data Engineering","Qlik Analytics","Qlik Answers"],
+  positioning:"Pure DI — pipelines, DQ, stewardship, MCP",
+  covers:["Data Transformation","Quality & Governance","Catalog & Lineage","Data Products","Agentic Data Engineering","Visualization & Dashboards","Enterprise Reporting","Conversational AI","Governance, Security & Compliance"],
+  launch:"",
+  problem:{
+    scenario:"Sales says revenue is up 12%. Finance says 8%. IT's data warehouse shows 10.5%. Three systems, three definitions of revenue, no agreed data lineage. Every quarter a 4-hour pre-board reconciliation burns the same three people's time. Nothing ever changes.",
+    stats:[["3","Different revenue numbers, same period"],["4 hrs","Pre-board reconciliation every quarter"],["0","Agreed data lineage across systems"],["3 yrs","This problem has persisted"]],
+    ask:"How much of your team's time is spent reconciling numbers rather than using them?"
+  },
+  map:[
+    {area:"Qlik Talend Cloud", name:"Master data pipeline", text:"One canonical revenue rule in code: ShipDate recognition, returns netted D+30, bundles pro-rata. Versioned, auditable."},
+    {area:"Qlik Talend Cloud", name:"Lineage & catalog", text:"Every transformation from source row to KPI logged. Click any number, trace it to source."},
+    {area:"Analytics", name:"Certified command center", text:"Revenue, pipeline and quota attainment from one governed source."},
+    {area:"Answers", name:"Exec self-service Q&A", text:"“How does Q4 compare to last year by territory?” — instant, governed, cited."}
+  ],
+  journeyTitle:"Platform journey",
+  journey:[
+    ["Talend Cloud","Map 3 source revenue definitions into one canonical rule — in code, versioned in Git, signed off by Finance."],
+    ["Talend Cloud","Build full lineage from source row to KPI, visible in the Qlik data catalog."],
+    ["Talend Cloud","Daily refresh: ERP, CRM and e-commerce revenue through the canonical transformation. One run, one certified output."],
+    ["Analytics","Certified Sales Command Center. Board pack auto-generates."],
+    ["Answers","Exec asks “How does Q4 compare to last year in the North East?” — cited, governed answer in seconds."]
+  ],
+  walk:[
+    {title:"Show the three conflicting sources", click:"Open the ERP revenue report, Salesforce dashboard and legacy DW report side by side. Three numbers for the same period.", say:"Which number goes in the board pack?"},
+    {title:"Show the canonical rule in Talend", click:"Open the Talend job. Revenue recognition in code: ShipDate, D+30 returns, pro-rata bundles. Change history visible.", say:"This is the arbiter — documented, versioned, agreed."},
+    {title:"Open the data lineage trace", click:"In the Qlik catalog, click Total Revenue. Trace Sense app → Talend transformation → ERP table → source row.", say:"Your CFO can do this in 30 seconds."},
+    {title:"Open the certified board pack", click:"Sales Command Center: all territories, periods and product lines. One certified number, last-refresh timestamp visible.", say:"The board pack took 4 hours. Now it auto-generates."}
+  ],
+  value:{
+    tagline:"The Monday morning argument is over. Permanently.",
+    before:["Sales said up 12%, Finance 8%, IT's warehouse 10.5% — same period, three answers","No agreed definition of revenue — returns, bundles, what counts","4 hours every quarter reconciling before the board pack could go out","Execs losing trust in the data — decisions made on instinct"],
+    after:["Single canonical revenue rule in Talend code — reviewed by Finance, versioned in Git","Board pack auto-generates — the reconciliation meeting is cancelled","Full lineage on every KPI, through Talend to the source ERP row","Executives ask revenue questions themselves with Qlik Answers"],
+    results:[["1","Revenue definition — agreed"],["100%","KPI lineage coverage"],["0 min","Board prep reconciliation"]]
+  }
+ },
+ {
+  id:6, title:"Capability Showcase",
+  summary:"Eight standalone capabilities to pull in when the audience wants depth on a specific feature rather than a full story.",
+  products:["Qlik Talend Cloud","Qlik Analytics","Qlik Answers","AI"],
+  positioning:"Other features worth showing off",
+  covers:["Application & API Integration","Real-Time Pipelines","Embedded Analytics","Governance, Security & Compliance","Workflow Automation","Data Products"],
+  launch:"",
+  showcase:[
+    {title:"App-to-app integration", click:"Keeps data in sync between Salesforce and SQL Server.", say:"Key business systems in sync with trusted data."},
+    {title:"Anonymous access", click:"Shares a Qlik app or sheet via a link, viewable without a login.", say:"Extends insights to external stakeholders."},
+    {title:"Write back", click:"Lets users enter or edit data directly within a Qlik app.", say:"Turns dashboards into two-way tools, so action happens where the insight is."},
+    {title:"On-demand app generation", click:"Generates a small, detailed app scoped to a specific selection.", say:"Fast drill-down on massive datasets without loading everything."},
+    {title:"Dynamic views", click:"Queries a database directly and live, so visuals reflect real-time data on each request.", say:"Up-to-the-second accuracy for fast-changing data."},
+    {title:"App access request", click:"A built-in workflow to request access to an app, routed to an approver.", say:"Faster self-service access, with governance over who sees what."},
+    {title:"Event streaming", click:"", say:""},
+    {title:"DI knowledge marts", click:"", say:""}
+  ]
+ }
+];
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const state = {stage:{}, step:{}, cover:"all"};
+const app = $("#app");
+
+function stagesFor(s){
+  return s.showcase
+    ? [["menu","Capability menu"],["walk","Click & talk"]]
+    : [["problem","The problem"],["map","Capability map"],["walk","Click & talk"],["value","Value"]];
+}
+
+function renderNav(current){
+  $("#chapnav").innerHTML =
+    `<a href="#home" ${current==="home"?'aria-current="page"':""}>Overview</a>` +
+    STORIES.map(s => `<a href="#story-${s.id}" ${current===s.id?'aria-current="page"':""}><span class="n">${pad(s.id)}</span>${esc(shortTitle(s))}</a>`).join("");
+  const cur = $("#chapnav [aria-current]");
+  if (cur) cur.scrollIntoView({block:"nearest", inline:"nearest"});
+}
+function shortTitle(s){
+  return ({1:"Trusted insights",2:"Churn",3:"Self-service",4:"Supply chain",5:"Sales truth",6:"Showcase"})[s.id];
+}
+
+function launchBtn(s, sm){
+  return s.launch
+    ? `<a class="btn btn-primary${sm?" btn-sm":""}" href="${esc(s.launch)}" target="_blank" rel="noopener">Launch demo ↗</a>`
+    : `<span class="btn btn-primary${sm?" btn-sm":""}" aria-disabled="true" title="Demo link to come">Launch demo</span>`;
+}
+
+function renderHome(){
+  const allCovered = new Set(STORIES.flatMap(s => s.covers));
+  app.innerHTML = `
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Qlik end-to-end demo</p>
+      <h1 style="margin-top:14px">Meet Qranks Cycles.<span class="g">Six stories. One platform.</span></h1>
+      <p class="lead">${esc(COMPANY.intro)}</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#story-1">Start with Story 01</a>
+        <a class="btn btn-ghost" href="#portfolio">See portfolio coverage</a>
+      </div>
+    </div>
+    <aside class="factcard" aria-label="About Qranks">
+      <h3>The data foundation</h3>
+      <p class="co">${esc(COMPANY.name)}</p>
+      <div class="stats">${COMPANY.stats.map(([v,l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+      <ul class="facts">${COMPANY.facts.map(([k,v]) => `<li><span>${k}</span><b>${v}</b></li>`).join("")}</ul>
+    </aside>
+  </section>
+
+  <section style="padding-top:16px">
+    <div class="sechead">
+      <p class="eyebrow">How to run it</p>
+      <h2>You don't fit all of Qlik into one demo. You pick the story.</h2>
+    </div>
+    <div class="howto">
+      <div><h3>Pick the story that fits</h3><p>Each chapter is a business problem Qranks has, solved end to end. Choose the ones that match your audience.</p></div>
+      <div><h3>Flex the depth</h3><p>Run a chapter as a quick demo-to-win show and tell, or as a full walkthrough. Not every story needs showing in full.</p></div>
+      <div><h3>Four stages per story</h3><p>The problem, the capability map, the click-and-talk track, and the value summary. Jump to any stage.</p></div>
+    </div>
+  </section>
+
+  <section id="portfolio">
+    <div class="sechead center">
+      <p class="eyebrow">The trusted intelligence layer</p>
+      <h2>How the stories cover the Qlik portfolio</h2>
+      <p>Pick a story to see which capabilities it shows. Together they cover the portfolio end to end.</p>
+    </div>
+    <div class="picker" role="group" aria-label="Filter by story">
+      <button type="button" data-cover="all" aria-pressed="${state.cover==="all"}">All stories</button>
+      ${STORIES.map(s => `<button type="button" data-cover="${s.id}" aria-pressed="${state.cover==s.id}">${pad(s.id)} ${esc(shortTitle(s))}</button>`).join("")}
+    </div>
+    <div class="pillars">
+      ${PORTFOLIO.map(p => `<div class="pillar"><h3>${p.pillar}</h3><p class="tag">${p.tag}</p>
+        <div class="caps">${p.caps.map(c => `<span class="cap" data-cap="${esc(c)}">${esc(c)}<span class="ct"></span></span>`).join("")}</div></div>`).join("")}
+    </div>
+    <p class="covnote" id="covnote"></p>
+  </section>
+
+  <section>
+    <div class="sechead">
+      <p class="eyebrow">The chapters</p>
+      <h2>Six business value stories</h2>
+    </div>
+    <div class="stories">
+      ${STORIES.map(s => `<a class="story" href="#story-${s.id}">
+        <span class="num">STORY ${pad(s.id)}</span>
+        <h3>${esc(s.title)}</h3>
+        <p class="pos">${esc(s.summary)}</p>
+        <div class="prods">${s.products.map(p => `<span class="chip">${esc(p)}</span>`).join("")}</div>
+        <span class="go">Open chapter →</span></a>`).join("")}
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><p class="eyebrow">Presenter setup</p><h2>Demo environment</h2></div>
+    <dl class="env">${COMPANY.env.map(([k,v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+  </section>`;
+
+  app.querySelectorAll("[data-cover]").forEach(b => b.addEventListener("click", () => {
+    state.cover = b.dataset.cover === "all" ? "all" : +b.dataset.cover;
+    app.querySelectorAll("[data-cover]").forEach(x => x.setAttribute("aria-pressed", x === b));
+    paintCoverage();
+  }));
+  paintCoverage();
+}
+
+function paintCoverage(){
+  const counts = {};
+  STORIES.forEach(s => s.covers.forEach(c => counts[c] = (counts[c]||0)+1));
+  const sel = state.cover === "all" ? null : STORIES.find(s => s.id === state.cover);
+  const on = new Set(sel ? sel.covers : Object.keys(counts));
+  let total = 0;
+  app.querySelectorAll(".cap").forEach(el => {
+    const c = el.dataset.cap; total++;
+    el.classList.toggle("on", on.has(c));
+    el.querySelector(".ct").textContent = (!sel && counts[c]) ? counts[c] : "";
+  });
+  const n = [...on].filter(c => app.querySelector(`.cap[data-cap="${CSS.escape(c)}"]`)).length;
+  $("#covnote").innerHTML = sel
+    ? `Story ${pad(sel.id)} shows ${n} of ${total} capabilities. <a href="#story-${sel.id}">Open the chapter →</a>`
+    : `All six stories together show ${n} of ${total} capabilities. Numbers show how many stories use each one.`;
+}
+
+function renderStory(id){
+  const s = STORIES.find(x => x.id === id);
+  if (!s) return renderHome();
+  const stages = stagesFor(s);
+  const cur = state.stage[id] || stages[0][0];
+  const prev = STORIES.find(x => x.id === id-1), next = STORIES.find(x => x.id === id+1);
+  app.innerHTML = `
+    <nav class="crumb" aria-label="Breadcrumb"><a href="#home">Overview</a><span aria-hidden="true">/</span><span>Story ${pad(id)}</span></nav>
+    <div class="chead">
+      <div>
+        <p class="eyebrow">Story ${pad(id)} · ${esc(s.positioning)}</p>
+        <h1>${esc(s.title)}</h1>
+        <p class="sub">${esc(s.summary)}</p>
+        <div class="prods">${s.products.map(p => `<span class="chip">${esc(p)}</span>`).join("")}</div>
+      </div>
+      <div class="launch">${launchBtn(s)}<small>${s.launch ? "Opens the demo starting point" : "Demo link to come"}</small></div>
+    </div>
+    <div class="stages" role="tablist" aria-label="Story stages">
+      ${stages.map(([k,l],i) => `<button type="button" role="tab" id="tab-${k}" aria-controls="panel" aria-selected="${k===cur}" data-stage="${k}"><span class="n">${i+1}</span>${l}</button>`).join("")}
+    </div>
+    <div id="panel" class="panel" role="tabpanel" aria-labelledby="tab-${cur}"></div>
+    <nav class="pager" aria-label="Chapters">
+      ${prev ? `<a href="#story-${prev.id}"><small>← Story ${pad(prev.id)}</small><span>${esc(prev.title)}</span></a>` : `<a href="#home"><small>← Overview</small><span>Qranks and the portfolio</span></a>`}
+      ${next ? `<a class="next" href="#story-${next.id}"><small>Story ${pad(next.id)} →</small><span>${esc(next.title)}</span></a>` : `<a class="next" href="#home"><small>Overview →</small><span>Back to all stories</span></a>`}
+    </nav>`;
+  app.querySelectorAll("[data-stage]").forEach(b => b.addEventListener("click", () => { state.stage[id] = b.dataset.stage; renderStory(id); $("#tab-"+b.dataset.stage).focus(); }));
+  app.querySelector('[role="tablist"]').addEventListener("keydown", e => {
+    if (!["ArrowLeft","ArrowRight"].includes(e.key)) return;
+    const i = stages.findIndex(x => x[0] === cur) + (e.key === "ArrowRight" ? 1 : -1);
+    if (stages[i]) { state.stage[id] = stages[i][0]; renderStory(id); $("#tab-"+stages[i][0]).focus(); }
+  });
+  renderStage(s, cur);
+}
+
+function renderStage(s, k){
+  const p = $("#panel");
+  if (k === "problem") {
+    const pr = s.problem;
+    p.innerHTML = `<p class="scenario">${esc(pr.scenario)}</p>
+      <div class="tiles">${pr.stats.map(([v,l]) => `<div class="tile"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>
+      <div class="ask"><span class="lbl">Ask the room</span><p>${esc(pr.ask)}</p></div>`;
+  } else if (k === "map") {
+    p.innerHTML = `<div class="flow">${s.map.map((m,i) => `${i ? '<span class="arrow" aria-hidden="true">→</span>' : ""}
+      <div class="node"><span class="area">${esc(m.area)}</span><h4>${esc(m.name)}</h4><p>${esc(m.text)}</p></div>`).join("")}</div>
+      ${s.journey ? `<div class="journey"><h3>${esc(s.journeyTitle)}</h3><ol>${s.journey.map(([a,t]) => `<li><span><b>${esc(a)}:</b> ${esc(t)}</span></li>`).join("")}</ol></div>` : ""}`;
+  } else if (k === "walk") {
+    renderWalk(s, p);
+  } else if (k === "value") {
+    const v = s.value;
+    p.innerHTML = `<p class="tagline">${esc(v.tagline)}</p>
+      <div class="ba"><div class="before"><h3>Before Qlik</h3><ul>${v.before.map(x => `<li><span>${esc(x)}</span></li>`).join("")}</ul></div>
+      <div class="after"><h3>With Qlik</h3><ul>${v.after.map(x => `<li><span>${esc(x)}</span></li>`).join("")}</ul></div></div>
+      <div class="results">${v.results.map(([n,l]) => `<div class="result"><b>${esc(n)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
+  } else if (k === "menu") {
+    p.innerHTML = `<div class="menu">${s.showcase.map((c,i) => `<article>
+      <span class="num">${pad(i+1)}</span><h4>${esc(c.title)}</h4>
+      <p>${c.click ? esc(c.click) : '<span class="tbd">Description to come</span>'}</p>
+      <p class="val">${c.say ? esc(c.say) : '<span class="tbd">Business value to come</span>'}</p></article>`).join("")}</div>`;
+  }
+}
+
+function renderWalk(s, p){
+  const steps = s.walk || s.showcase;
+  const i = Math.min(state.step[s.id] || 0, steps.length-1);
+  const st = steps[i];
+  p.innerHTML = `<div class="walk">
+    <ol class="steps">${steps.map((x,j) => `<li><button type="button" data-step="${j}" ${j===i?'aria-current="step"':""}><span class="n">${j+1}</span><span>${esc(x.title)}</span></button></li>`).join("")}</ol>
+    <div class="stepview">
+      <div><span class="kicker">Step ${i+1} of ${steps.length}</span><h3>${esc(st.title)}</h3></div>
+      <div class="shot">${st.img ? `<img src="${esc(st.img)}" alt="Screenshot: ${esc(st.title)}">` : `Screenshot for step ${i+1} to come`}</div>
+      <div class="duo">
+        <div class="box click"><span class="lbl">${s.showcase ? "What it does" : "Click"}</span><p>${st.click ? esc(st.click) : '<span class="tbd">To be written</span>'}</p></div>
+        <div class="box say"><span class="lbl">${s.showcase ? "Business value" : "Say"}</span><p>${st.say ? esc(st.say) : '<span class="tbd">To be written</span>'}</p></div>
+      </div>
+      <div class="stepnav">
+        <button type="button" class="btn btn-ghost btn-sm" data-go="-1" ${i===0?"disabled":""}>← Previous step</button>
+        <small>Use ← → keys to move between steps</small>
+        <button type="button" class="btn btn-primary btn-sm" data-go="1" ${i===steps.length-1?"disabled":""}>Next step →</button>
+      </div>
+    </div></div>`;
+  const go = j => { if (j<0||j>=steps.length) return; state.step[s.id] = j; renderWalk(s, p); };
+  p.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => go(+b.dataset.step)));
+  p.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(i + +b.dataset.go)));
+  walkKeys = e => {
+    if (e.target.closest("input,textarea,[role=tablist]")) return;
+    if (e.key === "ArrowRight") go(i+1); else if (e.key === "ArrowLeft") go(i-1);
+  };
+}
+let walkKeys = null;
+document.addEventListener("keydown", e => {
+  if (walkKeys && document.querySelector(".walk")) walkKeys(e);
+});
+
+function route(){
+  walkKeys = null;
+  const h = location.hash.replace("#","");
+  const m = h.match(/^story-(\d)$/);
+  if (m) { renderNav(+m[1]); renderStory(+m[1]); window.scrollTo(0,0); }
+  else {
+    renderNav("home"); renderHome();
+    if (h && h !== "home") { const t = document.getElementById(h); if (t) t.scrollIntoView(); }
+    else window.scrollTo(0,0);
+  }
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+
+</body></html>
