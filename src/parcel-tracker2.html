@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parcel Tracker</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#667085; --line:#e4e7ec; --accent:#da202a; --err:#b42318; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+    main { max-width: 1280px; margin: 32px auto; padding: 0 16px; }
+    header { display:flex; align-items:center; gap:16px; margin-bottom: 20px; }
+    header img { height: 64px; width: auto; }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    .badge { font-size:.75rem; font-weight:600; color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:2px 10px; margin-left:auto; }
+    form { display:flex; gap:8px; margin-bottom: 12px; }
+    input { flex:1; padding:10px 12px; font-size:1rem; border:1px solid var(--line); border-radius:6px; }
+    button { padding:10px 18px; font-size:1rem; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    #status { min-height:1.4em; color:var(--muted); margin: 0 0 16px; }
+    #status.error { color: var(--err); }
+
+    #results[hidden] { display:none; }
+    .kpis { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom: 12px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden; position:relative; }
+    .kpi { height: 120px; }
+    #selections { height: 44px; margin-bottom: 12px; }
+    h2 { font-size: 1rem; margin: 20px 0 4px; }
+    .hint { color: var(--muted); font-size: .85rem; margin: 0 0 8px; }
+    .table { height: 380px; }
+    .table.tall { height: 460px; }
+    @media (max-width: 640px) { .kpis { grid-template-columns: 1fr; } header img { height: 44px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <!-- Logo: place royal-mail-logo.png in the same folder as this page -->
+    <img src="royal-mail-logo.png" alt="Royal Mail" onerror="this.style.display='none'" />
+    <h1>Parcel tracking</h1>
+    <span class="badge">Qlik demo</span>
+  </header>
+
+  <form id="search">
+    <input id="trackingId" placeholder="Tracking number (or the start of one)" autocomplete="off" required />
+    <button id="go" type="submit">Track</button>
+  </form>
+  <p id="status"></p>
+
+  <section id="results" hidden>
+    <div class="kpis">
+      <div class="panel kpi" id="kpiParcels"></div>
+      <div class="panel kpi" id="kpiDelivered"></div>
+      <div class="panel kpi" id="kpiAwaiting"></div>
+    </div>
+
+    <div class="panel" id="selections"></div>
+
+    <h2>Parcels</h2>
+    <p class="hint">Click a parcel, or a status, to filter everything on the page. Use the column headers to sort and search.</p>
+    <div class="panel table" id="tblParcels"></div>
+
+    <h2>Scan history</h2>
+    <div class="panel table tall" id="tblScans"></div>
+  </section>
+</main>
+
+<!-- nebula.js + native Qlik charts. Loaded as classic scripts so the charts share one
+     copy of nebula (window.stardust). Versions pinned so the demo doesn't change under you. -->
+<script src="https://cdn.jsdelivr.net/npm/@nebula.js/stardust@7.7.0/dist/stardust.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@nebula.js/sn-table@6.60.0/dist/sn-table.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@nebula.js/sn-kpi@2.4.0/dist/sn-kpi.js"></script>
+
+<script type="module">
+  import { auth, qix } from "https://cdn.jsdelivr.net/npm/@qlik/api@1/+esm";
+  const { embed } = window.stardust;
+  const snTable = window["sn-table"];
+  const snKpi = window["sn-kpi"];
+
+  // ===========================================================================
+  // CONFIG — edit these
+  // ===========================================================================
+  const CONFIG = {
+    host: "ukdemosaas.eu.qlikcloud.com",
+    clientId: "a6c0a95b5e3ad86f95aa94a9de35c610",
+    redirectUri: location.origin + location.pathname,
+
+    // Only letters/digits, min 3 chars. No % or _ (MySQL LIKE wildcards), no quotes.
+    idPattern: /^[A-Za-z0-9]{3,40}$/,
+
+    // Load script. {{FILTER}} is replaced with the validated search text.
+    script: `
+LET vFilter = '{{FILTER}}';
+
+LIB CONNECT TO 'App Build (Basic):MySQL_Enterprise_Edition_swimysql.westeurope.cloudapp.azure.com';
+
+[parcels]:
+LOAD parcel_id,
+     tracking_number,
+     mailmark_barcode,
+     origin_postcode,
+     destination_postcode,
+     service_class,
+     created_at;
+SELECT \`parcel_id\`, \`tracking_number\`, \`mailmark_barcode\`, \`origin_postcode\`,
+       \`destination_postcode\`, \`service_class\`, \`created_at\`
+FROM \`parcel_tracking\`.parcels
+WHERE \`tracking_number\` LIKE '$(vFilter)%';
+
+[scans]:
+LOAD scan_id,
+     parcel_id,
+     sequence_number,
+     // Works whether MySQL returns a real datetime or text
+     Timestamp(Alt(scan_timestamp, Timestamp#(scan_timestamp, 'YYYY-MM-DD hh:mm:ss')), 'DD/MM/YYYY hh:mm') AS scan_timestamp,
+     scanner_id,
+     depot_id,
+     event_type
+WHERE Exists(parcel_id);
+SELECT \`scan_id\`, \`parcel_id\`, \`sequence_number\`, \`scan_timestamp\`,
+       \`scanner_id\`, \`depot_id\`, \`event_type\`
+FROM \`parcel_tracking\`.scans
+WHERE \`tracking_number\` LIKE '$(vFilter)%';
+
+[scanners]:
+LOAD scanner_id,
+     scanner_type,
+     display_name
+WHERE Exists(scanner_id);
+SELECT \`scanner_id\`, \`scanner_type\`, \`display_name\`
+FROM \`parcel_tracking\`.scanners;
+
+// ---- Parcel status: Delivered if any scan has event_type 'delivered' ----
+DeliveredMap:
+MAPPING LOAD DISTINCT parcel_id, 'Delivered' AS status
+RESIDENT [scans]
+WHERE Lower(Trim(event_type)) = 'delivered';
+
+[parcel_status]:
+LOAD parcel_id,
+     ApplyMap('DeliveredMap', parcel_id, 'Awaiting delivery') AS parcel_status
+RESIDENT [parcels];
+`,
+
+    // KPI tiles (Qlik expressions)
+    kpis: [
+      { el: "kpiParcels",   label: "Parcels",           expr: "Count(DISTINCT parcel_id)" },
+      { el: "kpiDelivered", label: "Delivered",         expr: "Count(DISTINCT If(parcel_status = 'Delivered', parcel_id))" },
+      { el: "kpiAwaiting",  label: "Awaiting delivery", expr: "Count(DISTINCT If(parcel_status = 'Awaiting delivery', parcel_id))" },
+    ],
+
+    // Parcels table: one row per parcel
+    parcelsTable: {
+      dimensions: [
+        { field: "tracking_number",      label: "Tracking no." },
+        { field: "parcel_status",        label: "Status" },
+        { field: "service_class",        label: "Service" },
+        { field: "origin_postcode",      label: "From" },
+        { field: "destination_postcode", label: "To" },
+        { field: "created_at",           label: "Created" },
+      ],
+      measures: [
+        { expr: "FirstSortedValue(DISTINCT event_type, -sequence_number)",   label: "Latest event" },
+        { expr: "Timestamp(Max(scan_timestamp), 'DD/MM/YYYY hh:mm')",        label: "Last scanned" },
+        { expr: "FirstSortedValue(DISTINCT display_name, -sequence_number)", label: "Last scanner" },
+        { expr: "Count(DISTINCT scan_id)",                                   label: "Scans" },
+      ],
+    },
+
+    // Scan history table: one row per scan
+    scansTable: {
+      dimensions: [
+        { field: "tracking_number", label: "Tracking no." },
+        { field: "sequence_number", label: "#" },
+        { field: "scan_timestamp",  label: "Scanned at" },
+        { field: "event_type",      label: "Event" },
+        { field: "display_name",    label: "Scanner" },
+        { field: "scanner_type",    label: "Scanner type" },
+        { field: "depot_id",        label: "Depot" },
+      ],
+      measures: [],
+    },
+  };
+
+  // ===========================================================================
+  // Auth: OAuth2 (PKCE) full-page redirect, handled by @qlik/api
+  // ===========================================================================
+  auth.setDefaultHostConfig({
+    host: CONFIG.host,
+    authType: "oauth2",
+    clientId: CONFIG.clientId,
+    redirectUri: CONFIG.redirectUri,
+    accessTokenStorage: "session",
+    autoRedirect: true,
+  });
+
+  const $ = (id) => document.getElementById(id);
+  const setStatus = (msg, isError = false) => {
+    $("status").textContent = msg;
+    $("status").classList.toggle("error", isError);
+  };
+
+  let currentSession = null;
+  let visuals = [];
+
+  // ===========================================================================
+  // Main flow: session app -> reload -> render native Qlik objects
+  // ===========================================================================
+  async function track(raw) {
+    const filter = raw.trim();
+    if (!CONFIG.idPattern.test(filter)) {
+      setStatus("Enter at least 3 letters or digits (no spaces or symbols).", true);
+      return;
+    }
+    try { sessionStorage.setItem("pendingTrackingId", filter); } catch {}
+
+    $("go").disabled = true;
+    await teardown();
+
+    try {
+      setStatus("Connecting to Qlik…");
+      currentSession = qix.openAppSession({ appId: `SessionApp_${crypto.randomUUID()}` });
+      const app = await currentSession.getDoc();
+
+      setStatus("Loading parcel data…");
+      await app.setScript(CONFIG.script.replace("{{FILTER}}", filter));
+      const ok = await app.doReload(0, false, false);
+      if (!ok) throw new Error("Reload failed. Check the connection name and that you can access its space.");
+
+      const parcelCount = Number(await app.evaluate("Count(DISTINCT parcel_id)")) || 0;
+      if (!parcelCount) { setStatus(`No parcels found starting with "${filter}".`); return; }
+
+      setStatus("Rendering…");
+      $("results").hidden = false;
+      await renderQlik(app);
+
+      setStatus(`${parcelCount} parcel${parcelCount === 1 ? "" : "s"} matching "${filter}".`);
+      try { sessionStorage.removeItem("pendingTrackingId"); } catch {}
+    } catch (err) {
+      console.error(err);
+      setStatus(err?.message || "Something went wrong talking to Qlik.", true);
+    } finally {
+      $("go").disabled = false;
+    }
+  }
+
+  async function renderQlik(app) {
+    const nebbie = embed(app, {
+      context: { theme: "light", language: "en-GB" },
+      types: [
+        { name: "table", load: () => Promise.resolve(snTable) },
+        { name: "kpi",   load: () => Promise.resolve(snKpi) },
+      ],
+    });
+
+    // Selections bar (shows and clears what the user has clicked)
+    (await nebbie.selections()).mount($("selections"));
+
+    // KPIs
+    for (const k of CONFIG.kpis) {
+      visuals.push(await nebbie.render({
+        element: $(k.el),
+        type: "kpi",
+        properties: {
+          showTitles: false,
+          qHyperCubeDef: { qMeasures: [{ qDef: { qDef: k.expr, qLabel: k.label } }] },
+        },
+      }));
+    }
+
+    // Tables
+    visuals.push(await nebbie.render({
+      element: $("tblParcels"),
+      type: "table",
+      properties: tableProps(CONFIG.parcelsTable),
+    }));
+    visuals.push(await nebbie.render({
+      element: $("tblScans"),
+      type: "table",
+      properties: tableProps(CONFIG.scansTable),
+    }));
+  }
+
+  function tableProps({ dimensions, measures }) {
+    return {
+      showTitles: false,
+      qHyperCubeDef: {
+        qDimensions: dimensions.map((d) => ({
+          qDef: { qFieldDefs: [d.field], qFieldLabels: [d.label] },
+          qNullSuppression: true,
+        })),
+        qMeasures: measures.map((m) => ({ qDef: { qDef: m.expr, qLabel: m.label } })),
+        qInterColumnSortOrder: [0, 1],
+        qSuppressZero: false,
+        qSuppressMissing: true,
+      },
+    };
+  }
+
+  async function teardown() {
+    visuals.forEach((v) => { try { v.destroy(); } catch {} });
+    visuals = [];
+    ["kpiParcels", "kpiDelivered", "kpiAwaiting", "selections", "tblParcels", "tblScans"]
+      .forEach((id) => $(id).replaceChildren());
+    $("results").hidden = true;
+    if (currentSession) { try { await currentSession.close(); } catch {} currentSession = null; }
+  }
+
+  // ===========================================================================
+  // Wire up: form submit, ?id= URL parameter, or a search pending after login
+  // ===========================================================================
+  $("search").addEventListener("submit", (e) => { e.preventDefault(); track($("trackingId").value); });
+
+  const params = new URLSearchParams(location.search);
+  let startId = params.get("id");
+  try { startId = startId || sessionStorage.getItem("pendingTrackingId"); } catch {}
+  if (startId) { $("trackingId").value = startId; track(startId); }
+
+  window.addEventListener("beforeunload", () => { currentSession?.close?.(); });
+</script>
+</body>
+</html>
