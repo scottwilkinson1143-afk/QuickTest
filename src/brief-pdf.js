@@ -19,8 +19,27 @@ function loadScript(src) {
     document.head.appendChild(s);
   });
 }
+// jsPDF and AutoTable are UMD builds: if the page already has a module loader
+// (a global define, module or exports, e.g. from another library), they register
+// with it instead of creating window.jspdf. Hide those globals while they load.
+const UMD_GLOBALS = ["define", "module", "exports", "require"];
+async function loadUmd(srcs) {
+  const saved = {};
+  for (const k of UMD_GLOBALS) {
+    if (k in window) { saved[k] = window[k]; try { window[k] = undefined; } catch (_) { /* read-only */ } }
+  }
+  try { for (const src of srcs) await loadScript(src); }
+  finally { for (const k of Object.keys(saved)) { try { window[k] = saved[k]; } catch (_) { /* read-only */ } } }
+}
 async function ensureLibs() {
-  if (!libs) libs = (async () => { for (const src of VENDOR) await loadScript(src); })();
+  if (!libs) {
+    libs = (async () => {
+      await loadUmd(VENDOR.slice(0, 2));           // jsPDF, AutoTable
+      if (!window.jspdf?.jsPDF) throw new Error("jsPDF did not load (window.jspdf is missing)");
+      await loadScript(VENDOR[2]);                  // Inter fonts, registered on jsPDF
+    })();
+    libs.catch(() => { libs = null; });            // allow a retry after a failure
+  }
   return libs;
 }
 // approved logo artwork from the page header, rasterised for the PDF (skipped if not present)
