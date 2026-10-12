@@ -310,7 +310,7 @@ class MockProvider extends BookProvider {
    ============================================================================= */
 const OPSPEND = "Sum({<direction={'Debit'}, category-={'Loan repayment','Transfer to external account','Transfer to investments','Pension contribution'}>} txn_amount_gbp)";
 export const QCUBES = {
-  rms:          { dims: ["rm_id", "rm_name", "rm_region", "sales_manager"], measures: [] },
+  rms:          { dims: ["rm_id", "rm_name", "rm_region", "sales_manager", "rm_team"], measures: [] },
   customers:    { dims: ["customer_id", "customer_name", "segment", "industry", "customer_city", "rm_id", "customer_status", "risk_rating",
                          "onboarded_date", "last_annual_review_date", "next_annual_review_date", "kyc_refresh_due_date", "last_meeting_date",
                          "last_contact_date", "required_meeting_interval_days", "meeting_frequency", "required_in_person_per_year"],
@@ -384,7 +384,8 @@ class QlikProvider extends BookProvider {
     for (const [id, cube] of Object.entries(QCUBES)) this.objs[id] = await this.app.createSessionObject(toHyperCubeDef(id, cube));
     // the full RM list, before any RM is selected
     await this.app.clearAll(false);
-    this.rms = (await this.read("rms")).map(r => ({ id: cellNum(r[0]), name: cellText(r[1]), region: cellText(r[2]), manager: cellText(r[3]) }))
+    this.rms = (await this.read("rms")).map(r => ({ id: cellNum(r[0]), name: cellText(r[1]), region: cellText(r[2]), manager: cellText(r[3]),
+                                                     team: cellText(r[4]), teamOrder: cellNum(r[4]) }))
       .filter(r => r.id != null).sort((a, b) => a.name.localeCompare(b.name));
     // when selections change outside the portal, re-read the book
     this.objs.customers.on("changed", () => {
@@ -695,6 +696,20 @@ function bookFiltered(ignore) {
     (ignore === "signal" || !s.signal.size || [...s.signal].every(x => p.signals.includes(x))) &&
     (!q || p.name.toLowerCase().includes(q)));
 }
+// KPI strip for My book; follows the current selections and search
+function bookKpis(rows) {
+  const act = rows.filter(p => p.active);
+  const overdue = act.filter(p => (p.coverage || "").startsWith("Overdue"));
+  const unbooked = act.filter(p => p.coverage === "Overdue - not booked").length;
+  const within = act.filter(p => p.coverage && !p.coverage.startsWith("Overdue")).length;
+  return `<div class="stats">
+    <div class="stat"><span class="stat-value">${act.length}</span><span class="stat-label">Active customers</span>${rows.length > act.length ? `<span class="stat-note muted">plus ${rows.length - act.length} prospects</span>` : ""}</div>
+    <div class="stat"><span class="stat-value">${gbp(sum(act.map(p => p.income || 0)))}</span><span class="stat-label">Annual income, products held</span></div>
+    <div class="stat"><span class="stat-value">${gbp(sum(act.map(p => p.revenue12 || 0)))}</span><span class="stat-label">Revenue, last 12 months</span></div>
+    <button class="stat" data-toggle="coverage" data-value="Overdue - not booked"><span class="stat-value">${overdue.length}</span><span class="stat-label">Overdue a meeting</span><span class="stat-note">${unbooked} with nothing booked</span></button>
+    <div class="stat"><span class="stat-value">${pct(within / Math.max(1, act.length))}</span><span class="stat-label">Book seen within policy</span></div>
+  </div>`;
+}
 function viewBook() {
   const rows = bookFiltered().slice();
   const k = state.sort.key, dir = state.sort.dir;
@@ -715,6 +730,7 @@ function viewBook() {
   <div class="selbar" aria-label="Current selections"><span class="label">Selections</span>
     ${sels.length ? sels.map(([f, v]) => `<span class="sel"><b>${f === "signal" ? "Signal" : f === "segment" ? "Segment" : "Coverage"}:</b> ${esc([...v].map(x => f === "signal" ? SIGNALS[x].label : x).join(", "))}<button data-clear="${f}" aria-label="Clear ${f}">×</button></span>`).join("") + `<button class="btn small" data-clear="all">Clear all</button>` : `<span class="muted small">None. Click a coverage band, segment or signal to filter.</span>`}
   </div>
+  ${bookKpis(bookFiltered())}
   <div class="grid" style="margin-bottom:16px">
     <section class="panel span-5"><div class="panel-head"><h2>Meeting coverage</h2><span class="muted small">Active customers against the contact policy</span></div>
       <div class="panel-body"><div class="covbar">${covCounts.filter(c => c.n).map(c => `<button data-toggle="coverage" data-value="${esc(c.key)}" aria-pressed="${state.sel.coverage.has(c.key)}" class="${state.sel.coverage.size && !state.sel.coverage.has(c.key) ? "dim" : ""}" style="--c:${c.c};flex:${c.n}" title="${esc(c.key)}: ${c.n}" aria-label="${esc(c.key)}: ${c.n} customers"></button>`).join("")}</div>
@@ -940,13 +956,28 @@ function showError(where, e) {
     <li>the app ID in <span class="num">config.js</span> is set (currently <span class="num">${esc(QLIK.appId)}</span>);</li>
     <li>the OAuth client lists <span class="num">${esc(QLIK.redirectUri)}</span> as a redirect URL and <span class="num">${esc(location.origin)}</span> as an allowed origin;</li>
     <li>you can open the app in Qlik Sense with the same account;</li>
-    <li>the app has been reloaded with the v2 load script.</li></ul>
+    <li>the app has been reloaded with the v3 load script.</li></ul>
     <p><a href="?mode=mock">Open with sample data instead</a></p>` : "";
   const box = $("#ov-error"); box.hidden = false;
   box.innerHTML = `<pre>${esc(msg)}</pre>${hints}`;
   $("#overlay").hidden = false;
   setStatus(true, "Not connected");
 }
+
+// RM picker: one group per team (Region - Team), in team order, when the data has teams
+function rmOptions(rms) {
+  const opt = r => `<option value="${r.id}">${esc(r.name)}</option>`;
+  if (!rms.some(r => r.team)) return rms.map(opt).join("");
+  const groups = new Map();
+  for (const r of rms) {
+    const key = `${r.region} - ${r.team}`;
+    if (!groups.has(key)) groups.set(key, { order: Number.isFinite(r.teamOrder) ? r.teamOrder : 1e9, label: key, rms: [] });
+    groups.get(key).rms.push(r);
+  }
+  return [...groups.values()].sort((a, b) => a.order - b.order || a.label.localeCompare(b.label))
+    .map(g => `<optgroup label="${esc(g.label)}">${g.rms.map(opt).join("")}</optgroup>`).join("");
+}
+
 async function selectRm(rmId) {
   state.ready = false;
   setStatus(true, "Reading book…");
@@ -967,7 +998,7 @@ async function selectRm(rmId) {
   try { await provider.connect(steps); }
   catch (e) { return showError(mode === "qlik" ? "connect to Qlik Cloud" : "load the sample data", e); }
   const sel = $("#rm-pick");
-  sel.innerHTML = provider.rms.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join("");
+  sel.innerHTML = rmOptions(provider.rms);
   const saved = +store("rb-rm");
   const start = provider.rms.some(r => r.id === saved) ? saved : provider.defaultRm();
   sel.value = start;

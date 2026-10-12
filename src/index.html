@@ -121,6 +121,13 @@ h3 { font: 600 13px/1.3 var(--font-ui); margin: 0; color: var(--qlik-deep-blue);
 .stat-note { font-size: 11px; color: var(--qlik-green); font-weight: 600; }
 button.stat { border: 0; text-align: left; cursor: pointer; }
 button.stat:hover { background: var(--accent-soft); }
+/* larger KPI strip on My week and My book (the brief keeps the compact tiles) */
+.stats { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); border-radius: 12px; }
+.stats .stat { padding: 20px 22px; gap: 4px; }
+.stats .stat-value { font-size: 36px; }
+.stats .stat-label { font-size: 14px; }
+.stats .stat-note { font-size: 12.5px; margin-top: 2px; }
+.stats .stat-note.muted { color: var(--ink-3); font-weight: 500; }
 
 /* chips, pills, buttons */
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px 1px 7px; border-radius: 999px; font-size: 11.5px; line-height: 18px; background: var(--surface); border: 1px solid var(--line-strong); color: var(--qlik-gray); white-space: nowrap; }
