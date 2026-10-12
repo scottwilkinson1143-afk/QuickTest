@@ -53,6 +53,23 @@ async function logoPng() {
     return { data: cv.toDataURL("image/png"), ratio: h / w };
   } catch (e) { return null; }
 }
+// Brand contrail as a PNG: three soft trails in Qlik Green, Sky and Ocean that fade in and out
+function contrailPng() {
+  try {
+    const w = 1600, h = 28, cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const g = cv.getContext("2d"); g.lineCap = "round";
+    const trail = (y, lw, rgb, from, peak, to, alpha) => {
+      const gr = g.createLinearGradient(0, 0, w, 0);
+      const c = a => `rgba(${rgb.join(",")},${a})`;
+      gr.addColorStop(0, c(0)); gr.addColorStop(from, c(0)); gr.addColorStop(peak, c(alpha)); gr.addColorStop(to, c(0)); gr.addColorStop(1, c(0));
+      g.strokeStyle = gr; g.lineWidth = lw; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke();
+    };
+    trail(8, 5, C.green, 0.0, 0.3, 0.85, 1);
+    trail(15, 2.5, C.sky, 0.12, 0.58, 1.0, 0.9);
+    trail(21, 2.5, C.ocean, 0.28, 0.72, 1.0, 0.6);
+    return { data: cv.toDataURL("image/png"), ratio: h / w };
+  } catch (e) { return null; }
+}
 // characters outside the embedded Inter subset
 const clean = s => String(s ?? "").replace(/→/g, ">").replace(/[▲▼]/g, "").replace(/\s+/g, " ").trim();
 const cleanCell = s => String(s ?? "").split("\n").map(clean).join("\n");
@@ -73,45 +90,34 @@ export async function downloadBriefPdf(p, ctx) {
   const fill = rgb => doc.setFillColor(...rgb);
   const stroke = rgb => doc.setDrawColor(...rgb);
   const opacity = a => doc.setGState(new doc.GState({ opacity: a }));
-  const ensure = need => { if (y + need > BOTTOM) { doc.addPage(); pageHeader(false); } };
+  const ensure = need => { if (y + need > BOTTOM) { doc.addPage(); pageHeader(); } };
 
-  // contrail: brand light trails, drawn as fading strokes
-  function contrail(x, yy, w, strong = true) {
-    const trails = [[0, 1.6, C.green, 0.05, 0.45, 0.9], [3.5, 0.7, C.sky, 0.1, 0.6, 0.65], [6, 0.6, C.ocean, 0.0, 0.35, 0.4], [8.5, 2.2, C.sky, 0.25, 0.75, 0.3]];
-    for (const [dy, lw, rgb, a0, a1, peak] of trails) {
-      const n = 40;
-      for (let i = 0; i < n; i++) {
-        const t = i / n, f = t < a0 || t > a1 + 0.3 ? 0 : t < a1 ? (t - a0) / Math.max(0.01, a1 - a0) : 1 - (t - a1) / 0.3;
-        if (f <= 0) continue;
-        opacity(Math.max(0, Math.min(1, f)) * peak * (strong ? 1 : 0.6));
-        doc.setLineWidth(lw); stroke(rgb);
-        doc.line(x + t * w, yy + dy, x + (t + 1 / n) * w, yy + dy);
-      }
-    }
-    opacity(1);
-  }
-  function pageHeader(first) {
+  // One brand contrail per page, under the header: drawn as a single smooth image
+  // (fading strokes drawn as separate PDF segments look broken in some viewers)
+  const trail = contrailPng();
+  function pageHeader() {
     y = 34;
-    if (logo) doc.addImage(logo.data, "PNG", M, y - 4, 64, 64 * logo.ratio);
-    font("semibold", 7.5, C.gray);
+    if (logo) doc.addImage(logo.data, "PNG", M, y - 4, 60, 60 * logo.ratio);
+    font("semibold", 7, C.gray);
     doc.setCharSpace(1.2);
-    text("MEETING BRIEF", W - M, y + 4, { align: "right" });
+    text("MEETING BRIEF", W - M, y + 3, { align: "right" });
     doc.setCharSpace(0);
     font("normal", 7.5, C.muted);
-    text(`${p.name} · prepared ${fmtDate(AS_OF)}`, W - M, y + 15, { align: "right" });
-    contrail(W * 0.42, y + 24, W * 0.58 - M + 40);
-    y = first ? 86 : 92;
+    text(`${p.name} · prepared ${fmtDate(AS_OF)}`, W - M, y + 14, { align: "right" });
+    if (trail) doc.addImage(trail.data, "PNG", M, y + 24, CW, CW * trail.ratio);
+    else { stroke(C.line); doc.setLineWidth(0.5); doc.line(M, y + 26, W - M, y + 26); }
+    y = 92;
   }
   function sectionTitle(t) {
-    ensure(40);
-    font("bold", 12, C.deepBlue);
+    ensure(44);
+    y += 4;
+    font("bold", 11.5, C.deepBlue);
     text(t, M, y);
-    contrail(M, y + 5, 170, false);
-    y += 24;
+    y += 16;
   }
 
   /* ---- page 1: who, next meeting, figures ---- */
-  pageHeader(true);
+  pageHeader();
   const c = p.c;
   font("bold", 22, C.deepBlue);
   const nameLines = wrap(p.name, CW - 210);
@@ -169,30 +175,31 @@ export async function downloadBriefPdf(p, ctx) {
   const lendLimit = sum(p.lending.map(h => h.amount_gbp)), lendDrawn = sum(p.lending.map(h => h.drawn_amount_gbp));
   const wealth = sum(p.holdings.filter(h => h.category === "Wealth").map(h => h.amount_gbp));
   const figs = [[gbp(p.income), "Annual income, products held"], [gbp(p.revenue12), "Revenue, last 12 months"], [String(p.holdings.length), "Products held"],
-    [gbp(deposits), "Deposits and current accounts"], [lendLimit ? gbp(lendDrawn) : "-", lendLimit ? `Lending drawn of ${gbp(lendLimit)}` : "Lending drawn"]];
+    [gbp(deposits), "Deposits and current accounts"]];
+  if (lendLimit) figs.push([gbp(lendDrawn), `Lending drawn of ${gbp(lendLimit)}`]);
   if (wealth) figs.push([gbp(wealth), "Wealth assets"]);
   const fw = CW / figs.length;
-  stroke(C.line); doc.setLineWidth(0.6); doc.roundedRect(M, y, CW, 46, 4, 4, "S");
+  stroke(C.line); doc.setLineWidth(0.5);
+  doc.line(M, y, W - M, y); doc.line(M, y + 46, W - M, y + 46);
   figs.forEach(([v, l], i) => {
     const fx = M + i * fw;
-    if (i) doc.line(fx, y + 8, fx, y + 38);
-    font("bold", 13, C.deepBlue); text(v, fx + 10, y + 20);
-    font("normal", 7, C.gray); wrap(l, fw - 16).slice(0, 2).forEach((t, k) => text(t, fx + 10, y + 31 + k * 8.5));
+    font("bold", 14, C.deepBlue); text(v, fx + (i ? 10 : 0), y + 20);
+    font("normal", 7, C.gray); wrap(l, fw - 14).slice(0, 2).forEach((t, k) => text(t, fx + (i ? 10 : 0), y + 31 + k * 8.5));
   });
-  y += 64;
+  y += 62;
 
   /* ---- talking points ---- */
   sectionTitle("Talking points");
   if (!p.points.length) { font("normal", 9, C.muted); text("Nothing flagged. A good meeting to ask about plans and introduce new products.", M, y); y += 18; }
   p.points.forEach(t => {
-    font("semibold", 9.5, C.deepBlue); const tl = wrap(t.title, CW - 16);
+    font("semibold", 9.5, C.deepBlue); const tl = wrap(t.title, CW - 80);
     font("normal", 8.5, C.gray); const el = wrap(t.ev, CW - 16);
     font("normal", 8.5, C.deepBlue); const al = wrap("Action: " + t.act, CW - 16);
-    const h = 10 + tl.length * 12 + el.length * 11 + al.length * 11 + 6;
-    ensure(h + 4);
-    fill(SEV_RGB[t.sev] || C.casper); doc.rect(M, y - 8, 3, h - 6, "F");
-    font("semibold", 6.5, C.gray); doc.setCharSpace(1); text(SEV_LABEL[t.sev].toUpperCase(), M + 12, y - 1); doc.setCharSpace(0);
-    let ty = y + 11;
+    const h = tl.length * 12 + el.length * 11 + al.length * 11;
+    ensure(h + 14);
+    fill(SEV_RGB[t.sev] || C.casper); doc.rect(M, y - 9, 2.5, h + 1, "F");
+    font("semibold", 7, ["admin", "info"].includes(t.sev) ? C.muted : SEV_RGB[t.sev]); text(SEV_LABEL[t.sev], W - M, y, { align: "right" });
+    let ty = y;
     font("semibold", 9.5, C.deepBlue); tl.forEach(l => { text(l, M + 12, ty); ty += 12; });
     font("normal", 8.5, C.gray); el.forEach(l => { text(l, M + 12, ty); ty += 11; });
     font("normal", 8.5, C.deepBlue);
@@ -204,7 +211,7 @@ export async function downloadBriefPdf(p, ctx) {
       } else text(l, M + 12, ty);
       ty += 11;
     });
-    y = ty + 8;
+    y = ty + 10;
   });
 
   /* ---- since last meeting ---- */
@@ -302,26 +309,39 @@ export async function downloadBriefPdf(p, ctx) {
   /* ---- tables ---- */
   const tableStyle = {
     margin: { left: M, right: M, top: 92, bottom: 50 },
-    styles: { font: "Inter", fontStyle: "normal", fontSize: 8, textColor: C.gray, cellPadding: { top: 4, right: 5, bottom: 4, left: 5 }, lineColor: C.line, lineWidth: 0 },
-    headStyles: { font: "Inter", fontStyle: "semibold", fillColor: C.deepBlue, textColor: C.white, fontSize: 7.5 },
-    alternateRowStyles: { fillColor: C.tint },
+    styles: { font: "Inter", fontStyle: "normal", fontSize: 8, textColor: C.gray, cellPadding: { top: 5, right: 6, bottom: 5, left: 0 },
+              lineColor: C.line, lineWidth: { bottom: 0.5 } },
+    headStyles: { font: "Inter", fontStyle: "semibold", fillColor: false, textColor: C.deepBlue, fontSize: 7.5, lineColor: C.casper, lineWidth: { bottom: 0.8 } },
+    theme: "plain",
     // a table that runs onto a new page gets the page header there too
-    didDrawPage: d => { if (d.pageNumber > 1) { const keep = y; pageHeader(false); y = keep; } },
+    didDrawPage: d => { if (d.pageNumber > 1) { const keep = y; pageHeader(); y = keep; } },
   };
   const table = (title, head, body, columnStyles = {}) => {
     sectionTitle(title);
-    doc.autoTable({ ...tableStyle, startY: y - 6, head: [head], body: body.map(r => r.map(cleanCell)), columnStyles });
-    y = doc.lastAutoTable.finalY + 22;
+    // drop columns that are empty in every row
+    const keep = head.map((_, i) => body.some(r => String(r[i] ?? "").trim() && r[i] !== "-"));
+    const cs = {}; let j = 0;
+    head.forEach((_, i) => {
+      if (!keep[i]) return;
+      const st = columnStyles[i] ? { ...columnStyles[i] } : null;
+      if (st?.halign === "right") st.cellPadding = { top: 5, right: 16, bottom: 5, left: 0 };
+      if (st) cs[j] = st;
+      j++;
+    });
+    doc.autoTable({ ...tableStyle, startY: y - 6, head: [head.filter((_, i) => keep[i])],
+      didParseCell: d => { if (d.section === "head" && cs[d.column.index]?.halign) { d.cell.styles.halign = cs[d.column.index].halign; d.cell.styles.cellPadding = cs[d.column.index].cellPadding; } },
+      body: body.map(r => r.filter((_, i) => keep[i]).map(cleanCell)), columnStyles: cs });
+    y = doc.lastAutoTable.finalY + 20;
   };
   table("Products held", ["Product", "Balance / limit", "Drawn", "Matures", "Income a year", "Renewal"],
     p.holdings.map(h => {
       const mat = parseD(h.maturity_date), dl = mat ? days(AS_OF, mat) : null;
       const ren = !mat ? "" : h.has_open_renewal ? "In progress" : dl <= 120 ? "Not raised" : dl <= 270 ? `Due in ${Math.round(dl / 30)} months` : "";
       const drawn = h.utilisation_pct != null ? `${h.utilisation_pct.toFixed(0)}% of limit` : h.drawn_amount_gbp != null && h.category === "Lending" ? `${gbp(h.drawn_amount_gbp)} outstanding` : "";
-      return [`${h.product}\n${h.category}`, gbp(h.amount_gbp), drawn, mat ? fmtDate(mat) : "-", gbp(h.annual_income_gbp), ren];
+      return [h.product, gbp(h.amount_gbp), drawn, mat ? fmtDate(mat) : "-", gbp(h.annual_income_gbp), ren];
     }), { 1: { halign: "right" }, 4: { halign: "right" } });
   if (p.opps.length) table("Open opportunities", ["Opportunity", "Stage", "Days in stage", "Expected close", "Income a year", "Probability"],
-    p.opps.map(o => [`${o.product}\n${o.opportunity_type}`, o.stage, String(days(parseD(o.stage_entered_date), AS_OF)), fmtDate(parseD(o.expected_close_date)), gbp(o.expected_annual_income_gbp), `${o.probability_pct ?? "-"}%`]),
+    p.opps.map(o => [`${o.product} (${o.opportunity_type.toLowerCase()})`, o.stage, String(days(parseD(o.stage_entered_date), AS_OF)), fmtDate(parseD(o.expected_close_date)), gbp(o.expected_annual_income_gbp), `${o.probability_pct ?? "-"}%`]),
     { 2: { halign: "right" }, 4: { halign: "right" }, 5: { halign: "right" } });
   table("People", ["Name", "Role", "Relationship", "Email", "Phone"],
     p.contacts.map(x => [`${x.contact_name}${x.is_primary ? " (primary)" : ""}`, `${x.job_title}${x.is_decision_maker ? "\nDecision maker" : ""}`, x.relationship_strength, x.email, x.phone]),
@@ -334,16 +354,19 @@ export async function downloadBriefPdf(p, ctx) {
   const notes = p.meetings.filter(m => m.status === "Completed" && m.notes).slice(0, 3);
   if (notes.length) {
     sectionTitle("Recent meeting notes");
-    notes.forEach(m => {
+    let shown = 0;
+    for (const m of notes) {
       font("normal", 8.5, C.gray); const nl = wrap(m.notes, CW);
-      ensure(16 + nl.length * 11 + 14);
+      const need = 16 + nl.length * 11 + 14;
+      if (shown && y + need > BOTTOM) break;        // keep the brief tight: no page just for older notes
+      ensure(need); shown++;
       font("semibold", 9, C.deepBlue); text(`${fmtDate(m.startD)} · ${m.meeting_type}`, M, y);
       font("normal", 8, C.muted); text([m.channel, m.contactName, m.sentiment].filter(Boolean).join(" · "), W - M, y, { align: "right" });
       y += 13;
       font("normal", 8.5, C.gray); nl.forEach(l => { text(l, M, y); y += 11; });
       if (m.next_action) { font("semibold", 8, C.green); text(`Next action: ${m.next_action}`, M, y + 1); y += 12; }
       y += 10;
-    });
+    }
   }
 
   /* ---- footer on every page ---- */
