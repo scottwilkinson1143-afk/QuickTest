@@ -61,10 +61,17 @@ const covColor = k => (COVERAGE.find(x => x.key === k) || {}).c || "var(--ink-3)
 // In production these become load-script flags or master measures, so the
 // portal and Qlik Answers share one definition.
 const SIGNALS = {
+  covBreach:   { label: "Covenant breach", sev: "critical" },
+  compHold:    { label: "Compliance hold", sev: "critical" },
   complaint:   { label: "Open complaint", sev: "critical" },
   moved:       { label: "Money moving out", sev: "critical" },
   renewal:     { label: "Renewal not raised", sev: "serious" },
   competitor:  { label: "Competitor mentioned", sev: "serious" },
+  watchlist:   { label: "On watchlist", sev: "serious" },
+  downgrade:   { label: "Credit grade down", sev: "serious" },
+  covTight:    { label: "Covenant headroom tight", sev: "warning" },
+  compAction:  { label: "Compliance action due", sev: "warning" },
+  lowRoRWA:    { label: "Below RoRWA hurdle", sev: "warning" },
   inflowsDown: { label: "Inflows falling", sev: "warning" },
   utilHigh:    { label: "Facility near limit", sev: "warning" },
   cancels:     { label: "Meetings cancelled", sev: "warning" },
@@ -75,13 +82,17 @@ const SIGNALS = {
   utilLow:     { label: "Facility barely used", sev: "info" },
   newContact:  { label: "New key contact", sev: "info" },
   noMeeting:   { label: "Calls but no meeting", sev: "warning" },
-  admin:       { label: "Review or KYC due", sev: "admin" }
+  admin:       { label: "Annual review due", sev: "admin" }
 };
 const SEV_ORDER = ["critical", "serious", "warning", "opportunity", "info", "admin"];
 const SEV_LABEL = { critical: "Critical", serious: "Serious", warning: "Watch", opportunity: "Opportunity", info: "Note", admin: "Admin" };
 const SEV_COLOR = { critical: "var(--critical)", serious: "var(--serious)", warning: "var(--warning)", opportunity: "var(--opportunity)", info: "var(--qlik-casper)", admin: "var(--line-strong)" };
 const chip = code => { const s = SIGNALS[code]; return `<span class="chip ${s.sev}"><i></i>${esc(s.label)}</span>`; };
 const COMPETITOR = /approach from a competitor|another provider/i;
+const COV_ORDER = ["Breach", "Tight", "Breach - waived", "Pass", "Not yet tested"];
+const CHECK_ORDER = ["Under review", "Overdue", "Pending", "Clear"];
+const GRADE_BAND = { 1: "Strong", 2: "Strong", 3: "Good", 4: "Good", 5: "Satisfactory", 6: "Satisfactory", 7: "Watch", 8: "Weak", 9: "Substandard", 10: "Default" };
+const pct1 = v => v == null || !isFinite(v) ? "—" : `${(v * 100).toFixed(1)}%`;
 
 /* =============================================================================
    BookProvider: shared logic. Subclasses fill this.idx (see shape below) and
@@ -145,14 +156,33 @@ class BookProvider {
     const newContact = contacts.find(x => x.relationship_strength === "New");
     const stalled = opps.filter(o => days(parseD(o.stage_entered_date), AS_OF) > 90);
     const arDue = parseD(c.next_annual_review_date), kyc = parseD(c.kyc_refresh_due_date);
+    // business health (business customers only)
+    const financials = (ix.financials?.[id] || []).slice().sort((a, b) => (a.period_end > b.period_end ? 1 : -1));
+    const grades = (ix.grades?.[id] || []).slice().sort((a, b) => (a.effective_date > b.effective_date ? 1 : -1));
+    const hById = Object.fromEntries(holdings.map(h => [h.holding_id, h]));
+    const covenants = (ix.covenants?.[id] || []).map(k => ({ ...k, product: hById[k.holding_id]?.product || "Facility" }))
+      .sort((a, b) => COV_ORDER.indexOf(a.result) - COV_ORDER.indexOf(b.result));
+    // compliance
+    const checks = (ix.compliance?.[id] || []).slice().sort((a, b) => CHECK_ORDER.indexOf(a.status) - CHECK_ORDER.indexOf(b.status) || (b.raised_date > a.raised_date ? 1 : -1));
+    const openChecks = checks.filter(k => k.status !== "Clear");
+    // capital
+    const rwa = sum(holdings.map(h => h.rwa_gbp || 0)), ead = sum(holdings.map(h => h.ead_gbp || 0));
     const p = {
       id, c, name: c.customer_name, segment: c.segment, active, interval, freqLabel: c.freqLabel || "", inPerson: c.inPerson,
       holdings, meetings, cases, opps, contacts, touches, months: ix.months, ser, next, lastMeeting, daysSince, coverage,
       lastContact, daysSinceContact: lastContact ? days(lastContact, AS_OF) : null,
       income, revenue12: ix.revenue12m[id] || 0, balance, moved6, intl12, codes, lending, revolving,
       inflowChange3: cr3p > 0 ? cr3 / cr3p - 1 : null, inflowChange6: cr6p > 0 ? cr6 / cr6p - 1 : null, spend3,
-      renewalsAtRisk, openComplaints, competitor, cancels12, newContact, stalled, arDue, kyc
+      renewalsAtRisk, openComplaints, competitor, cancels12, newContact, stalled, arDue, kyc,
+      grade: c.credit_grade ?? null, gradeLabel: c.credit_grade_label || (c.credit_grade ? `${c.credit_grade} - ${GRADE_BAND[c.credit_grade]}` : null),
+      gradeChange6m: c.grade_change_6m ?? null, extRating: c.external_rating || null, financials, grades, covenants,
+      covBreach: covenants.filter(k => k.result === "Breach"), covTight: covenants.filter(k => k.result === "Tight"),
+      checks, openChecks, blockers: openChecks.filter(k => k.blocks), complianceStatus: c.compliance_status || null,
+      cdd: c.cdd_level || null, pep: c.is_pep === "Yes" || c.is_pep === 1, holds: opps.filter(o => o.compliance_hold),
+      rwa, ead, rorwa: rwa > 0 ? income / rwa : null, capital: rwa * (ix.capital?.ratio ?? 13) / 100,
+      hurdle: (ix.capital?.hurdle ?? 5) / 100, rwaHist: ix.rwaHist?.[id] || null
     };
+    p.ideas = this.capitalIdeas(p);
     p.signals = this.signals(p);
     p.points = this.talkingPoints(p);
     p.score = this.priority(p);
@@ -162,10 +192,17 @@ class BookProvider {
   signals(p) {
     if (!p.active) return [];
     const s = [];
+    if (p.covBreach.length) s.push("covBreach");
+    if (p.blockers.length) s.push("compHold");
     if (p.openComplaints.length) s.push("complaint");
     if (p.moved6 > 0) s.push("moved");
     if (p.renewalsAtRisk.length) s.push("renewal");
     if (p.competitor) s.push("competitor");
+    if (p.grade >= 8) s.push("watchlist");
+    else if (p.gradeChange6m >= 1) s.push("downgrade");
+    if (p.covTight.length) s.push("covTight");
+    if (!p.blockers.length && p.openChecks.length) s.push("compAction");
+    if (p.rorwa != null && p.rorwa < p.hurdle) s.push("lowRoRWA");
     if (p.inflowChange3 != null && p.inflowChange3 < -0.15) s.push("inflowsDown");
     if (p.revolving.some(h => h.utilisation_pct >= 85)) s.push("utilHigh");
     if (p.cancels12.length >= 2) s.push("cancels");
@@ -177,13 +214,26 @@ class BookProvider {
     if (p.revolving.some(h => h.utilisation_pct <= 10)) s.push("utilLow");
     if (p.newContact) s.push("newContact");
     if (p.daysSinceContact != null && p.daysSinceContact <= 60 && (p.daysSince == null || p.daysSince > 365)) s.push("noMeeting");
-    if ((p.arDue && p.arDue <= AS_OF) || (p.kyc && days(AS_OF, p.kyc) <= 60)) s.push("admin");
+    if ((p.arDue && p.arDue <= AS_OF) || (!p.checks.length && p.kyc && days(AS_OF, p.kyc) <= 60)) s.push("admin");
     return s;
   }
 
   talkingPoints(p) {
     if (!p.active) return [];
     const pts = [], add = (sev, title, ev, act) => pts.push({ sev, title, ev, act });
+    const covVal = k => k.actual == null ? "n/m" : k.type.startsWith("Loan to value") ? `${k.actual.toFixed(0)}%` : `${k.actual.toFixed(1)}x`;
+    const covLim = k => k.type.startsWith("Loan to value") ? `${k.threshold.toFixed(0)}%` : `${k.threshold.toFixed(2).replace(/0$/, "")}x`;
+    const covName = k => k.type.replace(/ \(.*\)$/, "").toLowerCase();
+    p.covBreach.forEach(k => add("critical", `${covName(k)[0].toUpperCase() + covName(k).slice(1)} covenant breached on the ${k.product}`,
+      `${k.type}: ${covVal(k)} against a ${k.op === "Max" ? "maximum" : "minimum"} of ${covLim(k)} at ${fmtDate(parseD(k.period_end))}.`,
+      "Agree the approach with Credit before the meeting: waiver, reset or a remedy plan."));
+    p.blockers.forEach(k => {
+      const screening = /screening|media/i.test(k.type);
+      add("critical", screening ? `${k.type} alert under review: new business on hold` : `${k.type} overdue: new business on hold`,
+        `${k.outcome || ""}${k.due_date ? ` Due ${fmtDate(parseD(k.due_date))}.` : ""}${p.holds.length ? ` ${p.holds.length} open opportunit${p.holds.length > 1 ? "ies" : "y"} on hold.` : ""}`,
+        screening ? "Do not raise the alert with the customer. Check with the Financial Crime team before the meeting."
+                  : "Collect the outstanding documents in this meeting; nothing new can complete until the review is signed off.");
+    });
     p.openComplaints.forEach(k => add("critical", `Open complaint: ${String(k.category).replace("Complaint - ", "")}`,
       `Opened ${fmtDate(parseD(k.opened_date))} (${days(parseD(k.opened_date), AS_OF)} days ago, ${k.priority} priority). ${k.description}`,
       "Acknowledge it at the start of the meeting and confirm the resolution date with the service team beforehand."));
@@ -193,6 +243,12 @@ class BookProvider {
     if (p.competitor) add("serious", "Competitor approach mentioned",
       `Recorded ${fmtDate(p.competitor.d)}: “${p.competitor.t.split(". ").find(x => COMPETITOR.test(x)) || ""}”`,
       "Agree pricing headroom with your sales manager before the meeting.");
+    if (p.grade >= 8 || p.gradeChange6m >= 1) {
+      const last = p.grades[p.grades.length - 1];
+      add("serious", p.grade >= 10 ? "Customer is in default" : `Credit grade ${p.gradeChange6m >= 1 ? `down ${p.gradeChange6m} notch${p.gradeChange6m > 1 ? "es" : ""} to` : "is"} ${p.gradeLabel}`,
+        `${last ? `${last.reason} (${fmtDate(parseD(last.effective_date))}).` : ""}${p.grade >= 8 ? " On the watchlist." : ""}`,
+        p.grade >= 10 ? "Follow the recovery team's plan; do not offer new facilities." : "Talk through the drivers and ask for the latest management accounts and forecast.");
+    }
     p.renewalsAtRisk.forEach(h => add("serious", `${h.product} matures ${fmtDate(parseD(h.maturity_date))}, no renewal raised`,
       `${gbp(h.amount_gbp)} facility earning ${gbp(h.annual_income_gbp)} a year; ${days(AS_OF, parseD(h.maturity_date))} days to maturity.`,
       "Raise the renewal opportunity and agree the timetable in the meeting."));
@@ -200,6 +256,15 @@ class BookProvider {
       `${gbp(h.drawn_amount_gbp)} drawn of ${gbp(h.amount_gbp)}.`, "Ask about working-capital pressure and whether a limit increase is needed."));
     if (p.inflowChange3 != null && p.inflowChange3 < -0.15 && p.moved6 <= 0) add("warning", `Inflows down ${pct(-p.inflowChange3)}`,
       "Last 3 complete months against the 3 before.", "Ask how trading is going and whether income is being paid elsewhere.");
+    p.covTight.forEach(k => add("warning", `Tight ${covName(k)} headroom on the ${k.product}`,
+      `${covVal(k)} against ${covLim(k)} (${k.headroom != null ? k.headroom.toFixed(0) + "% headroom" : "little headroom"}).`,
+      "Ask about the trading outlook before the next test date."));
+    p.openChecks.filter(k => !k.blocks).forEach(k => add("warning", `${k.type}: ${k.status.toLowerCase()}`,
+      `${k.outcome || ""}${k.due_date ? ` Due ${fmtDate(parseD(k.due_date))}.` : ""}`,
+      /ownership/i.test(k.type) ? "Collect ID and ownership details for the new controller." : /wealth/i.test(k.type) ? "Ask for evidence of the source of the funds." : "Collect any updated documents while you are with the customer."));
+    if (p.rorwa != null && p.rorwa < p.hurdle) add("warning", `Return on RWA ${pct1(p.rorwa)} against a ${pct1(p.hurdle)} hurdle`,
+      `${gbp(p.income)} income a year on ${gbp(p.rwa)} of risk weighted assets (${gbp(p.capital)} of capital).`,
+      p.ideas[0] ? `${p.ideas[0].title}.` : "Review pricing and facility sizes before the next renewal.");
     if (p.cancels12.length >= 2) add("warning", `${p.cancels12.length} meetings cancelled or missed in 12 months`,
       p.cancels12.slice(0, 3).map(m => `${fmtDate(m.startD)}: ${m.cancellation_reason || m.status}`).join("; "),
       "Confirm this meeting the day before and keep it short and specific.");
@@ -218,13 +283,13 @@ class BookProvider {
     if (p.signals.includes("noMeeting")) add("warning", "Regular calls and emails, but no meeting for over a year",
       `Last meeting: ${p.lastMeeting ? fmtDate(p.lastMeeting) : "none on record"}. Last contact ${ago(p.daysSinceContact)}.`, "Make this a face-to-face meeting.");
     if (p.arDue && p.arDue <= AS_OF) add("admin", "Annual review overdue", `Was due ${fmtDate(p.arDue)}.`, "Complete the annual review in this meeting.");
-    if (p.kyc && days(AS_OF, p.kyc) <= 60) add("admin", "KYC refresh due", `Due ${fmtDate(p.kyc)}.`, "Collect any updated documents while you are with the customer.");
+    if (!p.checks.length && p.kyc && days(AS_OF, p.kyc) <= 60) add("admin", "KYC refresh due", `Due ${fmtDate(p.kyc)}.`, "Collect any updated documents while you are with the customer.");
     return pts.sort((a, b) => SEV_ORDER.indexOf(a.sev) - SEV_ORDER.indexOf(b.sev));
   }
 
   priority(p) {
     if (!p.active) return 0;
-    const w = { complaint: 20, moved: 25, renewal: 18, competitor: 10, inflowsDown: 8, utilHigh: 8, cancels: 10, stalled: 4,
+    const w = { covBreach: 22, compHold: 18, watchlist: 12, downgrade: 8, covTight: 6, compAction: 4, lowRoRWA: 5, complaint: 20, moved: 25, renewal: 18, competitor: 10, inflowsDown: 8, utilHigh: 8, cancels: 10, stalled: 4,
       fxGap: 4, idleCash: 3, growth: 3, utilLow: 2, newContact: 6, noMeeting: 12, admin: 5 };
     let s = sum(p.signals.map(x => w[x] || 0));
     if (p.coverage === "Overdue - not booked") s += 30;
@@ -232,6 +297,51 @@ class BookProvider {
     else if (p.coverage === "Due soon - not booked") s += 6;
     s *= 1 + Math.log10(1 + p.income / 50000) / 2;
     return Math.round(s);
+  }
+
+  // Ways to improve return on RWA. Simplified CRR logic, for discussion with the customer.
+  capitalIdeas(p) {
+    if (!p.active || !(p.rwa > 0)) return [];
+    const ideas = [], H = p.hurdle, rwEff = h => h.ead_gbp > 0 ? h.rwa_gbp / h.ead_gbp : 0;
+    p.holdings.filter(h => (h.code === "RCF" || h.code === "INV") && h.utilisation_pct != null && h.utilisation_pct <= 25 && h.rwa_gbp > 0).forEach(h => {
+      const hist = (this.idx.utilHist[h.holding_id] || []).filter(v => v != null);
+      const peak = Math.max(h.utilisation_pct, ...hist) / 100;
+      const newLimit = Math.max(Math.ceil(h.amount_gbp * peak * 1.3 / 50000) * 50000, 50000);
+      if (newLimit >= h.amount_gbp * 0.85) return;
+      const save = (h.amount_gbp - newLimit) * 0.5 * rwEff(h);
+      ideas.push({ kind: "resize", title: `Right-size the ${h.product} limit from ${gbp(h.amount_gbp)} to ${gbp(newLimit)}`,
+        detail: `Peak use in the last 12 months was ${(peak * 100).toFixed(0)}% of the limit. The undrawn part still carries a 50% conversion factor.`,
+        save, income: -h.annual_income_gbp * (1 - newLimit / h.amount_gbp) * 0.35 });
+    });
+    const unrated = p.holdings.filter(h => h.exposure_class === "Corporate - unrated" && h.rwa_gbp > 0);
+    if (unrated.length && p.grade && p.grade <= 4) ideas.push({ kind: "rating", title: "An external credit rating would halve the risk weight",
+      detail: `With a rating in credit quality step 2 (A+ to A-), corporate exposures are weighted at 50% rather than 100% under CRR.`,
+      save: sum(unrated.map(h => h.rwa_gbp)) * 0.5, income: 0 });
+    p.holdings.filter(h => h.code === "CRE" && h.ltv_pct > 55 && h.property_value_gbp > 0 && h.rwa_gbp > 0).forEach(h => {
+      const half = 0.5 * h.property_value_gbp, after = half * 0.5 * (h.sme_factor || 1);
+      if (h.rwa_gbp - after <= 0) return;
+      ideas.push({ kind: "ltv", title: `Paying the ${h.product} down to 50% LTV would save ${gbp(h.rwa_gbp - after)} of RWA`,
+        detail: `LTV is ${h.ltv_pct.toFixed(0)}%. Only the part up to 50% of the property value gets the 50% risk weight; the rest is weighted at the borrower's rate. Paydown needed: ${gbp((h.drawn_amount_gbp || 0) - half)}.`,
+        save: h.rwa_gbp - after, income: -h.annual_income_gbp * (1 - half / Math.max(1, h.drawn_amount_gbp || 1)) });
+    });
+    p.holdings.filter(h => h.category === "Lending" && h.rwa_gbp > 0 && h.code !== "FX" && h.annual_income_gbp / h.rwa_gbp < H && (h.drawn_amount_gbp || 0) > 0)
+      .sort((a, b) => b.rwa_gbp - a.rwa_gbp).slice(0, 2).forEach(h => {
+        const extra = H * h.rwa_gbp - h.annual_income_gbp;
+        ideas.push({ kind: "price", title: `Reprice the ${h.product}: +${Math.ceil(extra / h.drawn_amount_gbp * 1e4)} bps reaches the hurdle`,
+          detail: `Earns ${gbp(h.annual_income_gbp)} a year on ${gbp(h.rwa_gbp)} of RWA (${pct1(h.annual_income_gbp / h.rwa_gbp)}). Raise at the next renewal or margin review.`,
+          save: 0, income: extra });
+      });
+    if (p.signals?.includes?.("idleCash") || (p.balance != null && p.spend3 > 0 && p.balance > 3 * p.spend3 && !p.codes.has("DEP") && p.segment !== "Private Banking")) {
+      const amt = Math.max(0, p.balance - 3 * p.spend3);
+      if (amt > 50000) ideas.push({ kind: "deposit", title: `Move ${gbp(amt)} of surplus cash to a deposit`,
+        detail: `Earns about ${gbp(amt * 0.008)} a year and uses no lending capital.`, save: 0, income: amt * 0.008 });
+    }
+    p.opps.filter(o => o.expected_rwa_gbp > 0 && o.expected_annual_income_gbp / o.expected_rwa_gbp < H).forEach(o => ideas.push({ kind: "deal",
+      title: `Price the ${o.product} deal to the hurdle`,
+      detail: `Expected ${gbp(o.expected_annual_income_gbp)} a year on ${gbp(o.expected_rwa_gbp)} of RWA (${pct1(o.expected_annual_income_gbp / o.expected_rwa_gbp)}). Needs ${gbp(H * o.expected_rwa_gbp)} a year.`,
+      save: 0, income: 0, pipeline: true }));
+    ideas.forEach(i => { i.after = (p.income + (i.income || 0)) / Math.max(1, p.rwa - (i.save || 0)); });
+    return ideas.sort((a, b) => (b.after - a.after) || (b.save - a.save));
   }
 
   bookRows() { return this.book; }
@@ -289,7 +399,12 @@ class MockProvider extends BookProvider {
       meetings: group(meetings, "customer_id"),
       touches: group(rows(raw.touchCols, raw.touches), "customer_id"),
       months: raw.months, series: raw.series, utilHist: raw.utilHist, revenue12m: raw.revenue12m,
-      lastMeetingEver: raw.lastMeetingEver, lastContact: raw.lastContact
+      lastMeetingEver: raw.lastMeetingEver, lastContact: raw.lastContact,
+      financials: raw.financialCols ? group(rows(raw.financialCols, raw.financials), "customer_id") : {},
+      grades: raw.gradeCols ? group(rows(raw.gradeCols, raw.grades), "customer_id") : {},
+      covenants: raw.covenantCols ? group(rows(raw.covenantCols, raw.covenants), "customer_id") : {},
+      compliance: raw.checkCols ? group(rows(raw.checkCols, raw.checks).map(k => ({ ...k, blocks: !!k.blocks })), "customer_id") : {},
+      rwaHist: raw.rwaHist || {}, capital: raw.capital || null
     };
     onStep?.(["Loading sample data"], 1);
   }
@@ -314,15 +429,19 @@ export const QCUBES = {
   customers:    { dims: ["customer_id", "customer_name", "segment", "industry", "customer_city", "rm_id", "customer_status", "risk_rating",
                          "onboarded_date", "last_annual_review_date", "next_annual_review_date", "kyc_refresh_due_date", "last_meeting_date",
                          "last_contact_date", "required_meeting_interval_days", "meeting_frequency", "required_in_person_per_year"],
-                  measures: ["Max(annual_turnover_gbp)", "Max(net_worth_gbp)"] },
+                  measures: ["Max(annual_turnover_gbp)", "Max(net_worth_gbp)", "Only(credit_grade)", "Only(external_rating)", "Only(cdd_level)",
+                             "Only(is_pep)", "Only(compliance_status)", "Max(grade_change_6m)"] },
   contacts:     { dims: ["contact_id", "customer_id", "contact_name", "contact_job_title", "contact_email", "contact_phone",
                          "contact_is_primary", "contact_is_decision_maker", "contact_relationship_strength", "contact_known_since"], measures: [] },
   holdings:     { dims: ["holding_id", "customer_id", "product_code", "product_name", "product_category", "holding_status", "holding_origin",
                          "open_date", "maturity_date"],
-                  measures: ["Max(holding_amount_gbp)", "Max(drawn_amount_gbp)", "Max(holding_utilisation_pct)", "Max(holding_annual_income_gbp)", "Max(has_open_renewal)"] },
+                  measures: ["Max(holding_amount_gbp)", "Max(drawn_amount_gbp)", "Max(holding_utilisation_pct)", "Max(holding_annual_income_gbp)", "Max(has_open_renewal)",
+                             "Only(exposure_class)", "Max(holding_ead_gbp)", "Max(holding_risk_weight_pct)", "Max(holding_rwa_gbp)", "Max(holding_ltv_pct)",
+                             "Max(property_value_gbp)", "Max(sme_factor)"] },
   opps:         { dims: ["opportunity_id", "customer_id", "opportunity_name", "opp_product_name", "opportunity_type", "opp_revenue_type",
                          "opp_stage", "opp_status", "stage_entered_date", "expected_close_date", "created_date"],
-                  measures: ["Max(probability_pct)", "Max(expected_annual_income_gbp)", "Max(deal_amount_gbp)", "Max(close_date_pushes)"] },
+                  measures: ["Max(probability_pct)", "Max(expected_annual_income_gbp)", "Max(deal_amount_gbp)", "Max(close_date_pushes)",
+                             "Max(opp_expected_rwa_gbp)", "Only(opp_compliance_hold)"] },
   cases:        { dims: ["case_id", "customer_id", "case_opened_date", "case_closed_date", "case_status", "case_category", "is_complaint",
                          "case_priority", "case_description"], measures: [] },
   meetings:     { dims: ["meeting_id", "customer_id", "meeting_start", "meeting_original_start", "meeting_type", "meeting_channel", "meeting_status",
@@ -335,6 +454,16 @@ export const QCUBES = {
   flows:        { dims: ["customer_id", "txn_month"],
                   measures: [OPSPEND, "Sum({<category={'Transfer to external account'}>} txn_amount_gbp)", "Sum({<channel={'International Payment'}>} txn_amount_gbp)"] },
   utilisation:  { dims: ["holding_id", "utilisation_month"], measures: ["Max(facility_utilisation_pct)"] },
+  financials:   { dims: ["customer_id", "statement_period_end", "statement_type"],
+                  measures: ["Max(fs_turnover_gbp)", "Max(fs_ebitda_gbp)", "Max(fs_ebitda_margin_pct)", "Max(fs_net_debt_gbp)", "Max(fs_leverage_x)",
+                             "Max(fs_interest_cover_x)", "Max(fs_current_ratio)", "Max(fs_debtor_days)", "Max(fs_cash_gbp)"] },
+  grades:       { dims: ["grade_history_id", "customer_id", "grade_effective_date", "grade_change_reason"],
+                  measures: ["Max(grade_history_grade)", "Max(grade_previous)"] },
+  covenants:    { dims: ["covenant_id", "holding_id", "covenant_type", "covenant_operator", "covenant_latest_result"],
+                  measures: ["Max(covenant_threshold)", "Max(covenant_latest_actual)", "Max(covenant_latest_headroom_pct)", "Max(covenant_period_end)"] },
+  compliance:   { dims: ["check_id", "customer_id", "compliance_check_type", "compliance_check_status", "compliance_raised_date",
+                         "compliance_due_date", "compliance_completed_date", "compliance_outcome", "compliance_blocks_new_business"], measures: [] },
+  rwaHist:      { dims: ["customer_id", "rwa_month"], measures: ["Sum(rwa_month_rwa_gbp)"] },
   revenue:      { dims: ["customer_id"],
                   measures: ["Sum({<revenue_month={\">=$(=Date(AddMonths(MonthStart($(vAsOf)), -12), 'MMM YYYY'))\"}>} income_gbp)"] },
 };
@@ -379,6 +508,10 @@ class QlikProvider extends BookProvider {
       const a = await this.app.evaluate("Date($(vAsOf), 'YYYY-MM-DD')");
       if (/^\d{4}-\d{2}-\d{2}$/.test(a)) AS_OF = parseD(a);
     } catch (e) { console.warn("Could not read vAsOf; using today's date", e); }
+    try {
+      const h = parseFloat(await this.app.evaluate("$(vRoRWAHurdle)")), r = parseFloat(await this.app.evaluate("$(vCapitalRatio)"));
+      this.capital = { hurdle: isFinite(h) ? h : 5, ratio: isFinite(r) ? r : 13 };
+    } catch (e) { this.capital = { hurdle: 5, ratio: 13 }; }
     onStep?.(steps, 2);
     this.objs = {};
     for (const [id, cube] of Object.entries(QCUBES)) this.objs[id] = await this.app.createSessionObject(toHyperCubeDef(id, cube));
@@ -438,7 +571,9 @@ class QlikProvider extends BookProvider {
       customer_id: N(r[0]), customer_name: T(r[1]), segment: T(r[2]), industry: T(r[3]), city: T(r[4]), rm_id: N(r[5]),
       status: T(r[6]), risk_rating: T(r[7]), onboarded_date: D(r[8]), last_annual_review_date: D(r[9]), next_annual_review_date: D(r[10]),
       kyc_refresh_due_date: D(r[11]), _last_meeting: D(r[12]), _last_contact: D(r[13]), interval: N(r[14]), freqLabel: T(r[15]),
-      inPerson: N(r[16]), annual_turnover_gbp: N(r[17]) || null, net_worth_gbp: N(r[18]) || null
+      inPerson: N(r[16]), annual_turnover_gbp: N(r[17]) || null, net_worth_gbp: N(r[18]) || null,
+      credit_grade: N(r[19]), credit_grade_label: T(r[19]), external_rating: T(r[20]), cdd_level: T(r[21]), is_pep: T(r[22]),
+      compliance_status: T(r[23]), grade_change_6m: N(r[24])
     })).filter(c => c.customer_id != null);
     const contacts = R.contacts.map(r => ({
       contact_id: N(r[0]), customer_id: N(r[1]), contact_name: T(r[2]), job_title: T(r[3]), email: T(r[4]), phone: T(r[5]),
@@ -447,12 +582,14 @@ class QlikProvider extends BookProvider {
     const holdings = R.holdings.filter(r => T(r[5]) === "Active").map(r => ({
       holding_id: N(r[0]), customer_id: N(r[1]), code: T(r[2]), product: T(r[3]), category: T(r[4]), origin: T(r[6]),
       open_date: D(r[7]), maturity_date: D(r[8]), amount_gbp: N(r[9]) ?? 0, drawn_amount_gbp: N(r[10]), utilisation_pct: N(r[11]),
-      annual_income_gbp: N(r[12]) ?? 0, has_open_renewal: N(r[13]) || 0
+      annual_income_gbp: N(r[12]) ?? 0, has_open_renewal: N(r[13]) || 0, exposure_class: T(r[14]), ead_gbp: N(r[15]),
+      risk_weight_pct: N(r[16]), rwa_gbp: N(r[17]), ltv_pct: N(r[18]), property_value_gbp: N(r[19]), sme_factor: N(r[20])
     }));
     const opps = R.opps.filter(r => T(r[7]) === "Open").map(r => ({
       opportunity_id: N(r[0]), customer_id: N(r[1]), opportunity_name: T(r[2]), product: T(r[3]), opportunity_type: T(r[4]),
       revenue_type: T(r[5]), stage: T(r[6]), stage_entered_date: D(r[8]), expected_close_date: D(r[9]), created_date: D(r[10]),
-      probability_pct: N(r[11]), expected_annual_income_gbp: N(r[12]), deal_amount_gbp: N(r[13]), close_date_pushes: N(r[14])
+      probability_pct: N(r[11]), expected_annual_income_gbp: N(r[12]), deal_amount_gbp: N(r[13]), close_date_pushes: N(r[14]),
+      expected_rwa_gbp: N(r[15]), compliance_hold: T(r[16]) === "Yes"
     }));
     const since12 = ymd(new Date(AS_OF.getTime() - 365 * DAY));
     const cases = R.cases.map(r => ({
@@ -492,11 +629,26 @@ class QlikProvider extends BookProvider {
     R.utilisation.map(r => ({ h: N(r[0]), d: serialToDate(N(r[1])), v: N(r[2]) })).filter(x => x.h != null && x.d && ym(x.d) >= from12)
       .sort((a, b) => a.d - b.d).forEach(x => (utilHist[x.h] ||= []).push(x.v));
     const revenue12m = Object.fromEntries(R.revenue.map(r => [N(r[0]), N(r[1]) || 0]));
+    const financials = R.financials.map(r => ({ customer_id: N(r[0]), period_end: D(r[1]), statement_type: T(r[2]), turnover: N(r[3]), ebitda: N(r[4]),
+      margin: N(r[5]), net_debt: N(r[6]), leverage: N(r[7]), interest_cover: N(r[8]), current_ratio: N(r[9]), debtor_days: N(r[10]), cash: N(r[11]) }))
+      .filter(f => f.customer_id != null && f.period_end);
+    const grades = R.grades.map(r => ({ customer_id: N(r[1]), effective_date: D(r[2]), reason: T(r[3]), grade: N(r[4]), previous: N(r[5]) }))
+      .filter(g => g.customer_id != null && g.effective_date);
+    const holdingCust = Object.fromEntries(holdings.map(h => [h.holding_id, h.customer_id]));
+    const covenants = R.covenants.map(r => ({ covenant_id: N(r[0]), holding_id: N(r[1]), customer_id: holdingCust[N(r[1])], type: T(r[2]), op: T(r[3]),
+      result: T(r[4]), threshold: N(r[5]), actual: N(r[6]), headroom: N(r[7]), period_end: D(r[8]) })).filter(k => k.covenant_id != null && k.customer_id != null);
+    const compliance = R.compliance.map(r => ({ check_id: N(r[0]), customer_id: N(r[1]), type: T(r[2]), status: T(r[3]), raised_date: D(r[4]),
+      due_date: D(r[5]), completed_date: D(r[6]), outcome: T(r[7]), blocks: T(r[8]) === "Yes" })).filter(k => k.check_id != null);
+    const rwaHist = {};
+    R.rwaHist.forEach(r => { const cid = N(r[0]), d = serialToDate(N(r[1])); if (cid == null || !d) return; const i = mi[ym(d)]; if (i == null) return;
+      (rwaHist[cid] ||= months.map(() => null))[i] = N(r[2]); });
     this.idx = {
       customers, contacts: group(contacts, "customer_id"), holdings: group(holdings, "customer_id"), opps: group(opps, "customer_id"),
       cases: group(cases, "customer_id"), meetings: group(meetings, "customer_id"),
       touches: group(inter.filter(x => x.meeting_id == null), "customer_id"),
-      months, series, utilHist, revenue12m, lastMeetingEver, lastContact
+      months, series, utilHist, revenue12m, lastMeetingEver, lastContact,
+      financials: group(financials, "customer_id"), grades: group(grades, "customer_id"), covenants: group(covenants, "customer_id"),
+      compliance: group(compliance, "customer_id"), rwaHist, capital: this.capital
     };
     // follow whichever RM the app is filtered to (it may have been changed in Qlik Sense)
     const rmIds = [...new Set(customers.map(c => c.rm_id))];
@@ -652,7 +804,12 @@ function viewWeek() {
   const byDay = {};
   diary.forEach(r => { const k = r.m.startD.toDateString(); (byDay[k] ||= []).push(r); });
   const attention = act.filter(p => p.score > 0).sort((a, b) => b.score - a.score).slice(0, 8);
-  const admin = act.filter(p => p.signals.includes("admin")).sort((a, b) => (a.kyc || 0) - (b.kyc || 0)).slice(0, 6);
+  const rank = p => p.blockers.length ? 0 : p.openChecks.some(k => k.status === "Overdue") ? 1 : p.openChecks.length ? 2 : 3;
+  const admin = act.filter(p => p.openChecks.length || p.signals.includes("admin")).sort((a, b) => rank(a) - rank(b) || (a.kyc || 0) - (b.kyc || 0)).slice(0, 8);
+  const adminLine = p => [
+    ...p.openChecks.map(k => `<span class="chip ${k.blocks ? "critical" : k.status === "Overdue" ? "serious" : "warning"}"><i></i>${esc(k.type)}: ${esc(k.status.toLowerCase())}</span>`),
+    p.arDue && p.arDue <= AS_OF ? `<span class="chip"><i></i>Annual review overdue since ${fmtShort(p.arDue)}</span>` : "",
+    !p.checks.length && p.kyc && days(AS_OF, p.kyc) <= 60 ? `<span class="chip"><i></i>KYC due ${fmtShort(p.kyc)}</span>` : ""].join("");
   const first = (provider.rm?.name || "").replace(/^(Mr|Mrs|Miss|Ms|Dr)\s+/, "").split(" ")[0];
   return `
   <div class="view-head"><div><div class="eyebrow">${WD[AS_OF.getDay()]} ${fmtDate(AS_OF)}</div><h1>Good morning, <em>${esc(first)}</em></h1><div class="contrail short" aria-hidden="true"></div></div>
@@ -681,8 +838,8 @@ function viewWeek() {
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="score" title="Priority score">${p.score}</span>
             ${p.next ? "" : `<button class="btn small" data-propose="${p.id}">Propose meeting</button>`}</div>
         </div>`).join("") || `<p class="empty" style="padding:16px">Nothing needs attention.</p>`}</div></section>
-      <section class="panel"><div class="panel-head"><h2>Reviews and KYC due</h2><span class="muted small">Overdue reviews and KYC due in 60 days</span></div>
-        <div class="panel-body">${admin.length ? `<table><tbody>${admin.map(p => `<tr><td><button class="linkish" data-brief="${p.id}">${esc(p.name)}</button></td><td class="small">${p.arDue && p.arDue <= AS_OF ? `Review overdue since ${fmtShort(p.arDue)}` : ""}${p.kyc && days(AS_OF, p.kyc) <= 60 ? `${p.arDue && p.arDue <= AS_OF ? "<br>" : ""}KYC due ${fmtShort(p.kyc)}` : ""}</td></tr>`).join("")}</tbody></table>` : `<p class="empty">Nothing due.</p>`}</div></section>
+      <section class="panel"><div class="panel-head"><h2>Compliance and reviews</h2><span class="muted small">Holds first, then overdue and due items</span></div>
+        <div class="panel-body">${admin.length ? admin.map(p => `<div class="comp-row"><div><button class="linkish" data-brief="${p.id}">${esc(p.name)}</button>${p.holds.length ? ` <span class="muted small">· ${p.holds.length} deal${p.holds.length > 1 ? "s" : ""} on hold</span>` : ""}</div><div class="chips">${adminLine(p)}</div></div>`).join("") : `<p class="empty">Nothing due.</p>`}</div></section>
     </div>
   </div>`;
 }
@@ -702,12 +859,15 @@ function bookKpis(rows) {
   const overdue = act.filter(p => (p.coverage || "").startsWith("Overdue"));
   const unbooked = act.filter(p => p.coverage === "Overdue - not booked").length;
   const within = act.filter(p => p.coverage && !p.coverage.startsWith("Overdue")).length;
+  const rwa = sum(act.map(p => p.rwa || 0)), below = act.filter(p => p.signals.includes("lowRoRWA")).length;
   return `<div class="stats">
     <div class="stat"><span class="stat-value">${act.length}</span><span class="stat-label">Active customers</span>${rows.length > act.length ? `<span class="stat-note muted">plus ${rows.length - act.length} prospects</span>` : ""}</div>
     <div class="stat"><span class="stat-value">${gbp(sum(act.map(p => p.income || 0)))}</span><span class="stat-label">Annual income, products held</span></div>
     <div class="stat"><span class="stat-value">${gbp(sum(act.map(p => p.revenue12 || 0)))}</span><span class="stat-label">Revenue, last 12 months</span></div>
     <button class="stat" data-toggle="coverage" data-value="Overdue - not booked"><span class="stat-value">${overdue.length}</span><span class="stat-label">Overdue a meeting</span><span class="stat-note">${unbooked} with nothing booked</span></button>
     <div class="stat"><span class="stat-value">${pct(within / Math.max(1, act.length))}</span><span class="stat-label">Book seen within policy</span></div>
+    <div class="stat"><span class="stat-value">${gbp(rwa)}</span><span class="stat-label">Risk weighted assets</span><span class="stat-note muted">${gbp(rwa * (provider.idx.capital?.ratio ?? 13) / 100)} of capital</span></div>
+    <button class="stat" data-toggle="signal" data-value="lowRoRWA"><span class="stat-value">${pct1(rwa > 0 ? sum(act.map(p => p.income || 0)) / rwa : null)}</span><span class="stat-label">Return on RWA</span><span class="stat-note">${below} below the ${pct1((provider.idx.capital?.hurdle ?? 5) / 100)} hurdle</span></button>
   </div>`;
 }
 function viewBook() {
@@ -717,7 +877,8 @@ function viewBook() {
   rows.sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * dir);
   const segRows = bookFiltered("segment"), covRows = bookFiltered("coverage"), sigRows = bookFiltered("signal");
   const segs = ["Corporate", "Commercial", "SME", "Private Banking"];
-  const sigCodes = ["complaint", "moved", "renewal", "competitor", "inflowsDown", "utilHigh", "cancels", "noMeeting", "fxGap", "idleCash", "growth", "newContact"];
+  const sigCodes = ["covBreach", "compHold", "complaint", "moved", "renewal", "competitor", "watchlist", "downgrade", "covTight", "compAction", "lowRoRWA",
+                    "inflowsDown", "utilHigh", "cancels", "noMeeting", "fxGap", "idleCash", "growth", "newContact"];
   const tog = (field, v, label, n) => `<button class="toggle" data-toggle="${field}" data-value="${esc(v)}" aria-pressed="${state.sel[field].has(v)}">${esc(label)}<span class="n">${n}</span></button>`;
   const covCounts = COVERAGE.map(c => ({ ...c, n: covRows.filter(p => p.coverage === c.key).length }));
   const totalCov = sum(covCounts.map(c => c.n)) || 1;
@@ -789,6 +950,48 @@ function sinceLastMeeting(p) {
   if (nc.length) out.push(`<div class="delta"><span>New contacts</span><span class="v">${nc.length}</span><span class="sub">${esc(nc.map(x => `${x.contact_name} (${x.job_title})`).join(", "))}</span></div>`);
   return out.join("");
 }
+// business health: ratios by period, grade history and covenants
+function healthPanel(p) {
+  const f = p.financials, cols = f.map(x => x.statement_type === "Management accounts" ? `Latest<div class="muted small">${fmtMonth(x.period_end.slice(0, 7))} mgmt</div>` : `FY ${x.period_end.slice(0, 4)}`);
+  const x1 = v => v == null ? "n/m" : `${v.toFixed(1)}x`;
+  const rows = [["Turnover", x => gbp(x.turnover)], ["EBITDA", x => gbp(x.ebitda)], ["EBITDA margin", x => x.margin == null ? "—" : `${x.margin.toFixed(1)}%`],
+    ["Net debt", x => gbp(x.net_debt)], ["Leverage (net debt / EBITDA)", x => x1(x.leverage)], ["Interest cover", x => x1(x.interest_cover)],
+    ["Current ratio", x => x.current_ratio == null ? "—" : x.current_ratio.toFixed(2)], ["Debtor days", x => x.debtor_days ?? "—"]];
+  const g = p.grades.slice(-3).reverse();
+  const covLim = k => k.type.startsWith("Loan to value") ? `${k.threshold.toFixed(0)}%` : `${k.threshold}x`;
+  const covAct = k => k.actual == null ? "n/m" : k.type.startsWith("Loan to value") ? `${k.actual.toFixed(0)}%` : `${k.actual.toFixed(2)}x`;
+  const resChip = r => `<span class="chip ${r === "Breach" ? "critical" : r === "Tight" ? "warning" : r === "Breach - waived" ? "serious" : "good"}"><i></i>${esc(r)}</span>`;
+  return `<section class="panel span-7"><div class="panel-head"><h2>Business health</h2><span class="muted small">Grade ${esc(p.gradeLabel || "—")}${p.extRating ? ` · external rating ${esc(p.extRating)}` : ""}</span></div>
+    <div class="panel-body flush"><div class="table-wrap"><table class="ratios"><thead><tr><th></th>${cols.map(c => `<th class="r">${c}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map(([label, fn]) => `<tr><td>${label}</td>${f.map(x => `<td class="r num">${fn(x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    ${p.covenants.length ? `<div class="sub-head">Covenants</div><div class="table-wrap"><table><thead><tr><th>Facility</th><th>Covenant</th><th class="r">Limit</th><th class="r">Latest</th><th class="r">Headroom</th><th>Result</th></tr></thead>
+      <tbody>${p.covenants.map(k => `<tr><td>${esc(k.product)}</td><td class="small">${esc(k.type)}</td><td class="r num">${k.op === "Max" ? "≤" : "≥"} ${covLim(k)}</td><td class="r num">${covAct(k)}</td><td class="r num">${k.headroom == null ? "—" : k.headroom.toFixed(0) + "%"}</td><td>${resChip(k.result)}</td></tr>`).join("")}</tbody></table></div>` : ""}
+    ${g.length ? `<div class="sub-head">Credit grade history</div><div class="panel-body" style="padding-top:0">${g.map(x => `<div class="delta"><span>${esc(x.reason)}</span><span class="v">${x.grade}${x.previous ? ` <span class="muted small">from ${x.previous}</span>` : ""}</span><span class="sub">${fmtDate(parseD(x.effective_date))}</span></div>`).join("")}</div>` : ""}
+    </div></section>`;
+}
+// capital: RWA by holding and ways to improve return on RWA
+function capitalPanel(p, span) {
+  const lend = p.holdings.filter(h => h.rwa_gbp > 0).sort((a, b) => b.rwa_gbp - a.rwa_gbp);
+  const meter = Math.min(1, p.rorwa / (p.hurdle * 2)), mark = 0.5;
+  return `<section class="panel ${span}"><div class="panel-head"><h2>Capital and return</h2><span class="muted small">Simplified UK CRR standardised approach</span></div>
+    <div class="panel-body">
+      <div class="rorwa"><div class="rorwa-top"><span class="stat-value" style="font-size:24px;color:${p.rorwa < p.hurdle ? "var(--critical)" : "var(--qlik-deep-blue)"}">${pct1(p.rorwa)}</span><span class="muted small">return on RWA · hurdle ${pct1(p.hurdle)}</span></div>
+        <div class="rorwa-track"><div class="rorwa-fill" style="width:${(meter * 100).toFixed(0)}%;--c:${p.rorwa < p.hurdle ? "var(--critical)" : "var(--good)"}"></div><div class="rorwa-mark" style="left:${mark * 100}%"></div></div>
+        <div class="muted small">${gbp(p.income)} income a year · ${gbp(p.ead)} exposure · ${gbp(p.rwa)} RWA · ${gbp(p.capital)} capital</div></div>
+      <table class="compact"><thead><tr><th>Holding</th><th>Exposure class</th><th class="r">Risk weight</th><th class="r">RWA</th><th class="r">Return</th></tr></thead>
+        <tbody>${lend.map(h => `<tr><td>${esc(h.product)}${h.ltv_pct != null ? `<div class="muted small">LTV ${h.ltv_pct.toFixed(0)}%</div>` : ""}</td><td class="small">${esc(h.exposure_class || "")}</td><td class="r num">${h.risk_weight_pct != null ? h.risk_weight_pct.toFixed(0) + "%" : "—"}${h.sme_factor && h.sme_factor < 1 ? `<div class="muted small">× ${h.sme_factor.toFixed(2)} SME</div>` : ""}</td><td class="r num">${gbp(h.rwa_gbp)}</td><td class="r num" style="color:${h.annual_income_gbp / h.rwa_gbp < p.hurdle ? "var(--critical)" : "inherit"}">${pct1(h.annual_income_gbp / h.rwa_gbp)}</td></tr>`).join("")}</tbody></table>
+      ${p.ideas.length ? `<div class="sub-head" style="padding-left:0">Ways to improve the return</div>${p.ideas.slice(0, 4).map(i => `<div class="idea"><b>${esc(i.title)}</b><div class="muted small">${esc(i.detail)}</div>
+        <div class="small">${i.pipeline ? "Pipeline deal" : `${i.save > 0 ? `Saves ${gbp(i.save)} RWA · ` : ""}${i.income ? `${i.income > 0 ? "+" : "−"}${gbp(Math.abs(i.income))} income · ` : ""}return on RWA ${pct1(p.rorwa)} → <b>${pct1(i.after)}</b>`}</div></div>`).join("")}` : ""}
+    </div></section>`;
+}
+function complianceList(p) {
+  const tone = k => k.blocks ? "critical" : k.status === "Overdue" ? "serious" : k.status === "Clear" ? "good" : "warning";
+  const recent = p.checks.filter(k => k.status === "Clear").slice(0, 3);
+  const list = [...p.openChecks, ...recent];
+  if (!list.length) return `<p class="empty">No compliance checks on record.</p>`;
+  return list.map(k => `<div class="delta"><span><b>${esc(k.type)}</b></span><span><span class="chip ${tone(k)}"><i></i>${esc(k.status)}</span></span>
+    <span class="sub">${esc(k.outcome || "")}${k.status === "Clear" && k.completed_date ? ` · completed ${fmtDate(parseD(k.completed_date))}` : k.due_date ? ` · due ${fmtDate(parseD(k.due_date))}` : ""}${k.blocks ? " · new business on hold" : ""}</span></div>`).join("");
+}
 function briefText(p) {
   const lines = [`${p.name} - meeting brief (${fmtDate(AS_OF)})`, `${p.segment} · ${p.c.city} · RM ${provider.rm?.name || ""}`];
   if (p.next) lines.push(`Next meeting: ${fmtDate(p.next.startD)} ${fmtTime(p.next.startD)}, ${p.next.meeting_type}, ${p.next.channel}`);
@@ -836,6 +1039,9 @@ function viewBrief(p) {
     <div class="stat"><span class="stat-value">${gbp(deposits)}</span><span class="stat-label">Deposits and current accounts</span></div>
     <div class="stat"><span class="stat-value">${lendLimit ? gbp(lendDrawn) : "—"}</span><span class="stat-label">Lending drawn${lendLimit ? ` of ${gbp(lendLimit)}` : ""}</span></div>
     ${wealth ? `<div class="stat"><span class="stat-value">${gbp(wealth)}</span><span class="stat-label">Wealth assets</span></div>` : ""}
+    ${p.rwa > 0 ? `<div class="stat"><span class="stat-value">${gbp(p.rwa)}</span><span class="stat-label">Risk weighted assets</span></div>
+    <div class="stat"><span class="stat-value" style="color:${p.rorwa < p.hurdle ? "var(--critical)" : "var(--qlik-deep-blue)"}">${pct1(p.rorwa)}</span><span class="stat-label">Return on RWA (hurdle ${pct1(p.hurdle)})</span></div>` : ""}
+    ${p.grade ? `<div class="stat"><span class="stat-value">${p.grade}</span><span class="stat-label">Credit grade · ${esc(GRADE_BAND[p.grade])}${p.extRating ? ` · rated ${esc(p.extRating)}` : ""}</span></div>` : ""}
   </div>
 
   <div class="grid">
@@ -855,6 +1061,9 @@ function viewBrief(p) {
         const ren = !mat ? "" : h.has_open_renewal ? `<span class="chip good"><i></i>In progress</span>` : dl <= 120 ? `<span class="chip serious"><i></i>Not raised</span>` : dl <= 270 ? `<span class="chip"><i></i>Due in ${Math.round(dl / 30)} months</span>` : "";
         return `<tr><td><b>${esc(h.product)}</b><div class="muted small">${esc(h.category)}${h.origin && h.origin !== "Existing book" ? " · " + esc(h.origin) : ""}</div></td><td class="r num">${gbp(h.amount_gbp)}${h.drawn_amount_gbp != null && h.utilisation_pct == null && h.category === "Lending" ? `<div class="muted small">${gbp(h.drawn_amount_gbp)} outstanding</div>` : ""}</td><td>${utilBar(h)}</td><td class="small">${fmtDate(parseD(h.open_date))}</td><td class="small">${mat ? fmtDate(mat) : "—"}</td><td class="r num">${gbp(h.annual_income_gbp)}</td><td>${ren}</td></tr>`; }).join("") || `<tr><td colspan="7" class="empty">No products held.</td></tr>`}</tbody></table></div></div></section>
 
+    ${p.financials.length ? healthPanel(p) : ""}
+    ${p.rwa > 0 ? capitalPanel(p, p.financials.length ? "span-5" : "span-12") : ""}
+
     <section class="panel span-7"><div class="panel-head"><h2>Meetings and contact history</h2><span class="muted small">Latest 10</span></div>
       <div class="panel-body">${hist.map(x => x.kind === "m" ? `<div class="timeline-item"><div class="timeline-date">${fmtDate(x.d)}</div><div class="timeline-body"><b>${esc(x.m.meeting_type)}</b> <span class="muted small">${esc(x.m.channel)}</span>${x.m.status !== "Completed" ? ` <span class="chip warning"><i></i>${esc(x.m.status)}${x.m.cancelled_by ? " by " + esc(x.m.cancelled_by.toLowerCase()) : ""}</span>` : ""}${x.m.sentiment ? ` <span class="sent">· ${esc(x.m.sentiment)}</span>` : ""}
         ${x.m.notes ? `<p>${esc(x.m.notes)}</p>` : x.m.cancellation_reason ? `<p>${esc(x.m.cancellation_reason)}</p>` : ""}${x.m.next_action ? `<p class="small">Next action: ${esc(x.m.next_action)}</p>` : ""}</div></div>`
@@ -863,9 +1072,11 @@ function viewBrief(p) {
       <section class="panel"><div class="panel-head"><h2>People</h2><span class="muted small">${p.contacts.length} contact${p.contacts.length === 1 ? "" : "s"}</span></div>
         <div class="panel-body">${p.contacts.map(x => `<div class="person"><div><b>${esc(x.contact_name)}</b> <span class="muted">${esc(x.job_title)}</span></div><div class="chips">${x.is_primary ? `<span class="chip"><i></i>Primary</span>` : ""}${x.is_decision_maker ? `<span class="chip"><i></i>Decision maker</span>` : ""}<span class="chip ${x.relationship_strength === "Weak" ? "warning" : x.relationship_strength === "New" ? "opportunity" : x.relationship_strength === "Strong" ? "good" : ""}"><i></i>${esc(x.relationship_strength)}</span></div><div class="contact"><span>${esc(x.email)}</span><span>${esc(x.phone)}</span></div></div>`).join("") || `<p class="empty">No contacts on record.</p>`}</div></section>
       <section class="panel"><div class="panel-head"><h2>Open opportunities</h2></div>
-        <div class="panel-body">${p.opps.length ? `<table><tbody>${p.opps.map(o => `<tr><td><b>${esc(o.product)}</b><div class="muted small">${esc(o.opportunity_type)} · ${esc(o.stage)} · ${days(parseD(o.stage_entered_date), AS_OF)} days in stage</div></td><td class="r num">${gbp(o.expected_annual_income_gbp)}<div class="muted small">${o.probability_pct ?? "—"}%</div></td></tr>`).join("")}</tbody></table>` : `<p class="empty">No open opportunities.</p>`}</div></section>
+        <div class="panel-body">${p.opps.length ? `<table><tbody>${p.opps.map(o => `<tr><td><b>${esc(o.product)}</b>${o.compliance_hold ? ` <span class="chip critical"><i></i>On hold: compliance</span>` : ""}<div class="muted small">${esc(o.opportunity_type)} · ${esc(o.stage)} · ${days(parseD(o.stage_entered_date), AS_OF)} days in stage${o.expected_rwa_gbp > 0 ? ` · ${gbp(o.expected_rwa_gbp)} RWA if won` : ""}</div></td><td class="r num">${gbp(o.expected_annual_income_gbp)}<div class="muted small">${o.probability_pct ?? "—"}%</div></td></tr>`).join("")}</tbody></table>` : `<p class="empty">No open opportunities.</p>`}</div></section>
       <section class="panel"><div class="panel-head"><h2>Service cases</h2><span class="muted small">Open, and last 12 months</span></div>
         <div class="panel-body">${p.cases.length ? `<table><tbody>${p.cases.map(k => `<tr><td><b>${esc(k.category)}</b><div class="muted small">${esc(k.description)}</div></td><td class="small">${k.status === "Open" ? `<span class="chip ${k.is_complaint ? "critical" : "warning"}"><i></i>Open</span>` : "Closed"}<div class="muted">${fmtShort(parseD(k.opened_date))}</div></td></tr>`).join("")}</tbody></table>` : `<p class="empty">No cases in the last 12 months.</p>`}</div></section>
+      <section class="panel"><div class="panel-head"><h2>Compliance</h2><span class="muted small">${p.complianceStatus ? esc(p.complianceStatus) : ""}${p.cdd ? ` · ${esc(p.cdd)} due diligence` : ""}${p.pep ? " · PEP" : ""}</span></div>
+        <div class="panel-body">${complianceList(p)}</div></section>
       <section class="panel"><div class="panel-head"><h2>Admin</h2></div>
         <div class="panel-body"><dl class="kv"><dt>Annual review</dt><dd>${c.last_annual_review_date ? `Last ${fmtDate(parseD(c.last_annual_review_date))}` : "None on record"}${p.arDue ? ` · next ${fmtDate(p.arDue)}${p.arDue <= AS_OF ? " (overdue)" : ""}` : ""}</dd>
           <dt>KYC refresh</dt><dd>${p.kyc ? fmtDate(p.kyc) : "—"}</dd>${p.inPerson != null ? `<dt>In-person policy</dt><dd>${p.inPerson} a year</dd>` : ""}${lastNotes ? `<dt>Last notes</dt><dd>${fmtDate(lastNotes.startD)}</dd>` : ""}</dl></div></section>
@@ -956,7 +1167,7 @@ function showError(where, e) {
     <li>the app ID in <span class="num">config.js</span> is set (currently <span class="num">${esc(QLIK.appId)}</span>);</li>
     <li>the OAuth client lists <span class="num">${esc(QLIK.redirectUri)}</span> as a redirect URL and <span class="num">${esc(location.origin)}</span> as an allowed origin;</li>
     <li>you can open the app in Qlik Sense with the same account;</li>
-    <li>the app has been reloaded with the v3 load script.</li></ul>
+    <li>the app has been reloaded with the v4 load script.</li></ul>
     <p><a href="?mode=mock">Open with sample data instead</a></p>` : "";
   const box = $("#ov-error"); box.hidden = false;
   box.innerHTML = `<pre>${esc(msg)}</pre>${hints}`;

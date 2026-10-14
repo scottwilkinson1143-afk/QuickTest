@@ -333,6 +333,64 @@ export async function downloadBriefPdf(p, ctx) {
       body: body.map(r => r.filter((_, i) => keep[i]).map(cleanCell)), columnStyles: cs });
     y = doc.lastAutoTable.finalY + 20;
   };
+  const p1 = v => v == null || !isFinite(v) ? "-" : `${(v * 100).toFixed(1)}%`;
+  const xv = v => v == null ? "n/m" : `${v.toFixed(1)}x`;
+
+  /* ---- business health (business customers) ---- */
+  if (p.financials?.length) {
+    const f = p.financials;
+    const head = ["", ...f.map(x => x.statement_type === "Management accounts" ? `Latest (${x.period_end.slice(5, 7)}/${x.period_end.slice(2, 4)})` : `FY ${x.period_end.slice(0, 4)}`)];
+    const rows = [["Turnover", x => gbp(x.turnover)], ["EBITDA margin", x => x.margin == null ? "-" : `${x.margin.toFixed(1)}%`],
+      ["Net debt", x => gbp(x.net_debt)], ["Leverage (net debt / EBITDA)", x => xv(x.leverage)], ["Interest cover", x => xv(x.interest_cover)],
+      ["Current ratio", x => x.current_ratio == null ? "-" : x.current_ratio.toFixed(2)]];
+    const cs = {}; head.forEach((_, i) => { if (i) cs[i] = { halign: "right" }; });
+    const last = p.grades?.[p.grades.length - 1];
+    table(`Business health · grade ${p.gradeLabel || "-"}${p.extRating ? ` · rated ${p.extRating}` : ""}`, head, rows.map(([l, fn]) => [l, ...f.map(fn)]), cs);
+    if (last && last.previous) { font("normal", 8, C.muted); text(`Latest grade change: ${last.reason} (${fmtDate(parseD(last.effective_date))}), from ${last.previous} to ${last.grade}.`, M, y - 6); y += 12; }
+    if (p.covenants?.length) {
+      const lim = k => k.type.startsWith("Loan to value") ? `${k.threshold.toFixed(0)}%` : `${k.threshold}x`;
+      const act = k => k.actual == null ? "n/m" : k.type.startsWith("Loan to value") ? `${k.actual.toFixed(0)}%` : `${k.actual.toFixed(2)}x`;
+      table("Covenants", ["Facility", "Covenant", "Limit", "Latest", "Headroom", "Result"],
+        p.covenants.map(k => [k.product, k.type, `${k.op === "Max" ? "max" : "min"} ${lim(k)}`, act(k), k.headroom == null ? "-" : `${k.headroom.toFixed(0)}%`, k.result]),
+        { 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } });
+    }
+  }
+
+  /* ---- capital and return ---- */
+  if (p.rwa > 0) {
+    sectionTitle("Capital and return");
+    const below = p.rorwa < p.hurdle;
+    font("bold", 16, below ? C.critical : C.deepBlue); text(p1(p.rorwa), M, y + 4);
+    const wR = doc.getTextWidth(p1(p.rorwa));
+    font("normal", 8.5, C.gray);
+    text(`return on RWA against a ${p1(p.hurdle)} hurdle  ·  ${gbp(p.income)} income  ·  ${gbp(p.ead)} exposure  ·  ${gbp(p.rwa)} RWA  ·  ${gbp(p.capital)} capital`, M + wR + 10, y + 2);
+    y += 22;
+    const ideas = (p.ideas || []).slice(0, 3);
+    if (ideas.length) {
+      font("semibold", 8.5, C.deepBlue); text("Ways to improve the return", M, y); y += 13;
+      ideas.forEach(i => {
+        font("normal", 8.5, C.gray); const dl = wrap(i.detail, CW - 12);
+        ensure(14 + dl.length * 10.5 + 12);
+        fill(C.green); doc.rect(M, y - 7, 2, 9 + dl.length * 10.5 + 10, "F");
+        font("semibold", 8.5, C.deepBlue); text(i.title, M + 10, y);
+        font("normal", 8, C.gray); dl.forEach((l, k) => text(l, M + 10, y + 11 + k * 10.5));
+        const yy = y + 11 + dl.length * 10.5;
+        font("semibold", 8, C.green);
+        text(i.pipeline ? "Pipeline deal" : `${i.save > 0 ? `Saves ${gbp(i.save)} RWA. ` : ""}${i.income ? `${i.income > 0 ? "+" : "-"}${gbp(Math.abs(i.income))} income. ` : ""}Return on RWA ${p1(p.rorwa)} to ${p1(i.after)}.`, M + 10, yy);
+        y = yy + 14;
+      });
+    }
+    y += 6;
+  }
+
+  /* ---- compliance ---- */
+  if (p.checks?.length) {
+    if (p.openChecks.length) table(`Compliance · ${p.complianceStatus || ""}${p.cdd ? ` · ${p.cdd.toLowerCase()} due diligence` : ""}`, ["Check", "Status", "Due", "Detail"],
+      p.openChecks.map(k => [k.type, k.status + (k.blocks ? "\nNew business on hold" : ""), k.due_date ? fmtDate(parseD(k.due_date)) : "-", k.outcome || ""]),
+      { 0: { cellWidth: 110 }, 1: { cellWidth: 90 }, 2: { cellWidth: 70 } });
+    else { sectionTitle("Compliance"); font("normal", 8.5, C.gray); text(`No open items. ${p.cdd ? `${p.cdd} due diligence. ` : ""}KYC review next due ${p.kyc ? fmtDate(p.kyc) : "-"}.`, M, y); y += 20; }
+  }
+
   table("Products held", ["Product", "Balance / limit", "Drawn", "Matures", "Income a year", "Renewal"],
     p.holdings.map(h => {
       const mat = parseD(h.maturity_date), dl = mat ? days(AS_OF, mat) : null;
