@@ -433,7 +433,7 @@ export async function downloadBriefPdf(p, ctx) {
     doc.setPage(i);
     stroke(C.line); doc.setLineWidth(0.5); doc.line(M, H - 34, W - M, H - 34);
     font("normal", 7, C.muted);
-    text(`Confidential · Meridian Bank (fictional) · Prepared for ${rmName} · Source: ${sourceLabel}, data as of ${fmtDate(AS_OF)}`, M, H - 22);
+    text(`Confidential · Client IQ Demonstrator (synthetic data) · Prepared for ${rmName} · Source: ${sourceLabel}, data as of ${fmtDate(AS_OF)}`, M, H - 22);
     text(`Page ${i} of ${pages}`, W - M, H - 22, { align: "right" });
   }
   const safe = p.name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, " ");

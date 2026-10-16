@@ -1,5 +1,5 @@
 /* =============================================================================
-   Meridian RM Portal - demonstrator
+   Client IQ Demonstrator - Relationship Manager Portal
    ---------------------------------------------------------------------------
    The views never touch Qlik or files directly. They ask a provider for a
    normalised "book" (customers, holdings, meetings, ...). Two providers:
@@ -492,15 +492,21 @@ const cellDate = c => { const d = serialToDate(cellNum(c)); return d ? ymd(d) : 
 const cellStamp = c => { const d = serialToDate(cellNum(c)); return d ? `${ymd(d)}T${fmtTime(d)}` : null; };
 
 class QlikProvider extends BookProvider {
-  get label() { return "Qlik Cloud"; }
+  get label() { return QLIK.authType === "anonymous" ? "Qlik Cloud (anonymous)" : "Qlik Cloud"; }
   async connect(onStep) {
-    const steps = ["Signing in to Qlik Cloud", "Opening the app", "Creating data objects"];
+    const steps = [QLIK.authType === "anonymous" ? "Connecting anonymously to Qlik Cloud" : "Signing in to Qlik Cloud", "Opening the app", "Creating data objects"];
     onStep?.(steps, 0);
+    if (QLIK.authType === "anonymous" && [QLIK.host, QLIK.clientId, QLIK.accessCode, QLIK.appId].some(v => /^YOUR-/.test(v)))
+      throw new Error("The anonymous tenant settings in config.js have not been filled in yet.");
     const { auth, qix } = await import(QLIK_API_URL);
-    auth.setDefaultHostConfig({
-      authType: "oauth2", host: QLIK.host, clientId: QLIK.clientId, redirectUri: QLIK.redirectUri,
-      accessTokenStorage: QLIK.accessTokenStorage, scope: "user_default",
-    });
+    if (QLIK.authType === "anonymous") {
+      auth.setDefaultHostConfig({ authType: "anonymous", host: QLIK.host, clientId: QLIK.clientId, accessCode: QLIK.accessCode });
+    } else {
+      auth.setDefaultHostConfig({
+        authType: "oauth2", host: QLIK.host, clientId: QLIK.clientId, redirectUri: QLIK.redirectUri,
+        accessTokenStorage: QLIK.accessTokenStorage, scope: "user_default",
+      });
+    }
     onStep?.(steps, 1);
     this.app = await qix.openAppSession(QLIK.appId).getDoc();
     this.generated = "live from Qlik Cloud";
@@ -1090,7 +1096,7 @@ function aboutPanel() {
     <p class="muted small" style="max-width:70ch">Each dataset is a hypercube created with <span class="num">createSessionObject()</span> and read in pages of up to 10,000 cells. Choosing a relationship manager selects <span class="num">rm_id</span> in the app; the cubes then return that RM's book. Signals, talking points and coverage are worked out in the page from the cube rows.</p>
     <div class="about-grid">${Object.entries(QCUBES).map(([id, c]) => `<div><h3>${id}</h3><pre>${esc(JSON.stringify(toHyperCubeDef(id, c), null, 2))}</pre></div>`).join("")}</div>
   </details>
-  <p class="foot">Qlik demonstrator · synthetic data for a fictional bank (Meridian Bank). Source: <span class="mode-tag">${esc(provider.label)}</span> · data as of ${fmtDate(AS_OF)}${provider.generated ? ` · ${esc(provider.generated)}` : ""}. Proposed meetings stay in this page only.</p>`;
+  <p class="foot">Client IQ Demonstrator · synthetic data. Source: <span class="mode-tag">${esc(provider.label)}</span> · data as of ${fmtDate(AS_OF)}${provider.generated ? ` · ${esc(provider.generated)}` : ""}. Proposed meetings stay in this page only.</p>`;
 }
 function drawCharts() {
   const sc = $("#chart-scatter");
@@ -1101,7 +1107,7 @@ function drawCharts() {
     const bal = $("#chart-balance"); if (bal) lineChart(bal, { labels: lab.slice(0, -1), series: [{ name: "Balance", values: p.ser.balance.slice(0, -1), color: "var(--series-1)" }], area: true });
     const fl = $("#chart-flows"); if (fl) lineChart(fl, { labels: lab.slice(-13, -1), series: [{ name: "Inflows", values: p.ser.credits.slice(-13, -1), color: "var(--series-1)" }, { name: "Operating spend", values: p.ser.spend.slice(-13, -1), color: "var(--series-2)" }] });
   } else if (p) {
-    ["#chart-balance", "#chart-flows"].forEach(s => { const el = $(s); if (el) el.innerHTML = `<p class="empty">No current account with Meridian.</p>`; });
+    ["#chart-balance", "#chart-flows"].forEach(s => { const el = $(s); if (el) el.innerHTML = `<p class="empty">No current account held.</p>`; });
   }
 }
 
@@ -1165,7 +1171,12 @@ function showError(where, e) {
   $("#ov-title").textContent = `Could not ${where}`;
   const hints = mode === "qlik" ? `<p>Check that:</p><ul>
     <li>the app ID in <span class="num">config.js</span> is set (currently <span class="num">${esc(QLIK.appId)}</span>);</li>
-    <li>the OAuth client lists <span class="num">${esc(QLIK.redirectUri)}</span> as a redirect URL and <span class="num">${esc(location.origin)}</span> as an allowed origin;</li>
+    ${QLIK.authType === "anonymous"
+      ? `<li>the host, client ID, access code and app ID for the anonymous tenant are filled in in <span class="num">config.js</span>;</li>
+         <li>the Anonymous embed OAuth client lists <span class="num">${esc(location.origin)}</span> as an allowed origin;</li>
+         <li>the app is published to a managed space with <b>Anyone with the link</b> switched on;</li>
+         <li>anonymous sessions end after 15 minutes: reload the page to start a new one;</li>`
+      : `<li>the OAuth client lists <span class="num">${esc(QLIK.redirectUri)}</span> as a redirect URL and <span class="num">${esc(location.origin)}</span> as an allowed origin;</li>`}
     <li>you can open the app in Qlik Sense with the same account;</li>
     <li>the app has been reloaded with the v4 load script.</li></ul>
     <p><a href="?mode=mock">Open with sample data instead</a></p>` : "";
