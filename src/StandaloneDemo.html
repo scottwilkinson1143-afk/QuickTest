@@ -121,14 +121,17 @@
   .stage { min-height: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--gap); }
   .flow {
     background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-    padding: 10px 16px; display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; overflow: hidden; flex-shrink: 0;
+    padding: 10px 16px; display: flex; align-items: center; gap: 5px; flex-wrap: nowrap; overflow: hidden; flex-shrink: 0;
   }
   .flow .node {
-    font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 8px; white-space: nowrap;
+    font-size: clamp(10px, 0.78vw, 11.5px); font-weight: 600; padding: 4px clamp(6px, 0.6vw, 10px); border-radius: 8px; white-space: nowrap;
     background: var(--bg); color: var(--gray); border: 1.5px solid transparent;
   }
-  .flow .node.lit { background: #E8F5EE; color: var(--green-dark); border-color: var(--green); }
-  .flow .arrow { color: var(--accent-grey); font-size: 12px; }
+  .flow .node.lit { background: var(--green); color: #fff; border-color: var(--green); }
+  .flow .node.past { background: #E8F5EE; color: var(--green-dark); }
+  .flow .via { margin-left: auto; padding-left: 10px; font-size: 11px; font-weight: 700; color: var(--deep-blue); white-space: nowrap; }
+  .flow .via.claude { color: #C15F3C; }
+  .flow .arrow { color: var(--accent-grey); font-size: 11px; }
   .flow .flow-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-right: 4px; white-space: nowrap; }
 
   #chapter { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--gap); }
@@ -214,8 +217,15 @@
   .player video { display: block; width: 100%; max-height: calc(100dvh - 120px); background: #000; }
   .player .vid-missing { display: none; color: #fff; padding: 40px 24px; text-align: center; font-size: 14px; }
 
+  @media (max-width: 1600px) {
+    .flow .arrow { display: none; }
+    .flow { gap: 4px; }
+    .flow .node.past + .node.past, .flow .node.past + .node.lit { position: relative; }
+  }
+  @media (max-width: 1400px) { .flow .flow-label { display: none; } }
+
   /* ---------- Responsive: medium widths (split view) ---------- */
-  @media (max-width: 1100px) {
+  @media (max-width: 1200px) {
     .flow { display: none; }
     .top-progress { display: none; }
   }
@@ -315,7 +325,7 @@ const ICONS = {
   play: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor"/></svg>'
 };
 
-const FLOW = ["MySQL", "Qlik Talend Cloud", "Databricks", "Qlik Datasets", "Data Product", "Qlik App", "Glossary", "Claude + Qlik MCP"];
+const FLOW = ["MySQL", "Qlik Talend Cloud", "Databricks", "Datasets", "Data Product", "Semantic Layer", "Qlik App", "Master Items", "Insights", "Glossary"];
 
 const CHAPTERS = [
   {
@@ -336,7 +346,7 @@ const CHAPTERS = [
     interaction: "Create the datasets needed for the demo in the Qlik UI.",
     outcome: "Four registered datasets are created and made available in Qlik Cloud.",
     link: { url: "https://ukdemosaas.eu.qlikcloud.com/data-integration/catalog/all?space_filter=6ac64c080630039919a2a00f", text: "Open the catalog" },
-    pillars: ["trust", "context"], products: ["Qlik Cloud Analytics"], flow: [2, 3]
+    pillars: ["trust", "context"], products: ["Qlik Cloud Analytics"], flow: [3]
   },
   {
     title: "Build a Qlik Data Product",
@@ -349,7 +359,7 @@ const CHAPTERS = [
     ],
     outcome: "The Qlik Data Product is created, and the data quality scores and descriptions in the Qlik datasets are updated.",
     link: { url: "https://claude.ai/project/01a11667-61bc-7552-b598-57121bc92149", text: "Open the Claude project" },
-    pillars: ["context"], products: ["Claude + Qlik MCP"], flow: [3, 4, 7]
+    pillars: ["context"], products: ["Claude + Qlik MCP"], flow: [4]
   },
   {
     title: "Edit Semantic Layer",
@@ -359,7 +369,7 @@ const CHAPTERS = [
     interaction: "Show the semantic layer in the Data Product, confirm the relationships between the datasets and activate the data product.",
     outcome: "The Data Product has a defined set of relationships and is activated.",
     link: { url: "https://ukdemosaas.eu.qlikcloud.com/data-integration/catalog/all?space_filter=6ac64c080630039919a2a00f", text: "Open the Qlik space" },
-    pillars: ["context"], products: ["Qlik Cloud Analytics"], flow: [4]
+    pillars: ["context"], products: ["Qlik Cloud Analytics"], flow: [5]
   },
   {
     title: "Create a Qlik Application",
@@ -369,7 +379,7 @@ const CHAPTERS = [
     prompts: [ { text: "Can you create me an app from the recently activated data product?" } ],
     outcome: "A Qlik application is created from the Trades Data Product.",
     session: true,
-    pillars: ["trust", "freedom", "context"], products: [], flow: [4, 5, 7]
+    pillars: ["trust", "freedom", "context"], products: [], flow: [6]
   },
   {
     title: "Ensure Governance with Master Items",
@@ -379,7 +389,7 @@ const CHAPTERS = [
     prompts: [ { text: "Can you create the master items from the attached document?", attach: "Trades Master Items – Business Definitions.md" } ],
     outcome: "The application has master items and content in line with the corporate governed metrics, not freestyled by AI.",
     session: true,
-    pillars: ["trust", "context"], products: ["Claude + Qlik MCP"], flow: [5, 7]
+    pillars: ["trust", "context"], products: ["Claude + Qlik MCP"], flow: [7]
   },
   {
     title: "Utilise the Content",
@@ -394,7 +404,7 @@ const CHAPTERS = [
     promptNote: "Ask three or more questions.",
     outcome: "Claude provides a complete and trusted series of answers.",
     session: true,
-    pillars: ["trust", "freedom"], products: ["Claude + Qlik MCP"], flow: [5, 7]
+    pillars: ["trust", "freedom"], products: ["Claude + Qlik MCP"], flow: [8]
   },
   {
     title: "Create a Glossary",
@@ -404,7 +414,7 @@ const CHAPTERS = [
     prompts: [ { text: "Can you create a glossary from this app and the master items and then link it to the data product" } ],
     outcome: "A glossary is created, referenced in the application and connected to the Data Product.",
     session: true,
-    pillars: ["context"], products: ["Claude + Qlik MCP"], flow: [4, 5, 6, 7]
+    pillars: ["context"], products: ["Claude + Qlik MCP"], flow: [9]
   }
 ];
 // Video for chapter n lives at assets/videosection{n}.mp4
@@ -432,8 +442,15 @@ function renderSidebar() {
 }
 
 function renderFlow(ch) {
+  const first = Math.min(...ch.flow);
+  const via = ch.tool === "claude" ? `<span class="via claude">via Claude + Qlik MCP</span>`
+            : ch.tool === "qtc" ? `<span class="via">via Qlik Talend Cloud UI</span>`
+            : `<span class="via">via Qlik Cloud UI</span>`;
   document.getElementById("flow").innerHTML = `<span class="flow-label">Data journey</span>` +
-    FLOW.map((n, i) => `<span class="node ${ch.flow.includes(i) ? "lit" : ""}">${esc(n)}</span>` + (i < FLOW.length - 1 ? `<span class="arrow">→</span>` : "")).join("");
+    FLOW.map((n, i) => {
+      const cls = ch.flow.includes(i) ? "lit" : i < first ? "past" : "";
+      return `<span class="node ${cls}">${esc(n)}</span>` + (i < FLOW.length - 1 ? `<span class="arrow">→</span>` : "");
+    }).join("") + via;
 }
 
 function renderChapter() {
