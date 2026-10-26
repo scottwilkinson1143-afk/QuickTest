@@ -14,7 +14,6 @@
      clientId    the id of a "Single-page app" OAuth client on that tenant
      appId       Supply Chain Retail - Demo App
      redirectUri oauth-callback.html, in the same folder as this page
-     periodStart first day of the "last 12 months" window
      ============================================================ -->
 <script>
   window.MEADOWVALE_CONFIG = {
@@ -22,7 +21,6 @@
     clientId: "a6c0a95b5e3ad86f95aa94a9de35c610",
     appId: "0ca8adf6-8cb3-428d-99ee-48360d6b30e8",
     redirectUri: new URL("oauth-callback.html", window.location.href).href,
-    periodStart: "2025-10-01",
   };
 </script>
 
@@ -62,6 +60,12 @@
   .btn.ghost { background: transparent; }
   button:focus-visible { outline: 2px solid var(--brook); outline-offset: 2px; }
   #selection-note { font-size: 13px; color: var(--pebble); margin-left: auto; }
+  .chips.dates { gap: 6px 8px; }
+  .range select { font: 600 14px var(--text); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+                  padding: 6px 12px; cursor: pointer; }
+  .range select:focus-visible { outline: 2px solid var(--brook); outline-offset: 2px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .kpi-head { margin: 0 0 8px; }
   body.is-busy main { opacity: .55; transition: opacity .2s; }
 
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; margin-bottom: 18px; }
@@ -171,11 +175,17 @@
     <div class="chips" data-field="Store Format"><span class="label">Format</span>
       <button type="button" data-value="">All</button><button type="button" data-value="Large">Large</button>
       <button type="button" data-value="Metro">Metro</button><button type="button" data-value="Express">Express</button></div>
+    <div class="chips dates"><span class="label">Dates</span>
+      <span id="date-presets" class="chips"></span>
+      <label class="range"><span class="sr">From</span><select id="date-from" aria-label="From month"></select></label>
+      <span class="muted">to</span>
+      <label class="range"><span class="sr">To</span><select id="date-to" aria-label="To month"></select></label></div>
     <button type="button" class="btn ghost" id="clear">Clear selections</button>
     <span id="selection-note"></span>
   </div>
 
   <main>
+    <div class="kpi-head"><span class="eyebrow" id="kpi-period">Last 12 months</span></div>
     <div class="kpis" id="kpis"></div>
 
     <section class="card" id="trend">
@@ -189,7 +199,7 @@
     <div class="grid2">
       <section class="card" id="formats">
         <h2>Express stores run out most</h2>
-        <p class="sub">Availability by store format: hollow dot is the prior 12 months, filled dot the last 12. Click a format to select it in Qlik.</p>
+        <p class="sub" id="formats-sub"></p>
         <div class="chart" id="formats-chart"></div>
       </section>
       <section class="card" id="events">
@@ -201,7 +211,7 @@
 
     <section class="card feature" id="south">
       <h2>Why South DC slipped</h2>
-      <p class="sub">Imported products, January to September, with the Iberian freight disruption (9 March to 5 April 2026) taken out.</p>
+      <p class="sub">Imported products, January to September, with the Iberian freight disruption (9 March to 5 April 2026) taken out. This comparison is fixed, so the date selection doesn't change it.</p>
       <div class="why">
         <div class="chart" id="south-chart"></div>
         <div>
@@ -219,7 +229,7 @@
     <div class="grid2">
       <section class="card" id="suppliers">
         <h2>Supplier OTIF against contract</h2>
-        <p class="sub">Percentage points above or below each supplier's contracted on-time-in-full target, over the whole period.</p>
+        <p class="sub" id="suppliers-sub"></p>
         <div class="chart" id="suppliers-chart"></div>
       </section>
       <section class="card" id="whatif">
@@ -300,25 +310,65 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     year: "6abd40f5-d66d-429a-84ed-04af371db7a6",
   };
 
-  const [py, pm, pd] = CFG.periodStart.split("-").map(Number);
-  const PERIOD = `=If(Date>=MakeDate(${py},${pm},${pd}), 'Last 12 months', 'Prior 12 months')`;
-  const IMP = `Sourcing={'Imported'}, Month={">=1<=9"}`;
+  // South DC comparison: imported lines, Jan-Sep, Iberian disruption window removed.
+  // [Year Month]= makes it ignore the page's date selection, so the comparison always holds.
+  const IMP = (yr) => `Year={${yr}}, Sourcing={'Imported'}, Month={">=1<=9"}, [Year Month]=`;
   const EXCL = `Date-={">=2026-03-09<=2026-04-05"}`;
   const whatIf = (n) => [
     { key: `lost_${n}`, expr: `Sum(RangeMax(0, ${n} - [Position Store Days Cover]) * [Position Daily Demand] * [Position Unit Price])` },
     { key: `out_${n}`, expr: `Count({<[Position Store Days Cover]={"<${n}"}>} [Position Product])` },
   ];
 
+  // ---------- Date windows ----------
+  // MONTHS is read from the app once on connect. The "current" window is the selected range,
+  // or the last 12 months when no dates are selected; "previous" is the same number of months before it.
+  let MONTHS = [];
+  let range = null; // { from, to } indexes into MONTHS, or null for all dates
+  function windows() {
+    const n = MONTHS.length;
+    const [a, b] = range ? [range.from, range.to] : [Math.max(0, n - 12), n - 1];
+    const len = b - a + 1;
+    const cur = MONTHS.slice(a, b + 1).map((m) => m.label);
+    const prev = a - len >= 0 ? MONTHS.slice(a - len, a).map((m) => m.label) : [];
+    const span = (from, to) => (from === to ? MONTHS[from].label : `${MONTHS[from].label} to ${MONTHS[to].label}`);
+    return {
+      cur, prev, len,
+      curLabel: range ? span(a, b) : "the last 12 months",
+      prevLabel: prev.length ? (range ? `previous ${len === 1 ? "month" : len + " months"}` : "prior 12 months") : null,
+    };
+  }
+  const inMonths = (list, measureName) => `{<[Year Month]={${list.map((m) => `'${m}'`).join(",")}}>} [${measureName}]`;
+  const KPI = [
+    ["sales", "Sales"], ["availability", "Availability %"], ["lostSales", "Lost Sales"],
+    ["lostSalesPct", "Lost Sales %"], ["otif", "Supplier OTIF %"],
+  ];
+
   // ---------- The hypercubes this page asks Qlik for ----------
-  const CUBES = {
+  const MONTHS_CUBE = {
+    dims: [{ key: "yearMonth", lib: D.yearMonth }],
+    measures: [{ key: "month", expr: "Date(MonthStart(Min({<[Fact Source]={'Store'}>} Date)), 'YYYY-MM-DD')", text: true }],
+  };
+  // Cubes that depend on the date window are rebuilt when the window changes.
+  const windowCubes = (w) => ({
     kpis: {
-      dims: [{ key: "period", field: PERIOD }],
+      dims: [],
+      measures: KPI.flatMap(([key, name]) => [
+        { key: `${key}_cur`, expr: inMonths(w.cur, name) },
+        ...(w.prev.length ? [{ key: `${key}_prev`, expr: inMonths(w.prev, name) }] : []),
+      ]),
+    },
+    formats: {
+      dims: [{ key: "format", lib: D.format }],
       measures: [
-        { key: "sales", lib: M.sales }, { key: "availability", lib: M.availability },
-        { key: "lostSales", lib: M.lostSales }, { key: "lostSalesPct", lib: M.lostSalesPct },
-        { key: "otif", lib: M.otif },
+        { key: "availability_cur", expr: inMonths(w.cur, "Availability %") },
+        ...(w.prev.length ? [{ key: "availability_prev", expr: inMonths(w.prev, "Availability %") }] : []),
+        { key: "lostSales_cur", expr: inMonths(w.cur, "Lost Sales") },
+        { key: "cover_cur", expr: inMonths(w.cur, "Store Days of Cover") },
       ],
     },
+  });
+  const CUBES = {
+    kpis: null, // set from windowCubes()
     monthly: {
       dims: [{ key: "yearMonth", lib: D.yearMonth }],
       measures: [
@@ -338,21 +388,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         { key: "lostSales", lib: M.lostSales },
       ],
     },
-    formats: {
-      dims: [{ key: "format", lib: D.format }, { key: "period", field: PERIOD }],
-      measures: [
-        { key: "availability", lib: M.availability }, { key: "lostSales", lib: M.lostSales },
-        { key: "cover", lib: M.storeCover },
-      ],
-    },
+    formats: null, // set from windowCubes()
     south: {
-      dims: [{ key: "dc", lib: D.dc }, { key: "year", lib: D.year }],
-      measures: [
-        { key: "importedAvailability", lib: M.importedAvailability },
-        { key: "dcCover", expr: `Sum({<${IMP}>} [DC Closing Stock]) / Sum({<${IMP}>} [DC Dispatched Units])` },
-        { key: "fillRate", expr: `Sum({<${IMP}>} [DC Dispatched Units]) / Sum({<${IMP}>} [DC Store Order Units])` },
-        { key: "lostSales", expr: `Sum({<${IMP}, ${EXCL}>} [Lost Sales Value])` },
-      ],
+      dims: [{ key: "dc", lib: D.dc }],
+      measures: [2025, 2026].flatMap((yr) => [
+        { key: `imp_${yr}`, expr: `1 - Sum({<${IMP(yr)}, ${EXCL}>} [OOS Flag]) / Sum({<${IMP(yr)}, ${EXCL}>} [Store Open Flag])` },
+        { key: `cover_${yr}`, expr: `Sum({<${IMP(yr)}>} [DC Closing Stock]) / Sum({<${IMP(yr)}>} [DC Dispatched Units])` },
+        { key: `fill_${yr}`, expr: `Sum({<${IMP(yr)}>} [DC Dispatched Units]) / Sum({<${IMP(yr)}>} [DC Store Order Units])` },
+        { key: `lost_${yr}`, expr: `Sum({<${IMP(yr)}, ${EXCL}>} [Lost Sales Value])` },
+      ]),
     },
     suppliers: {
       dims: [{ key: "supplier", lib: D.supplier }, { key: "country", lib: D.country }],
@@ -424,9 +468,74 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     // A separate identity keeps this page's selections apart from the user's own Qlik session.
     doc = await qix.openAppSession({ appId: CFG.appId, identity: "meadowvale-web" }).getDoc();
     await doc.clearAll(false);
+    // Read the months in the app once, with nothing selected, to build the date controls.
+    const monthsObj = await doc.createSessionObject(toHyperCube("months", MONTHS_CUBE));
+    MONTHS = toRows(await monthsObj.getLayout(), MONTHS_CUBE)
+      .filter((r) => r.yearMonth && r.month)
+      .map((r) => ({ label: r.yearMonth, date: parseDay(r.month) }))
+      .sort((a, b) => a.date - b.date);
+    buildDateControls();
+    Object.assign(CUBES, windowCubes(windows()));
     await Promise.all(Object.entries(CUBES).map(async ([id, def]) => {
       objects[id] = await doc.createSessionObject(toHyperCube(id, def));
     }));
+  }
+
+  // Rebuild the cubes whose measures name the date window.
+  async function rebuildWindowCubes() {
+    const defs = windowCubes(windows());
+    await Promise.all(Object.entries(defs).map(async ([id, def]) => {
+      const old = objects[id];
+      CUBES[id] = def;
+      objects[id] = await doc.createSessionObject(toHyperCube(id, def));
+      if (old?.id && doc.destroySessionObject) doc.destroySessionObject(old.id).catch(() => {});
+    }));
+  }
+
+  // Select a run of months in Qlik's Year Month field (or clear it).
+  async function selectRange(next) {
+    document.body.classList.add("is-busy");
+    try {
+      range = next;
+      const f = await doc.getField("Year Month");
+      if (!range) await f.clear();
+      else await f.selectValues(MONTHS.slice(range.from, range.to + 1).map((m) => ({ qText: m.label })), false, false);
+      await rebuildWindowCubes();
+      await refresh();
+    } finally {
+      document.body.classList.remove("is-busy");
+    }
+  }
+
+  function buildDateControls() {
+    const from = $("#date-from"), to = $("#date-to");
+    const opts = () => MONTHS.map((m, i) => new Option(m.label, String(i)));
+    from.replaceChildren(...opts());
+    to.replaceChildren(...opts());
+    const n = MONTHS.length;
+    const presets = [
+      { label: "All dates", range: null },
+      { label: "Last 12 months", range: { from: Math.max(0, n - 12), to: n - 1 } },
+      ...[...new Set(MONTHS.map((m) => m.date.getUTCFullYear()))].map((yr) => {
+        const idx = MONTHS.map((m, i) => (m.date.getUTCFullYear() === yr ? i : -1)).filter((i) => i >= 0);
+        return { label: String(yr), range: { from: idx[0], to: idx.at(-1) } };
+      }),
+    ];
+    $("#date-presets").replaceChildren(...presets.map((p) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = p.label;
+      b.dataset.range = p.range ? `${p.range.from}-${p.range.to}` : "";
+      b.addEventListener("click", () => selectRange(p.range));
+      return b;
+    }));
+    const onPick = () => {
+      let a = Number(from.value), b = Number(to.value);
+      if (a > b) [a, b] = [b, a];
+      selectRange(a === 0 && b === n - 1 ? null : { from: a, to: b });
+    };
+    from.addEventListener("change", onPick);
+    to.addEventListener("change", onPick);
   }
 
   async function refresh() {
@@ -483,14 +592,25 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         b.setAttribute("aria-pressed", String(selections[field] === v));
       });
     });
+    const key = range ? `${range.from}-${range.to}` : "";
+    document.querySelectorAll("#date-presets button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.range === key)));
+    if (MONTHS.length) {
+      $("#date-from").value = String(range ? range.from : 0);
+      $("#date-to").value = String(range ? range.to : MONTHS.length - 1);
+    }
     const parts = Object.entries(selections).filter(([, v]) => v).map(([f, v]) => `${f}: ${v}`);
-    $("#selection-note").textContent = parts.length ? `Selected in Qlik: ${parts.join(" · ")}` : "No selections: whole network";
+    if (range) parts.push(windows().curLabel);
+    $("#selection-note").textContent = parts.length ? `Selected in Qlik: ${parts.join(" · ")}` : "No selections: all DCs, formats and dates";
+    $("#suppliers-sub").textContent = `Percentage points above or below each supplier's contracted on-time-in-full target, ${range ? "for " + windows().curLabel : "over all dates"}.`;
   }
 
   // ---------- KPIs ----------
   function renderKpis() {
-    const last = data.kpis.find((r) => r.period === "Last 12 months");
-    const prior = data.kpis.find((r) => r.period === "Prior 12 months");
+    const w = windows();
+    const row = data.kpis[0] || {};
+    const pick = (suffix) => Object.fromEntries(KPI.map(([k]) => [k, row[`${k}_${suffix}`] ?? null]));
+    const last = data.kpis.length ? pick("cur") : null;
+    const prior = w.prev.length ? pick("prev") : null;
     const tiles = [
       { key: "sales", label: "Sales", fmt: gbpShort, change: (l, p) => ({ text: d3.format("+.1%")(l / p - 1), good: l >= p }) },
       { key: "availability", label: "Availability", fmt: pct, note: "Target 97%", change: (l, p) => ({ text: pts(l - p), good: l >= p }) },
@@ -504,13 +624,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       const ch = l != null && p ? t.change(l, p) : null;
       el.innerHTML = `<div class="kpi-label">${t.label}</div>
         <div class="kpi-value">${l == null ? "—" : t.fmt(l)}</div>
-        <div class="kpi-change ${ch ? (ch.good ? "good" : "bad") : ""}">${ch ? `${ch.text} vs prior 12 months` : "&nbsp;"}</div>
+        <div class="kpi-change ${ch ? (ch.good ? "good" : "bad") : ""}">${ch ? `${ch.text} vs ${w.prevLabel}` : w.prev.length ? "&nbsp;" : "No earlier period to compare"}</div>
         ${t.note ? `<div class="kpi-note">${t.note}</div>` : ""}`;
       return el;
     }));
+    $("#kpi-period").textContent = range ? w.curLabel : "Last 12 months";
     const sel = Object.values(selections).filter(Boolean).join(", ");
-    $("#takeaway").textContent = last
-      ? `${sel ? sel + ": a" : "A"}vailability was ${pct(last.availability)} over the last 12 months against a 97% target. Empty shelves cost ${gbpShort(last.lostSales)}, ${pct(last.lostSalesPct)} of potential sales.`
+    $("#takeaway").textContent = last && last.availability != null
+      ? `${sel ? sel + ": a" : "A"}vailability was ${pct(last.availability)} over ${w.curLabel} against a 97% target. Empty shelves cost ${gbpShort(last.lostSales)}, ${pct(last.lostSalesPct)} of potential sales.`
       : "";
   }
 
@@ -602,11 +723,18 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   function renderFormats() {
     const el = $("#formats-chart");
     const order = ["Large", "Metro", "Express"];
-    const rows = order.map((f) => ({
-      format: f,
-      prior: data.formats.find((r) => r.format === f && r.period === "Prior 12 months"),
-      last: data.formats.find((r) => r.format === f && r.period === "Last 12 months"),
-    })).filter((r) => r.last || r.prior);
+    const w = windows();
+    const rows = order.map((f) => {
+      const r = data.formats.find((x) => x.format === f);
+      if (!r) return null;
+      return {
+        format: f,
+        prior: r.availability_prev != null ? { availability: r.availability_prev } : null,
+        last: r.availability_cur != null ? { availability: r.availability_cur, lostSales: r.lostSales_cur, cover: r.cover_cur } : null,
+      };
+    }).filter((r) => r && (r.last || r.prior));
+    $("#formats-sub").textContent = `Availability by store format${w.prev.length ? `: hollow dot is the ${w.prevLabel}, filled dot ${w.curLabel}` : ` for ${w.curLabel}`}. Click a format to select it in Qlik.`;
+    if (!rows.length) return el.replaceChildren();
     const rowH = 64;
     const { svg, width, height } = svgIn(el, rows.length * rowH + 40);
     const m = { t: 10, r: 24, b: 30, l: 86 };
@@ -632,9 +760,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       }
       g.on("mousemove", (event) => showTip(event,
         `<div class="tip-head">${r.format} stores</div>` +
-        `<div class="tip-row">Last 12 months<b>${r.last ? pct(r.last.availability) : "—"}</b></div>` +
-        `<div class="tip-row muted">Prior 12 months<b>${r.prior ? pct(r.prior.availability) : "—"}</b></div>` +
-        `<div class="tip-row">Lost sales (last 12m)<b>${r.last ? gbpShort(r.last.lostSales) : "—"}</b></div>` +
+        `<div class="tip-row">${range ? esc(w.curLabel) : "Last 12 months"}<b>${r.last ? pct(r.last.availability) : "—"}</b></div>` +
+        (w.prev.length ? `<div class="tip-row muted">${w.prevLabel[0].toUpperCase() + w.prevLabel.slice(1)}<b>${r.prior ? pct(r.prior.availability) : "—"}</b></div>` : "") +
+        `<div class="tip-row">Lost sales<b>${r.last ? gbpShort(r.last.lostSales) : "—"}</b></div>` +
         `<div class="tip-row">Store days of cover<b>${r.last?.cover != null ? r.last.cover.toFixed(2) : "—"}</b></div>` +
         `<div class="tip-event">Click to ${selected ? "clear" : "select"} in Qlik</div>`)).on("mouseleave", hideTip);
     });
@@ -677,7 +805,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
   // ---------- Why South DC slipped: slope chart + cover ----------
   function renderSouth() {
     const el = $("#south-chart");
-    const rows = data.south.filter((r) => r.dc && (r.year === "2025" || r.year === "2026"));
+    // Reshape the one-row-per-DC cube into DC × year rows.
+    const rows = data.south.filter((r) => r.dc).flatMap((r) => ["2025", "2026"].map((yr) => ({
+      dc: r.dc, year: yr, importedAvailability: r[`imp_${yr}`], dcCover: r[`cover_${yr}`], fillRate: r[`fill_${yr}`], lostSales: r[`lost_${yr}`],
+    }))).filter((r) => r.importedAvailability != null);
     const { svg, width, height } = svgIn(el, 300);
     const m = { t: 34, r: 150, b: 24, l: 112 };
     const vals = rows.map((r) => r.importedAvailability).filter((v) => v != null);
@@ -801,6 +932,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       document.body.classList.add("is-busy");
       await doc.clearAll(false);
       Object.keys(selections).forEach((k) => (selections[k] = null));
+      range = null;
+      await rebuildWindowCubes();
       await refresh();
       document.body.classList.remove("is-busy");
     });
