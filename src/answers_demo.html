@@ -149,6 +149,9 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .beat-foot label{margin-left:auto;font-size:13px;color:var(--gray);display:flex;gap:6px;align-items:center;cursor:pointer}
 .beat-foot input{accent-color:var(--green)}
 .hide{display:none!important}
+.demo-link{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:9px 14px;border-radius:999px;background:var(--green);color:#fff;font-weight:600;font-size:14px;text-decoration:none}
+.demo-link:hover{background:#00843c}
+.pm-link{display:inline-flex;align-items:center;gap:8px;margin:8px 0 0 8px;padding:8px 12px;border-radius:8px;background:var(--green);color:#fff;font-weight:600;font-size:13px;text-decoration:none}
 .p-dig{background:var(--sky);color:var(--deep)!important}
 .num{font-size:19px}
 .track-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:34px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--line)}
@@ -493,7 +496,7 @@ footer li{margin:4px 0}
     <div class="pm-meta" data-pm-meta></div>
     <div class="pm-pre" data-pm-pre></div>
     <p class="pm-q" data-pm-q></p>
-    <div><button class="pm-copy" data-pm-copy>Copy question</button></div>
+    <div><button class="pm-copy" data-pm-copy>Copy question</button><a class="pm-link hide" data-pm-link target="_blank" rel="noopener"></a></div>
     <div class="pm-follow" data-pm-follow></div>
     <div class="pm-cols">
       <div><h4>What it shows</h4><ul data-pm-shows></ul></div>
@@ -518,14 +521,17 @@ footer li{margin:4px 0}
     D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:7, q:"Why do website visitors leave without buying or registering?", optional:true},
     F:{name:"Finale", who:"All personas", p:"p-all", mins:3, q:"Bring it together for the review"}
   };
+  // ---- Demo link: paste the Qranks app or assistant URL here ----
+  var DEMO_LINK = "https://ukdemosaas.eu.qlikcloud.com/assistant/39f6ec03-b5da-43e3-a837-de9884fe77dc/content";
+  var DEMO_LINK_LABEL = "Open the Adventure Works assistant";
   var ORDER = ["O","A","B","C","D","F"];
   var KB3 = "Sales, pricing, promotions and playbook";
   var APPS = ["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
   var BEATS = [
-    {t:"O", id:"O", skill:["Descriptive","Custom skills"], pre:"Ask with the custom skills off, then on:", q:"How have Europe sales done recently?", src:["Sales"],
+    {t:"O", id:"O", link:true, skill:["Descriptive","Custom skills"], pre:"Ask with the custom skills off, then on:", q:"How have Europe sales done recently?", src:["Sales"],
       shows:["The same question answered twice","Custom skills applying house conventions"],
       look:["With skills on: the period is stated up front as the last 6 full months","Fiscal periods and US dollars used throughout"]},
-    {t:"A", id:"A1", skill:["Diagnostic","Follow-up"], q:"Which territories missed quota last quarter, and which sales people drove the gap?",
+    {t:"A", id:"A1", link:true, skill:["Diagnostic","Follow-up"], q:"Which territories missed quota last quarter, and which sales people drove the gap?",
       follow:"What did the last business review say Northeast would do about it?", src:["Sales",KB3],
       shows:["Ranked attribution in plain words","A follow-up that keeps the context and adds a cited document"],
       look:["Northeast at 43% of quota last quarter","Review notes say it \"expects to recover\", after 74%, 70% and 81%"]},
@@ -538,7 +544,7 @@ footer li{margin:4px 0}
     {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% above that forecast, which components stock out first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
       shows:["Stock-out risk with a range","Contract terms checked against actual supplier performance"],
       look:["Superior Bicycles (5.2%) and Crowley Sport (5.3%) above their 2% rejection limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
-    {t:"B", id:"B1", skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
+    {t:"B", id:"B1", link:true, skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
       shows:["Set logic written for you","A correct cohort count"],
       look:["One cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
     {t:"B", id:"B2", skill:["Prescriptive"], q:"Do volume discounts actually raise revenue per order?", src:["Marketing",KB3],
@@ -550,7 +556,7 @@ footer li{margin:4px 0}
     {t:"B", id:"B4", skill:["Customer voice","Semi-structured + unstructured"], q:"What are website visitors and reviewers saying about the Touring range, and is it showing in sales?", src:["Marketing","Website guest feedback","Product catalogue and reviews"],
       shows:["Three sources in one answer: app, feedback and reviews","Themes with counts, not single quotes"],
       look:["About 470 comfort complaints on the website: saddle, reach, sore hands and back","Reviews average 2.9 for Touring against 4.5 for Mountain and Road"]},
-    {t:"C", id:"C1", skill:["Comparative"], q:"Compare average pay for salaried and hourly staff across department groups.", src:["HR"],
+    {t:"C", id:"C1", link:true, skill:["Comparative"], q:"Compare average pay for salaried and hourly staff across department groups.", src:["HR"],
       shows:["Side-by-side table with the differences called out","Aggregate only, no individual pay"],
       look:["Uses Current Pay Rate, not the pay history","A clear salaried versus hourly gap by group"]},
     {t:"C", id:"C2", skill:["Diagnostic","Apps + documents"], q:"Who is overdue a pay review under our policy, and where is it concentrated?", src:["HR","HR handbook"],
@@ -562,7 +568,7 @@ footer li{margin:4px 0}
     {t:"C", id:"C4", skill:["Optimization"], q:"We have a $150,000 pay-review budget this year. How should we split it across departments to clear the longest-overdue reviews first?", src:["HR","HR handbook"],
       shows:["An allocation that stays within budget","Assumptions stated with the result"],
       look:["Longest-overdue staff prioritised","Budget not exceeded; trade-offs explained"]},
-    {t:"D", id:"D1", skill:["Knowledge base","Semi-structured"], q:"Why do people abandon their basket on the website?", src:["Website guest feedback"],
+    {t:"D", id:"D1", link:true, skill:["Knowledge base","Semi-structured"], q:"Why do people abandon their basket on the website?", src:["Website guest feedback"],
       shows:["Semi-structured feedback read field by field","Themes with counts"],
       look:["Reasons left: price, delivery, stock and technical problems","Basket values where given"]},
     {t:"D", id:"D2", skill:["Knowledge base"], q:"Why do guest customers say they won't register?", src:["Website guest feedback"],
@@ -609,6 +615,7 @@ footer li{margin:4px 0}
       html+='<article class="beat'+(b.featured?' featured':'')+(done[b.id]?' done':'')+'" data-t="'+k+'" id="beat-'+b.id+'">'+
         '<div class="num '+p+'">'+b.id+'</div><div class="beat-body">'+
         '<div class="beat-head"><span class="who">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+'</div>'+
+        (b.link?'<a class="demo-link" href="'+esc(DEMO_LINK)+'" target="_blank" rel="noopener">'+esc(DEMO_LINK_LABEL)+' ↗</a>':'')+
         '<div class="question"><p>'+(b.pre?'<span class="pre">'+esc(b.pre)+'</span>':'')+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+
         (b.follow?'<div class="follow"><p><span class="pre">Follow-up</span>'+esc(b.follow)+'</p><button class="copy" data-copy="'+esc(b.follow)+'">Copy</button></div>':'')+
         '<div class="cols"><div><h4>What it shows</h4><ul>'+b.shows.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>'+
@@ -676,6 +683,7 @@ footer li{margin:4px 0}
     document.querySelector("[data-pm-meta]").innerHTML='<span class="n">'+b.id+' · '+(cur+1)+' of '+list.length+'</span><span class="pchip">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="pchip">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="pchip" style="background:var(--sky);color:var(--deep)">★ Featured</span>':'')+b.src.map(function(s){return '<span class="pchip" style="background:transparent;border:1px solid rgba(255,255,255,.3)">'+esc(s)+'</span>';}).join("");
     document.querySelector("[data-pm-pre]").textContent=b.pre||"";
     document.querySelector("[data-pm-q]").textContent=b.q;
+    var L=document.querySelector("[data-pm-link]"); L.classList.toggle("hide",!b.link); if(b.link){ L.href=DEMO_LINK; L.textContent=DEMO_LINK_LABEL+" ↗"; }
     document.querySelector("[data-pm-follow]").innerHTML=b.follow?'<span>Follow-up</span>'+esc(b.follow):"";
     document.querySelector("[data-pm-shows]").innerHTML=li(b.shows);
     document.querySelector("[data-pm-look]").innerHTML=li(b.look);
