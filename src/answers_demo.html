@@ -149,6 +149,24 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .beat-foot label{margin-left:auto;font-size:13px;color:var(--gray);display:flex;gap:6px;align-items:center;cursor:pointer}
 .beat-foot input{accent-color:var(--green)}
 .hide{display:none!important}
+.p-dig{background:var(--sky);color:var(--deep)!important}
+.num{font-size:19px}
+.track-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:34px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.track-head:first-child{margin-top:6px}
+.track-head h3{font-size:22px;color:var(--deep)}
+.track-head .tq{font-size:16px;color:var(--gray);font-style:italic}
+.track-head .tm{margin-left:auto;font-size:13px;font-weight:600;color:var(--green)}
+.track-head .opt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#036b69;background:var(--sky-10);border:1px solid var(--sky);border-radius:999px;padding:2px 8px}
+.follow{margin:-6px 0 14px 22px;padding:10px 14px;border-left:3px solid var(--sky);background:#fbfcfc;border-radius:0 8px 8px 0;display:flex;gap:12px;align-items:flex-start}
+.follow p{margin:0;font-size:16px;font-weight:600;color:var(--ink-strong);flex:1}
+.follow .pre{display:block;font-size:12px;font-weight:600;color:var(--ocean);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.filter.optional{border-style:dashed}
+.filter .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.g4{grid-template-columns:1fr}.track-head .tm{margin-left:0}}
+.pm-follow{font-size:clamp(18px,2vw,24px);color:rgba(255,255,255,.9);margin:6px 0 4px;font-weight:600}
+.pm-follow span{color:var(--sky);font-size:13px;text-transform:uppercase;letter-spacing:.05em;display:block;font-weight:600}
 
 /* conflicts table */
 .tbl{width:100%;border-collapse:collapse;font-size:15px}
@@ -238,9 +256,10 @@ footer li{margin:4px 0}
       <span class="tag"><i></i> Qlik Answers · Pre-release demo</span>
     </div>
     <h1>One assistant. Four apps. Five knowledge bases. <b>Answers you didn't know to ask for.</b></h1>
-    <p class="sub">A 25-minute walk through the new Qlik Answers skills on the AdventureWorks bike business, for a Sales Director, a Marketing Manager and an HR Business Manager. Blind Spots is the featured moment.</p>
+    <p class="sub">It's the week before Adventure Works' quarterly business review. Three leaders prepare with one Qlik Answers assistant, and each finds something neither the numbers nor the documents would show on their own. Blind Spots is the featured moment.</p>
     <div class="stats">
-      <div class="stat"><strong>12</strong><span>demo beats</span></div>
+      <div class="stat"><strong>3</strong><span>persona tracks</span></div>
+      <div class="stat"><strong>10</strong><span>built-in skills</span></div>
       <div class="stat"><strong>25</strong><span>minutes</span></div>
       <div class="stat"><strong>4</strong><span>Qlik apps</span></div>
       <div class="stat"><strong>5</strong><span>knowledge bases</span></div>
@@ -273,28 +292,34 @@ footer li{margin:4px 0}
 <section id="story">
   <div class="wrap">
     <div class="eyebrow">The story</div>
-    <h2>Governed data and business documents, in one conversation</h2>
-    <p class="lead" style="margin-top:14px">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, manuals and reviews. Qlik Answers reads both, and shows where they disagree.</p>
+    <h2>One review, three leaders, one assistant</h2>
+    <p class="lead" style="margin-top:14px">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree, and the finale pulls their findings into one review.</p>
+    <p style="margin-top:6px">The demo is modular: a 2-minute opening, three 7-minute tracks and a 3-minute finale. Run all of it in about 25 minutes, or pick the tracks that suit the audience.</p>
     <div class="grid g3" style="margin-top:30px">
       <div class="card pillar"><h3>New single-agent skills</h3><p>Descriptive through to Prescriptive, Simulation and Optimization, with <strong>Blind Spots</strong> surfacing what the current selection hides.</p></div>
       <div class="card pillar"><h3>Multi-app assistant</h3><p>One assistant over up to 5 apps and 5 knowledge bases. Each answer labels which app and which document it used.</p></div>
       <div class="card pillar"><h3>Structured + unstructured</h3><p>The documents were written to agree with the data, except for planted conflicts that Answers should catch and cite.</p></div>
     </div>
-    <div class="grid g3" style="margin-top:18px">
+    <div class="grid g4" style="margin-top:18px">
       <div class="card persona">
-        <div class="who"><span class="avatar p-sales">SD</span><div><h3 style="margin:0">Sales Director</h3><small>Beats 1–7</small></div></div>
-        <div class="chips"><span class="chip app">Sales</span><span class="chip app">Inventory and Purchasing</span></div>
-        <ul><li>Are we on target, and who is moving the number?</li><li>Can supply keep up with what we sell?</li></ul>
+        <div class="who"><span class="avatar p-sales">SD</span><div><h3 style="margin:0">Sales Director</h3><small>Track A · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Sales</span><span class="chip app">Inventory and Purchasing</span><span class="chip kb">Supplier contracts</span></div>
+        <ul><li>Why did we miss quota, and what hides behind my filter?</li><li>Can supply keep up if demand rises?</li></ul>
       </div>
       <div class="card persona">
-        <div class="who"><span class="avatar p-mkt">MM</span><div><h3 style="margin:0">Marketing Manager</h3><small>Beats 8–10</small></div></div>
-        <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Sales, pricing and promotions</span></div>
-        <ul><li>Which promotions and customers actually pay off?</li><li>Are we following our own discount rules?</li></ul>
+        <div class="who"><span class="avatar p-mkt">MM</span><div><h3 style="margin:0">Marketing Manager</h3><small>Track B · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Sales, pricing and promotions</span><span class="chip kb">Website guest feedback</span></div>
+        <ul><li>Which promotions and customers pay off?</li><li>What are customers and website visitors telling us?</li></ul>
       </div>
       <div class="card persona">
-        <div class="who"><span class="avatar p-hr">HR</span><div><h3 style="margin:0">HR Business Manager</h3><small>Beat 11</small></div></div>
+        <div class="who"><span class="avatar p-hr">HR</span><div><h3 style="margin:0">HR Business Manager</h3><small>Track C · 4 beats</small></div></div>
         <div class="chips"><span class="chip app">HR</span><span class="chip kb">HR handbook</span></div>
-        <ul><li>Is the workforce paid and rewarded fairly?</li><li>Who falls outside our own policies?</li></ul>
+        <ul><li>Are we paying and resting people as our policies say?</li><li>How should we spend the pay-review budget?</li></ul>
+      </div>
+      <div class="card persona" style="border-style:dashed">
+        <div class="who"><span class="avatar p-dig">HD</span><div><h3 style="margin:0">Head of Digital</h3><small>Optional Track D · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Website guest feedback</span></div>
+        <ul><li>Why do visitors leave without buying?</li><li>Why won't guests register?</li></ul>
       </div>
     </div>
   </div>
@@ -332,7 +357,7 @@ footer li{margin:4px 0}
   <div class="wrap">
     <div class="eyebrow">Customer-defined skills</div>
     <h2>Teach the assistant how Adventure Works talks</h2>
-    <p class="lead" style="margin-top:14px">Two plain-language skills make answers follow house conventions. The feature is pre-release, so final screens may differ.</p>
+    <p class="lead" style="margin-top:14px">Plain-language skills make answers follow house conventions: two for the calendar and defaults, and one set of calculation rules per app. The feature is pre-release, so final screens may differ.</p>
     <div class="grid g2" style="margin-top:26px">
       <div class="card skill-card">
         <h3>Adventure Works calendar</h3>
@@ -350,8 +375,10 @@ footer li{margin:4px 0}
         </dl>
       </div>
     </div>
+    <div class="card" style="margin-top:18px"><h3>Calculation rules, one skill per app</h3><p style="margin:6px 0 10px">Each one lets you finesse how Qlik Answers uses the governed content in that app: which master measures and fields to prefer, how the tables relate, and the business rules to follow when a question leaves something open.</p>
+      <div class="chips"><span class="chip skill">aw-sales-calculation-rules</span><span class="chip skill">aw-marketing-calculation-rules</span><span class="chip skill">aw-hr-calculation-rules</span><span class="chip skill">aw-inventory-purchasing-calculation-rules</span></div></div>
     <div class="beat0">
-      <div><div class="lbl">Opening beat · skills off, then on</div></div>
+      <div><div class="lbl">Opening beat O · skills off, then on</div></div>
       <div class="q">How have Europe sales done recently?</div>
       <button class="copy" data-copy="How have Europe sales done recently?">Copy</button>
     </div>
@@ -366,9 +393,11 @@ footer li{margin:4px 0}
       <li><input type="checkbox" id="c1"><label for="c1">All four apps reloaded today, so the shifted dates run up to the latest quarter end.</label></li>
       <li><input type="checkbox" id="c2"><label for="c2">Assistant open with all 4 apps and 5 knowledge bases attached; knowledge bases finished indexing.</label></li>
       <li><input type="checkbox" id="c3"><label for="c3">Custom skills switched <strong>off</strong> for the opening beat.</label></li>
-      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app, except the ones beat 4 needs.</label></li>
+      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app, except the ones beat A2 needs.</label></li>
       <li><input type="checkbox" id="c5"><label for="c5">Sales app ready to select <strong>North America</strong> and <strong>Bikes</strong> for Blind Spots.</label></li>
-      <li><input type="checkbox" id="c6"><label for="c6">A second tab with the Sales app sheet, as a fallback if an answer runs long.</label></li>
+      <li><input type="checkbox" id="c6"><label for="c6">C4 run once beforehand, so the $150,000 budget makes sense against the payroll.</label></li>
+      <li><input type="checkbox" id="c7"><label for="c7">A second tab with the Sales app sheet, as a fallback if an answer runs long.</label></li>
+      <li><input type="checkbox" id="c8"><label for="c8">Tracks chosen for this audience in the filter below.</label></li>
     </ul>
   </div>
 </section>
@@ -376,13 +405,15 @@ footer li{margin:4px 0}
 <section id="script">
   <div class="wrap">
     <div class="eyebrow">Demo script</div>
-    <h2>Twelve beats, about 25 minutes</h2>
-    <p class="lead" style="margin-top:14px">In persona order. Beat 4 is the featured Blind Spots moment. Copy each question straight into the assistant, or run the whole script full screen in presenter mode.</p>
+    <h2>Five parts, about 25 minutes</h2>
+    <p class="lead" style="margin-top:14px">Choose the parts to run, then present them full screen or copy each question into the assistant. Beat A2 is the featured Blind Spots moment. Track D is optional, for customer-experience audiences.</p>
     <div class="toolbar" role="toolbar" aria-label="Filter by persona">
-      <button class="filter" aria-pressed="true" data-filter="all">All beats</button>
-      <button class="filter" aria-pressed="false" data-filter="p-sales">Sales Director</button>
-      <button class="filter" aria-pressed="false" data-filter="p-mkt">Marketing Manager</button>
-      <button class="filter" aria-pressed="false" data-filter="p-hr">HR Business Manager</button>
+      <button class="filter" aria-pressed="true" data-track="O"><span class="sw" style="background:var(--gray)"></span>Opening</button>
+      <button class="filter" aria-pressed="true" data-track="A"><span class="sw" style="background:var(--green)"></span>A · Sales Director</button>
+      <button class="filter" aria-pressed="true" data-track="B"><span class="sw" style="background:var(--ocean)"></span>B · Marketing Manager</button>
+      <button class="filter" aria-pressed="true" data-track="C"><span class="sw" style="background:var(--deep)"></span>C · HR Business Manager</button>
+      <button class="filter optional" aria-pressed="false" data-track="D"><span class="sw" style="background:var(--sky)"></span>D · Head of Digital (optional)</button>
+      <button class="filter" aria-pressed="true" data-track="F"><span class="sw" style="background:var(--gray)"></span>Finale</button>
       <span class="grow"></span>
       <span class="progress" data-progress></span>
       <button class="btn btn-line" data-reset style="padding:9px 14px;font-size:13px">Reset ticks</button>
@@ -401,15 +432,15 @@ footer li{margin:4px 0}
       <table class="tbl">
         <thead><tr><th>Story</th><th>The document says</th><th>The data shows</th><th>Beat</th></tr></thead>
         <tbody>
-          <tr><td>Promotion approvals</td><td>Discounts over 30% need VP of Sales sign-off</td><td class="num-cell">Mountain-100 (35%) and Mountain-500 (40%) clearance sold $277K with Sales Manager approval only</td><td>10</td></tr>
-          <tr><td>Northeast quota</td><td>Business reviews say it "expects to recover next quarter"</td><td class="num-cell">Attainment 74%, 70%, 81%, 43% over four quarters</td><td>2, 5</td></tr>
-          <tr><td>Supplier rejections</td><td>Rejection limits of 2% or 3% in each agreement</td><td class="num-cell">Superior Bicycles 5.2% and Crowley Sport 5.3% (limit 2%); Vision Cycles 4.7% and Proseware 4.6% (limit 3%)</td><td>7</td></tr>
-          <tr><td>Supplier lead time</td><td>Superior Bicycles agreed 15 days</td><td class="num-cell">19 days in vendor terms</td><td>7</td></tr>
-          <tr><td>Pay reviews</td><td>Pay reviewed after 3 years without a change</td><td class="num-cell">270 of 290 employees overdue</td><td>11</td></tr>
-          <tr><td>Holiday carry-over</td><td>Carry-over capped at 40 hours</td><td class="num-cell">178 employees above the cap</td><td>Backup</td></tr>
-          <tr><td>Volume discount</td><td>Post-review says it "drove larger reseller orders"</td><td class="num-cell">Claim untested; very few discounted lines</td><td>9</td></tr>
+          <tr><td>Promotion approvals</td><td>Discounts over 30% need VP of Sales sign-off</td><td class="num-cell">Mountain-100 (35%) and Mountain-500 (40%) clearance sold $277K with Sales Manager approval only</td><td>B3</td></tr>
+          <tr><td>Northeast quota</td><td>Business reviews say it "expects to recover next quarter"</td><td class="num-cell">Attainment 74%, 70%, 81%, 43% over four quarters</td><td>A1</td></tr>
+          <tr><td>Supplier rejections</td><td>Rejection limits of 2% or 3% in each agreement</td><td class="num-cell">Superior Bicycles 5.2% and Crowley Sport 5.3% (limit 2%); Vision Cycles 4.7% and Proseware 4.6% (limit 3%)</td><td>A4</td></tr>
+          <tr><td>Supplier lead time</td><td>Superior Bicycles agreed 15 days</td><td class="num-cell">19 days in vendor terms</td><td>A4</td></tr>
+          <tr><td>Pay reviews</td><td>Pay reviewed after 3 years without a change</td><td class="num-cell">270 of 290 employees overdue</td><td>C2</td></tr>
+          <tr><td>Holiday carry-over</td><td>Carry-over capped at 40 hours</td><td class="num-cell">178 employees above the cap</td><td>C3</td></tr>
+          <tr><td>Volume discount</td><td>Post-review says it "drove larger reseller orders"</td><td class="num-cell">Claim untested; very few discounted lines</td><td>B2</td></tr>
           <tr><td>Touring-1000 launch</td><td>Post-review says it "delivered the uplift the plan asked for"</td><td class="num-cell">775 units against a 1,200 target</td><td>Backup</td></tr>
-          <tr><td>Touring comfort</td><td>Range guide sells comfort on long rides</td><td class="num-cell">Reviews average 2.9 vs 4.5 for Mountain and Road; about 470 website comfort complaints</td><td>Backup</td></tr>
+          <tr><td>Touring comfort</td><td>Range guide sells comfort on long rides</td><td class="num-cell">Reviews average 2.9 vs 4.5 for Mountain and Road; about 470 website comfort complaints</td><td>B4</td></tr>
         </tbody>
       </table>
     </div>
@@ -455,7 +486,7 @@ footer li{margin:4px 0}
   <div class="pm-top">
     <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="751.80 112.36 159.98 68.35" role="img" aria-label="Qlik"><path d="M821.73 178.01L812.59 178.01L807.18 172.05L807.13 172.00L807.08 171.95C807.08 171.95 807.07 171.95 807.07 171.95L806.87 171.74L802.35 167.19C808.43 162.36 812.34 154.91 812.34 146.53C812.34 131.97 800.53 120.17 785.97 120.17C777.67 120.17 770.26 124.01 765.43 130.01L760.61 125.15C766.69 117.94 775.80 113.36 785.97 113.36C804.30 113.36 819.15 128.21 819.15 146.53C819.15 154.38 816.42 161.59 811.87 167.27L821.73 178.01Z" fill="#009749"/><path d="M830.66 114.81H837.26V177.99H830.66ZZ" fill="#ffffff"/><path d="M848.61 133.86H855.18V177.99H848.61ZZ" fill="#ffffff"/><path d="M856.47 119.31C856.47 121.80 854.45 123.82 851.96 123.82C849.47 123.82 847.46 121.80 847.46 119.31C847.46 116.82 849.47 114.81 851.96 114.81C854.45 114.81 856.47 116.82 856.47 119.31Z" fill="#ffffff"/><path d="M807.17 172.05C801.43 176.84 794.04 179.71 785.97 179.71C767.65 179.71 752.80 164.86 752.80 146.53C752.80 138.38 755.73 130.92 760.61 125.15L765.43 130.01C761.79 134.53 759.61 140.28 759.61 146.53C759.61 161.09 771.41 172.90 785.97 172.90C792.16 172.90 797.85 170.76 802.35 167.19L806.87 171.74L807.07 171.95C807.07 171.95 807.08 171.95 807.08 171.95L807.13 172.00L807.17 172.05Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M901.42 133.86L892.25 133.86L873.24 150.50L873.21 114.81L866.64 114.81L866.64 177.99L873.21 177.99L873.21 157.61L892.73 177.99L901.87 177.99L878.60 154.39L901.42 133.86Z" fill="#ffffff"/><path d="M910.77 174.37L910.77 177.50L910.23 177.50L910.23 175.37L909.28 177.50L908.99 177.50L908.05 175.37L908.05 177.50L907.50 177.50L907.50 174.37L908.17 174.37L909.14 176.67L910.11 174.37L910.77 174.37Z" fill="#ffffff"/><path d="M906.96 174.37L906.96 174.84L906.00 174.84L906.00 177.50L905.46 177.50L905.46 174.84L904.51 174.84L904.51 174.37L906.96 174.37Z" fill="#ffffff"/></svg></span>
     <span class="spacer"></span>
-    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / 25:00</span>
+    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>25:00</span></span>
     <button class="pm-x" data-close>Close · Esc</button>
   </div>
   <div class="pm-main">
@@ -463,6 +494,7 @@ footer li{margin:4px 0}
     <div class="pm-pre" data-pm-pre></div>
     <p class="pm-q" data-pm-q></p>
     <div><button class="pm-copy" data-pm-copy>Copy question</button></div>
+    <div class="pm-follow" data-pm-follow></div>
     <div class="pm-cols">
       <div><h4>What it shows</h4><ul data-pm-shows></ul></div>
       <div><h4>Look for</h4><ul data-pm-look></ul></div>
@@ -471,170 +503,208 @@ footer li{margin:4px 0}
   <div class="pm-bottom">
     <button class="pm-nav" data-prev>← Back</button>
     <div class="pm-dots" data-pm-dots></div>
-    <span class="kbd">← → to move · C to copy</span>
+    <span class="kbd">← → to move · C to copy · F copies follow-up</span>
     <button class="pm-nav next" data-next>Next →</button>
   </div>
 </div>
 
 <script>
 (function(){
-  var P = {"p-sales":"Sales Director","p-mkt":"Marketing Manager","p-hr":"HR Business Manager","p-all":"All personas"};
+  var TRACKS = {
+    O:{name:"Opening", who:"Presenter", p:"p-all", mins:2, q:"Show what the custom skills change"},
+    A:{name:"Track A · Sales Director", who:"Sales Director", p:"p-sales", mins:7, q:"Why did we miss, and can supply keep up?"},
+    B:{name:"Track B · Marketing Manager", who:"Marketing Manager", p:"p-mkt", mins:7, q:"What pays off, and what are customers telling us?"},
+    C:{name:"Track C · HR Business Manager", who:"HR Business Manager", p:"p-hr", mins:7, q:"Are we paying, rewarding and resting people the way our policies say?"},
+    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:7, q:"Why do website visitors leave without buying or registering?", optional:true},
+    F:{name:"Finale", who:"All personas", p:"p-all", mins:3, q:"Bring it together for the review"}
+  };
+  var ORDER = ["O","A","B","C","D","F"];
+  var KB3 = "Sales, pricing, promotions and playbook";
+  var APPS = ["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
   var BEATS = [
-    {p:"p-sales", skill:["Descriptive"], q:"Who are our top 10 resellers by net revenue this fiscal year?", src:["Sales"],
-      shows:["Governed master items: Net Revenue by Reseller","Fiscal year resolved by the custom calendar skill"],
-      look:["Answer names the period as FY2027 (Jul 2026 onwards)","Values match the Sales app Net Revenue measure"]},
-    {p:"p-sales", skill:["Diagnostic"], q:"Which territories missed quota last quarter, and which sales people drove the gap?", src:["Sales"],
-      shows:["Ranked attribution in plain words","Quota Attainment by Sales Person Territory"],
-      look:["Northeast at 43% against quota","The thin reseller tail in the latest quarter: frame it before the audience spots it"]},
-    {p:"p-sales", skill:["Comparative"], q:"Compare Internet and Reseller on revenue, order value and margin, this year against last.", src:["Sales"],
-      shows:["Side-by-side table with the trade-offs","Two channels, two fiscal years"],
-      look:["Internet carries most orders (about 88%) but reseller orders are far larger","Margin difference called out, not just revenue"]},
-    {p:"p-sales", skill:["Blind Spots"], featured:true, pre:"With North America and Bikes selected in the Sales app:", q:"What am I not seeing outside my current selection?", src:["Sales"],
+    {t:"O", id:"O", skill:["Descriptive","Custom skills"], pre:"Ask with the custom skills off, then on:", q:"How have Europe sales done recently?", src:["Sales"],
+      shows:["The same question answered twice","Custom skills applying house conventions"],
+      look:["With skills on: the period is stated up front as the last 6 full months","Fiscal periods and US dollars used throughout"]},
+    {t:"A", id:"A1", skill:["Diagnostic","Follow-up"], q:"Which territories missed quota last quarter, and which sales people drove the gap?",
+      follow:"What did the last business review say Northeast would do about it?", src:["Sales",KB3],
+      shows:["Ranked attribution in plain words","A follow-up that keeps the context and adds a cited document"],
+      look:["Northeast at 43% of quota last quarter","Review notes say it \"expects to recover\", after 74%, 70% and 81%"]},
+    {t:"A", id:"A2", featured:true, skill:["Blind Spots"], pre:"With North America and Bikes selected in the Sales app:", q:"What am I not seeing outside my current selection?", src:["Sales"],
       shows:["The featured moment: what the filter hides, quantified","Europe, Pacific and non-bike revenue brought back into view"],
       look:["Share of revenue outside the selection stated as a number","A suggested next question about the hidden segments"]},
-    {p:"p-sales", skill:["Apps + documents"], q:"For the territory that missed quota, what did the last business review say it would do?", src:["Sales","Sales, pricing, promotions and playbook"],
-      shows:["Data plus a cited document in one answer","Plan against result"],
-      look:["Business review notes say Northeast \"expects to recover next quarter\"","Attainment 74%, 70%, 81%, 43%: it never did"]},
-    {p:"p-sales", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
-      shows:["Forecast with a 95% range","Built on sales unit history"],
+    {t:"A", id:"A3", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
+      shows:["Forecast with a range and its assumptions","Built on sales unit history"],
       look:["A range, not a single line","Bike demand history ends 30 Aug 2026: say \"from the last full season\""]},
-    {p:"p-sales", skill:["Simulation","Optimization"], q:"If demand rises 20%, which bikes stock out, and how should we split a $250,000 reorder budget?", src:["Inventory and Purchasing","Supplier contracts"],
-      shows:["Risk range first, then a plan within vendor limits","Contract terms used as constraints"],
-      look:["Superior Bicycles and Crowley Sport breach their 2% rejection limit (5.2%, 5.3%)","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
-    {p:"p-mkt", skill:["Advanced Expressions"], q:"Which customers bought a bike but never a helmet?", src:["Marketing"],
+    {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% above that forecast, which components stock out first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
+      shows:["Stock-out risk with a range","Contract terms checked against actual supplier performance"],
+      look:["Superior Bicycles (5.2%) and Crowley Sport (5.3%) above their 2% rejection limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
+    {t:"B", id:"B1", skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
       shows:["Set logic written for you","A correct cohort count"],
-      look:["A single cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
-    {p:"p-mkt", skill:["Prescriptive"], q:"Do volume discounts actually raise revenue per order?", src:["Marketing"],
+      look:["One cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
+    {t:"B", id:"B2", skill:["Prescriptive"], q:"Do volume discounts actually raise revenue per order?", src:["Marketing",KB3],
       shows:["Cause and effect, with checks and a range","Separates discounting from orders that were already large"],
-      look:["The post-review claim (\"drove larger reseller orders\") is not supported","Answers should note how few discounted lines there are"]},
-    {p:"p-mkt", skill:["Apps + documents"], q:"Are this quarter's discounts within our promotions policy?", src:["Marketing","Sales, pricing, promotions and playbook"],
-      shows:["Planted conflict flagged and cited","Policy rule applied to the data"],
+      look:["The post-review claim (\"drove larger reseller orders\") is not supported","Answers notes how few discounted lines there are to test"]},
+    {t:"B", id:"B3", skill:["Apps + documents"], q:"Were any discounts above our policy limit, and who approved them?", src:["Marketing",KB3],
+      shows:["A planted conflict flagged and cited","Policy rule applied to the data"],
       look:["Policy: over 30% needs VP of Sales sign-off","Mountain-100 (35%) and Mountain-500 (40%) clearance sold $277K with Sales Manager approval only"]},
-    {p:"p-hr", skill:["Comparative","Apps + documents"], q:"Compare pay for salaried and hourly staff by department group; who is overdue a pay review under our policy?", src:["HR","HR handbook"],
-      shows:["Aggregate pay with policy context","No individual pay in the answer"],
+    {t:"B", id:"B4", skill:["Customer voice","Semi-structured + unstructured"], q:"What are website visitors and reviewers saying about the Touring range, and is it showing in sales?", src:["Marketing","Website guest feedback","Product catalogue and reviews"],
+      shows:["Three sources in one answer: app, feedback and reviews","Themes with counts, not single quotes"],
+      look:["About 470 comfort complaints on the website: saddle, reach, sore hands and back","Reviews average 2.9 for Touring against 4.5 for Mountain and Road"]},
+    {t:"C", id:"C1", skill:["Comparative"], q:"Compare average pay for salaried and hourly staff across department groups.", src:["HR"],
+      shows:["Side-by-side table with the differences called out","Aggregate only, no individual pay"],
+      look:["Uses Current Pay Rate, not the pay history","A clear salaried versus hourly gap by group"]},
+    {t:"C", id:"C2", skill:["Diagnostic","Apps + documents"], q:"Who is overdue a pay review under our policy, and where is it concentrated?", src:["HR","HR handbook"],
+      shows:["Policy rule applied to the data, with a citation","Ranked by department"],
       look:["Policy: review after 3 years without a change","270 of 290 employees overdue"]},
-    {p:"p-all", skill:["Multi-app"], q:"Prepare a quarterly business review across sales, supply, marketing and people.", src:["4 apps","5 knowledge bases"],
+    {t:"C", id:"C3", skill:["Descriptive","Apps + documents"], q:"Which departments have staff above the holiday carry-over limit in our handbook?", src:["HR","HR handbook"],
+      shows:["A handbook limit read and applied","Department breakdown"],
+      look:["Handbook: carry-over capped at 40 hours","178 employees above the cap"]},
+    {t:"C", id:"C4", skill:["Optimization"], q:"We have a $150,000 pay-review budget this year. How should we split it across departments to clear the longest-overdue reviews first?", src:["HR","HR handbook"],
+      shows:["An allocation that stays within budget","Assumptions stated with the result"],
+      look:["Longest-overdue staff prioritised","Budget not exceeded; trade-offs explained"]},
+    {t:"D", id:"D1", skill:["Knowledge base","Semi-structured"], q:"Why do people abandon their basket on the website?", src:["Website guest feedback"],
+      shows:["Semi-structured feedback read field by field","Themes with counts"],
+      look:["Reasons left: price, delivery, stock and technical problems","Basket values where given"]},
+    {t:"D", id:"D2", skill:["Knowledge base"], q:"Why do guest customers say they won't register?", src:["Website guest feedback"],
+      shows:["Voice of non-registered buyers","Answer cited to the monthly files"],
+      look:["Order tracking and returns need an account","Share who said they would register"]},
+    {t:"D", id:"D3", skill:["Knowledge base"], q:"Which products get the most delivery and returns complaints from guest buyers?", src:["Website guest feedback"],
+      shows:["Product-level themes across twelve months","Monthly summaries used for counts"],
+      look:["Named products with complaint counts","Exact counts belong in the app; themes from the knowledge base"]},
+    {t:"D", id:"D4", skill:["Comparative","Multi-source"], q:"Compare website sentiment on Touring bikes with online Touring sales by month.", src:["Marketing","Website guest feedback"],
+      shows:["Structured and semi-structured side by side","Figures labelled by source"],
+      look:["Comfort complaints set beside sales","Figures from the app, themes from the feedback"]},
+    {t:"F", id:"F1", skill:["Multi-app"], q:"Prepare a quarterly business review across sales, supply, marketing and people, citing our documents.", src:["4 apps","5 knowledge bases"],
       shows:["Every source used, figures labelled by app","Documents cited alongside the numbers"],
-      look:["Northeast, supplier breaches, promotion approvals and pay reviews all surface","Each figure traceable to its app"]}
+      look:["Northeast, supplier breaches, discount approvals, overdue pay reviews and Touring comfort all surface","Each figure traceable to its app"]},
+    {t:"F", id:"F2", skill:["Dashboard and Layout"], q:"Build a sheet in the Sales app for the review: revenue, margin and quota attainment by territory, with a monthly trend.", src:["Sales"],
+      shows:["A ready-made sheet built from the conversation","KPIs plus a trend"],
+      look:["Uses the master measures","Quota attainment by Sales Person Territory"]}
   ];
   var BACKUP = [
     {skill:"Diagnostic", src:["Inventory and Purchasing"], q:"What is driving scrap in the paint shop?"},
-    {skill:"Dashboard and Layout", src:["Sales"], q:"Build me a sheet for Europe with revenue, margin and quota."},
-    {skill:"Apps + documents", src:["HR","HR handbook"], q:"Which departments have staff above the holiday carry-over limit?", note:"Expect 178 employees above the 40-hour cap."},
-    {skill:"Apps + documents", src:["Marketing","Product catalogue and reviews"], q:"Why do customers rate the Touring range lower, and is that showing in sales?", note:"Reviews average 2.9 for Touring vs 4.5 for Mountain and Road."},
-    {skill:"Apps + documents", src:["Sales","Sales, pricing, promotions and playbook"], q:"Did the Touring-1000 launch deliver the uplift its brief promised?", note:"775 units against a 1,200 target."},
-    {skill:"Semi-structured", src:["Website guest feedback"], q:"What do non-registered visitors complain about most on the Touring bikes?", note:"Comfort: saddle, reach, sore hands and back."},
-    {skill:"Semi-structured", src:["Website guest feedback"], q:"Why do guest customers say they won't register?", note:"Order tracking and returns need an account."},
-    {skill:"Semi-structured", src:["Website guest feedback"], q:"What reasons do people give for abandoning their basket?", note:"Tests whether the semi-structured Attributes field is used."}
+    {skill:"Predictive", src:["Marketing"], q:"Group our online customers into segments by spend, frequency and demographics."},
+    {skill:"Apps + documents", src:["Sales",KB3], q:"Did the Touring-1000 launch deliver the uplift its brief promised?", note:"775 units against a 1,200 target."},
+    {skill:"Apps + documents", src:["Marketing","Product catalogue and reviews"], q:"What does the warranty say about frame damage on mountain bikes?"}
   ];
 
-  var APPS=["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function store(k,v){try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; }}
-  function initials(p){return {"p-sales":"SD","p-mkt":"MM","p-hr":"HR","p-all":"All"}[p];}
+  function chipSrc(s){return '<span class="chip '+(APPS.indexOf(s)>-1?'app':'kb')+'">'+esc(s)+'</span>';}
 
   // light streaks
   var STREAKS=[[18,2,"#10CFC9",.55],[24,1,"#009845",.8],[31,6,"#10CFC9",.18],[44,1,"#10CFC9",.5],[52,10,"#006580",.35],[58,1.5,"#009845",.7],[63,3,"#10CFC9",.3],[71,1,"#10CFC9",.6],[78,8,"#10CFC9",.15],[84,1.5,"#009845",.6],[90,2,"#10CFC9",.35]];
   document.querySelectorAll("[data-streaks]").forEach(function(el){
-    el.innerHTML = STREAKS.map(function(s,i){
-      var c=s[2], a=s[3];
-      return '<span style="top:'+s[0]+'%;height:'+s[1]+'px;background:linear-gradient(90deg,transparent 0%,'+c+' '+(30+i*4)%70+'%,transparent 100%);opacity:'+a+';box-shadow:0 0 '+(s[1]*3+4)+'px '+c+'"></span>';
-    }).join("");
+    el.innerHTML = STREAKS.map(function(s,i){var c=s[2];
+      return '<span style="top:'+s[0]+'%;height:'+s[1]+'px;background:linear-gradient(90deg,transparent 0%,'+c+' '+(30+i*4)%70+'%,transparent 100%);opacity:'+s[3]+';box-shadow:0 0 '+(s[1]*3+4)+'px '+c+'"></span>';}).join("");
   });
 
-  // render beats
-  var box=document.querySelector("[data-beats]"), done=store("aw-done")||{};
-  box.innerHTML = BEATS.map(function(b,i){
-    var n=i+1;
-    return '<article class="beat'+(b.featured?' featured':'')+(done[n]?' done':'')+'" data-p="'+b.p+'" id="beat-'+n+'">'+
-      '<div class="num '+b.p+'">'+n+'</div>'+
-      '<div class="beat-body">'+
-        '<div class="beat-head"><span class="who">'+P[b.p]+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+'</div>'+
+  // render beats grouped by track
+  var box=document.querySelector("[data-beats]"), done=store("aw2-done")||{};
+  var html="";
+  ORDER.forEach(function(k){
+    var T=TRACKS[k];
+    html+='<div class="track-head" data-trackhead="'+k+'"><h3>'+esc(T.name)+'</h3><span class="tq">'+esc(T.q)+'</span>'+(T.optional?'<span class="opt">Optional</span>':'')+'<span class="tm">'+T.mins+' min</span></div>';
+    BEATS.forEach(function(b,i){ if(b.t!==k) return; var p=T.p;
+      html+='<article class="beat'+(b.featured?' featured':'')+(done[b.id]?' done':'')+'" data-t="'+k+'" id="beat-'+b.id+'">'+
+        '<div class="num '+p+'">'+b.id+'</div><div class="beat-body">'+
+        '<div class="beat-head"><span class="who">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+'</div>'+
         '<div class="question"><p>'+(b.pre?'<span class="pre">'+esc(b.pre)+'</span>':'')+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+
+        (b.follow?'<div class="follow"><p><span class="pre">Follow-up</span>'+esc(b.follow)+'</p><button class="copy" data-copy="'+esc(b.follow)+'">Copy</button></div>':'')+
         '<div class="cols"><div><h4>What it shows</h4><ul>'+b.shows.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>'+
         '<div><h4>Look for</h4><ul>'+b.look.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div></div>'+
-        '<div class="beat-foot"><span class="lbl">Sources</span>'+b.src.map(function(s){return '<span class="chip '+(APPS.indexOf(s)>-1?'app':'kb')+'">'+esc(s)+'</span>';}).join("")+
-        '<button class="copy" data-present="'+i+'" style="margin-left:8px">Present from here</button>'+
-        '<label><input type="checkbox" data-done="'+n+'"'+(done[n]?' checked':'')+'> Done</label></div>'+
-      '</div></article>';
-  }).join("");
+        '<div class="beat-foot"><span class="lbl">Sources</span>'+b.src.map(chipSrc).join("")+
+        '<button class="copy" data-present-id="'+b.id+'" style="margin-left:8px">Present from here</button>'+
+        '<label><input type="checkbox" data-done="'+b.id+'"'+(done[b.id]?' checked':'')+'> Done</label></div></div></article>';
+    });
+  });
+  box.innerHTML=html;
 
   document.querySelector("[data-backup]").innerHTML = BACKUP.map(function(b){
-    return '<div class="card"><div class="chips"><span class="chip skill">'+esc(b.skill)+'</span>'+b.src.map(function(s){return '<span class="chip kb">'+esc(s)+'</span>';}).join("")+'</div>'+
+    return '<div class="card"><div class="chips"><span class="chip skill">'+esc(b.skill)+'</span>'+b.src.map(chipSrc).join("")+'</div>'+
       '<div class="question"><p>'+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+(b.note?'<p style="margin:10px 0 0;font-size:14px">'+esc(b.note)+'</p>':'')+'</div>';
   }).join("");
 
-  // progress + done ticks
-  function progress(){
-    var n=Object.keys(done).filter(function(k){return done[k];}).length;
-    document.querySelector("[data-progress]").innerHTML='<b>'+n+'</b> of 12 beats done';
+  // track selection
+  var sel = store("aw2-tracks") || {O:1,A:1,B:1,C:1,D:0,F:1};
+  function active(){ return BEATS.filter(function(b){return sel[b.t];}); }
+  function applySel(){
+    document.querySelectorAll("[data-track]").forEach(function(b){ b.setAttribute("aria-pressed", !!sel[b.dataset.track]); });
+    document.querySelectorAll(".beat").forEach(function(el){ el.classList.toggle("hide", !sel[el.dataset.t]); });
+    document.querySelectorAll("[data-trackhead]").forEach(function(el){ el.classList.toggle("hide", !sel[el.dataset.trackhead]); });
+    progress();
   }
-  progress();
+  document.querySelectorAll("[data-track]").forEach(function(btn){
+    btn.addEventListener("click",function(){ var k=btn.dataset.track; sel[k]=sel[k]?0:1; store("aw2-tracks",sel); applySel(); });
+  });
+  function planMins(){ return ORDER.reduce(function(s,k){return s+(sel[k]?TRACKS[k].mins:0);},0); }
+  function progress(){
+    var a=active(), n=a.filter(function(b){return done[b.id];}).length;
+    document.querySelector("[data-progress]").innerHTML='<b>'+n+'</b> of '+a.length+' beats done · about '+planMins()+' min';
+  }
+  applySel();
+
   document.addEventListener("change",function(e){
     var t=e.target;
-    if(t.dataset.done){ done[t.dataset.done]=t.checked; store("aw-done",done); t.closest(".beat").classList.toggle("done",t.checked); progress(); }
-    if(t.closest("[data-store=prep]")){ var s={}; document.querySelectorAll("[data-store=prep] input").forEach(function(i){s[i.id]=i.checked;}); store("aw-prep",s); }
+    if(t.dataset.done){ done[t.dataset.done]=t.checked; store("aw2-done",done); t.closest(".beat").classList.toggle("done",t.checked); progress(); }
+    if(t.closest("[data-store=prep]")){ var s={}; document.querySelectorAll("[data-store=prep] input").forEach(function(i){s[i.id]=i.checked;}); store("aw2-prep",s); }
   });
-  var prep=store("aw-prep")||{}; Object.keys(prep).forEach(function(id){var el=document.getElementById(id); if(el) el.checked=prep[id];});
+  var prep=store("aw2-prep")||{}; Object.keys(prep).forEach(function(id){var el=document.getElementById(id); if(el) el.checked=prep[id];});
   document.querySelector("[data-reset]").addEventListener("click",function(){
-    done={}; store("aw-done",done); document.querySelectorAll("[data-done]").forEach(function(c){c.checked=false; c.closest(".beat").classList.remove("done");}); progress();
-  });
-
-  // filters
-  document.querySelectorAll("[data-filter]").forEach(function(btn){
-    btn.addEventListener("click",function(){
-      document.querySelectorAll("[data-filter]").forEach(function(b){b.setAttribute("aria-pressed",b===btn);});
-      var f=btn.dataset.filter;
-      document.querySelectorAll(".beat").forEach(function(el){ el.classList.toggle("hide", f!=="all" && el.dataset.p!==f); });
-    });
+    done={}; store("aw2-done",done); document.querySelectorAll("[data-done]").forEach(function(c){c.checked=false; c.closest(".beat").classList.remove("done");}); progress();
   });
 
   // copy
   function copyText(t,btn){
     function ok(){ if(!btn) return; var o=btn.textContent; btn.textContent="Copied"; btn.classList.add("ok"); setTimeout(function(){btn.textContent=o; btn.classList.remove("ok");},1400); }
-    if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t).then(ok,function(){fallback();}); } else fallback();
     function fallback(){ var ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(e){} document.body.removeChild(ta); ok(); }
+    if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t).then(ok,fallback); } else fallback();
   }
   document.addEventListener("click",function(e){
-    var c=e.target.closest("[data-copy]"); if(c){ copyText(c.dataset.copy,c); }
-    var p=e.target.closest("[data-present]"); if(p){ openPM(+p.dataset.present); }
+    var c=e.target.closest("[data-copy]"); if(c){ copyText(c.dataset.copy,c); return; }
+    var p=e.target.closest("[data-present]"); if(p){ openPM(0); return; }
+    var q=e.target.closest("[data-present-id]"); if(q){ var id=q.dataset.presentId, b=BEATS.filter(function(x){return x.id===id;})[0]; if(b&&!sel[b.t]){sel[b.t]=1; applySel();} openPM(active().map(function(x){return x.id;}).indexOf(id)); }
   });
 
   // presenter mode
-  var pm=document.querySelector("[data-pm]"), cur=0, seen={}, t0=null, tick=null;
+  var pm=document.querySelector("[data-pm]"), list=[], cur=0, seen={}, t0=null, tick=null;
   var dots=document.querySelector("[data-pm-dots]");
-  dots.innerHTML=BEATS.map(function(_,i){return '<button aria-label="Beat '+(i+1)+'" data-go="'+i+'"></button>';}).join("");
   dots.addEventListener("click",function(e){var b=e.target.closest("[data-go]"); if(b) show(+b.dataset.go);});
   function li(a){return a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("");}
   function show(i){
-    cur=Math.max(0,Math.min(BEATS.length-1,i)); seen[cur]=true; var b=BEATS[cur];
-    document.querySelector("[data-pm-meta]").innerHTML='<span class="n">Beat '+(cur+1)+' of 12</span><span class="pchip">'+P[b.p]+'</span>'+b.skill.map(function(s){return '<span class="pchip">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="pchip" style="background:var(--sky);color:var(--deep)">★ Featured</span>':'')+b.src.map(function(s){return '<span class="pchip" style="background:transparent;border:1px solid rgba(255,255,255,.3)">'+esc(s)+'</span>';}).join("");
+    cur=Math.max(0,Math.min(list.length-1,i)); var b=list[cur], T=TRACKS[b.t]; seen[b.id]=true;
+    document.querySelector("[data-pm-meta]").innerHTML='<span class="n">'+b.id+' · '+(cur+1)+' of '+list.length+'</span><span class="pchip">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="pchip">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="pchip" style="background:var(--sky);color:var(--deep)">★ Featured</span>':'')+b.src.map(function(s){return '<span class="pchip" style="background:transparent;border:1px solid rgba(255,255,255,.3)">'+esc(s)+'</span>';}).join("");
     document.querySelector("[data-pm-pre]").textContent=b.pre||"";
     document.querySelector("[data-pm-q]").textContent=b.q;
+    document.querySelector("[data-pm-follow]").innerHTML=b.follow?'<span>Follow-up</span>'+esc(b.follow):"";
     document.querySelector("[data-pm-shows]").innerHTML=li(b.shows);
     document.querySelector("[data-pm-look]").innerHTML=li(b.look);
-    dots.querySelectorAll("button").forEach(function(d,j){d.className=j===cur?"on":(seen[j]?"seen":"");});
+    dots.querySelectorAll("button").forEach(function(d,j){d.className=j===cur?"on":(seen[list[j].id]?"seen":"");});
     document.querySelector("[data-prev]").disabled=cur===0;
-    document.querySelector("[data-next]").textContent=cur===BEATS.length-1?"Finish ✓":"Next →";
+    document.querySelector("[data-next]").textContent=cur===list.length-1?"Finish ✓":"Next →";
   }
   function fmt(s){var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r;}
   function openPM(i){
+    list=active(); if(!list.length) return;
+    dots.innerHTML=list.map(function(b,j){return '<button aria-label="Beat '+b.id+'" title="'+b.id+'" data-go="'+j+'"></button>';}).join("");
+    document.querySelector("[data-plan]").textContent=fmt(planMins()*60);
     pm.classList.add("open"); document.body.style.overflow="hidden";
-    if(!t0){ t0=Date.now(); }
+    if(!t0) t0=Date.now();
     clearInterval(tick); tick=setInterval(function(){ document.querySelector("[data-clock]").textContent=fmt(Math.floor((Date.now()-t0)/1000)); },500);
-    show(i||0);
+    show(i>0?i:0);
   }
-  function closePM(){ pm.classList.remove("open"); document.body.style.overflow=""; clearInterval(tick); location.hash="beat-"+(cur+1); }
+  function closePM(){ pm.classList.remove("open"); document.body.style.overflow=""; clearInterval(tick); location.hash="beat-"+list[cur].id; }
   document.querySelector("[data-close]").addEventListener("click",closePM);
   document.querySelector("[data-prev]").addEventListener("click",function(){show(cur-1);});
-  document.querySelector("[data-next]").addEventListener("click",function(){ if(cur===BEATS.length-1) closePM(); else show(cur+1); });
-  document.querySelector("[data-pm-copy]").addEventListener("click",function(e){copyText(BEATS[cur].q,e.currentTarget);});
+  document.querySelector("[data-next]").addEventListener("click",function(){ if(cur===list.length-1) closePM(); else show(cur+1); });
+  document.querySelector("[data-pm-copy]").addEventListener("click",function(e){copyText(list[cur].q,e.currentTarget);});
   document.addEventListener("keydown",function(e){
     if(!pm.classList.contains("open")) return;
     if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault(); show(cur+1);}
     else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault(); show(cur-1);}
     else if(e.key==="Escape"){closePM();}
-    else if(e.key==="c"||e.key==="C"){copyText(BEATS[cur].q,document.querySelector("[data-pm-copy]"));}
+    else if(e.key==="c"||e.key==="C"){copyText(list[cur].q,document.querySelector("[data-pm-copy]"));}
+    else if((e.key==="f"||e.key==="F")&&list[cur].follow){copyText(list[cur].follow,document.querySelector("[data-pm-copy]"));}
   });
 
   // active nav link
@@ -645,5 +715,6 @@ footer li{margin:4px 0}
   }
 })();
 </script>
+
 </body>
 </html>
