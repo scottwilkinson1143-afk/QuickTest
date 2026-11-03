@@ -396,8 +396,8 @@ footer li{margin:4px 0}
       <li><input type="checkbox" id="c1"><label for="c1">All four apps reloaded today, so the shifted dates run up to the latest quarter end.</label></li>
       <li><input type="checkbox" id="c2"><label for="c2">Assistant open with all 4 apps and 5 knowledge bases attached; knowledge bases finished indexing.</label></li>
       <li><input type="checkbox" id="c3"><label for="c3">Custom skills switched <strong>off</strong> for the opening beat.</label></li>
-      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app, except the ones beat A2 needs.</label></li>
-      <li><input type="checkbox" id="c5"><label for="c5">Sales app ready to select <strong>North America</strong> and <strong>Bikes</strong> for Blind Spots.</label></li>
+      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app.</label></li>
+      <li><input type="checkbox" id="c5"><label for="c5">Blind Spots (A2) tried once: the question itself scopes to <strong>Bikes</strong> in <strong>North America</strong>.</label></li>
       <li><input type="checkbox" id="c6"><label for="c6">C4 run once beforehand, so the $150,000 budget makes sense against the payroll.</label></li>
       <li><input type="checkbox" id="c7"><label for="c7">A second tab with the Sales app sheet, as a fallback if an answer runs long.</label></li>
       <li><input type="checkbox" id="c8"><label for="c8">Tracks chosen for this audience in the filter below.</label></li>
@@ -535,7 +535,7 @@ footer li{margin:4px 0}
       follow:"What did the last business review say Northeast would do about it?", src:["Sales",KB3],
       shows:["Ranked attribution in plain words","A follow-up that keeps the context and adds a cited document"],
       look:["Northeast at 43% of quota last quarter","Review notes say it \"expects to recover\", after 74%, 70% and 81%"]},
-    {t:"A", id:"A2", featured:true, skill:["Blind Spots"], pre:"With North America and Bikes selected in the Sales app:", q:"What am I not seeing outside my current selection?", src:["Sales"],
+    {t:"A", id:"A2", featured:true, skill:["Blind Spots"], q:"Looking at Bike Sales in North America, what am I not seeing?", src:["Sales"],
       shows:["The featured moment: what the filter hides, quantified","Europe, Pacific and non-bike revenue brought back into view"],
       look:["Share of revenue outside the selection stated as a number","A suggested next question about the hidden segments"]},
     {t:"A", id:"A3", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
@@ -543,7 +543,7 @@ footer li{margin:4px 0}
       look:["A range, not a single line","Bike demand history ends 30 Aug 2026: say \"from the last full season\""]},
     {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% above that forecast, which components stock out first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
       shows:["Stock-out risk with a range","Contract terms checked against actual supplier performance"],
-      look:["Superior Bicycles (5.2%) and Crowley Sport (5.3%) above their 2% rejection limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
+      look:["Road bike brakes run short first; their supplier, Superior Bicycles, rejects 5.2% against a 2% contract limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
     {t:"B", id:"B1", link:true, skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
       shows:["Set logic written for you","A correct cohort count"],
       look:["One cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
