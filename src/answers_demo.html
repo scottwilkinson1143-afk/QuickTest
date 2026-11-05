@@ -110,6 +110,23 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .beat0 .q{font-size:18px;font-weight:600;flex:1;min-width:240px}
 .beat0 .lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sky)}
 
+
+/* skills section: sized to fit one screen */
+#skills{padding:20px 0 20px}
+#skills h2{font-size:clamp(24px,2.6vw,30px)}
+.skills-lead{font-size:16px;max-width:none;margin:8px 0 0}
+.skills-grid{margin-top:14px;gap:14px}
+.skill-card{padding:16px 18px}
+.skill-card .chip{margin-bottom:8px}
+.skill-card h3{font-size:17px;margin-bottom:4px}
+.skill-card .when{font-size:13px;margin:0 0 8px}
+.skill-card dl{margin:0;grid-template-columns:76px 1fr;gap:4px 10px;font-size:14px;line-height:1.4}
+.skills-foot{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-top:14px;align-items:stretch}
+.skills-foot .note{margin:0;font-size:13px;align-self:center}
+.skills-foot .beat0{margin:0;padding:14px 18px;justify-content:space-between}
+.skills-foot .beat0 .q{font-size:17px;min-width:0;margin-top:4px}
+@media (max-width:900px){.skills-foot{grid-template-columns:1fr}}
+
 /* checklist */
 .check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
 .check li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -364,44 +381,45 @@ footer li{margin:4px 0}
   <div class="wrap">
     <div class="eyebrow">Customer-defined skills</div>
     <h2>Teach the assistant how Adventure Works talks</h2>
-    <p class="lead" style="margin-top:14px">Three plain-language skills make answers follow house conventions: one sets the fiscal calendar, one sets what "recent" means, and one sets how every answer is laid out. The feature is pre-release, so final screens may differ.</p>
-    <div class="grid g3" style="margin-top:26px">
+    <p class="lead skills-lead">Three plain-language skills set the fiscal calendar, what "recent" means and how every answer is laid out. The feature is pre-release, so final screens may differ.</p>
+    <div class="grid g3 skills-grid">
       <div class="card skill-card">
         <span class="chip skill">aw-adventure-works-calendar</span>
         <h3>Adventure Works calendar</h3>
-        <p class="when">Used for any question that mentions a year, quarter, year to date or other period.</p>
+        <p class="when">Any question that mentions a year, quarter or year to date.</p>
         <dl>
-          <dt>Defines</dt><dd>The fiscal year runs 1 July to 30 June and is named by the year it ends: FY2027 is July 2026 to June 2027. Q1 is July to September.</dd>
-          <dt>Business rule</dt><dd>"This year", "last year", "last quarter" and "year to date" mean fiscal periods unless someone says "calendar". A comparison with last year uses the same span of the previous fiscal year.</dd>
-          <dt>Instruction</dt><dd>Name the fiscal period and its calendar months, for example "FY2027 Q1 (July to September 2026)".</dd>
+          <dt>Defines</dt><dd>Fiscal year runs July to June, named by the year it ends (FY2027 = Jul 2026 to Jun 2027). Q1 is July to September.</dd>
+          <dt>Rule</dt><dd>"This year", "last quarter" and "year to date" are fiscal unless someone says "calendar".</dd>
+          <dt>Instruction</dt><dd>Name the period and its months: "FY2027 Q1 (July to September 2026)".</dd>
         </dl>
       </div>
       <div class="card skill-card">
         <span class="chip skill">aw-recent-sales-defaults</span>
         <h3>Recent sales defaults</h3>
-        <p class="when">Used when a question says "recent" or gives no time period.</p>
+        <p class="when">A question says "recent" or gives no time period.</p>
         <dl>
-          <dt>Defines</dt><dd>"Recent" means the latest 6 months of data, counted back from the last month with orders, not from today's date.</dd>
-          <dt>Business rule</dt><dd>If no time period is given, use the recent period. Quota questions use the last 2 fiscal quarters with sales, because quotas have no monthly date.</dd>
-          <dt>Instruction</dt><dd>State the period at the start with its month names, for example "Over the latest 6 months of data (March to August 2026)". Report money in US dollars.</dd>
+          <dt>Defines</dt><dd>"Recent" is the latest 6 months of data, counted back from the last month with orders, not from today.</dd>
+          <dt>Rule</dt><dd>Quota questions use the last 2 fiscal quarters with sales, as quotas have no month.</dd>
+          <dt>Instruction</dt><dd>State the period first: "the latest 6 months of data (March to August 2026)". Money in US dollars.</dd>
         </dl>
       </div>
       <div class="card skill-card">
         <span class="chip skill">concise-structured-answers</span>
         <h3>Concise structured answers</h3>
-        <p class="when">Used for every data or policy answer, including follow-ups and repeated questions.</p>
+        <p class="when">Every data or policy answer, including follow-ups.</p>
         <dl>
-          <dt>Format</dt><dd>A bold one-line lead, then three to five bullets with one figure each. App figures and document content sit in separate labelled sections.</dd>
-          <dt>Citations</dt><dd>At most one citation per sentence or bullet, attached only to what that source says.</dd>
-          <dt>Numbers</dt><dd>Money in dollars with no cents on amounts of $100 or more, ratios as percentages, and no expressions, field names or other technical working.</dd>
+          <dt>Format</dt><dd>Bold one-line lead, then 3 to 5 bullets with one figure each. App figures and documents in separate sections.</dd>
+          <dt>Citations</dt><dd>At most one per bullet, only for what that source says.</dd>
+          <dt>Numbers</dt><dd>No cents on $100 or more, ratios as percentages, no field names or expressions.</dd>
         </dl>
       </div>
     </div>
-    <p class="note"><strong>Also possible: per-app calculation skills.</strong> A skill can be scoped to a single app to hold its calculation rules, such as which master measures to prefer, how the tables relate and which business rules apply when a question leaves something open. This demo doesn't need them, because the master measure descriptions already carry those rules, but they're worth raising with customers whose apps have few governed master items.</p>
-    <div class="beat0">
-      <div><div class="lbl">Opening beat O · skills off, then on</div></div>
-      <div class="q">How have Europe sales done recently?</div>
-      <button class="copy" data-copy="How have Europe sales done recently?">Copy</button>
+    <div class="skills-foot">
+      <p class="note"><strong>Also possible: per-app calculation skills.</strong> A skill scoped to one app can hold its calculation rules. Not needed here, because the master measure descriptions carry them; worth raising where apps have few governed master items.</p>
+      <div class="beat0">
+        <div><div class="lbl">Opening beat O · skills off, then on</div><div class="q">How have Europe sales done recently?</div></div>
+        <button class="copy" data-copy="How have Europe sales done recently?">Copy</button>
+      </div>
     </div>
   </div>
 </section>
