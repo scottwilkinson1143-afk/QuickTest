@@ -127,6 +127,24 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .skills-foot .beat0 .q{font-size:17px;min-width:0;margin-top:4px}
 @media (max-width:900px){.skills-foot{grid-template-columns:1fr}}
 
+
+/* story section: full-width lead, sized to fit one screen */
+#story{padding:20px 0 20px}
+#story h2{font-size:clamp(24px,2.6vw,30px)}
+.story-lead{max-width:none;font-size:16px;line-height:1.5;margin:8px 0 0}
+.story-pillars{margin-top:14px;gap:14px}
+.story-pillars .card{padding:14px 18px}
+.story-pillars h3{font-size:16px;margin-bottom:4px}
+.story-pillars p{font-size:14px;line-height:1.45;margin:0}
+.story-personas{margin-top:14px;gap:14px}
+.story-personas .card{padding:14px 16px}
+.story-personas .who{gap:10px;margin-bottom:8px}
+.story-personas .avatar{width:36px;height:36px;font-size:13px}
+.story-personas h3{font-size:16px;margin:0}
+.story-personas small{font-size:12px}
+.story-personas .chip{font-size:11px;padding:3px 8px}
+.story-personas ul{font-size:14px;line-height:1.4;margin-top:8px}
+
 /* checklist */
 .check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
 .check li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -284,7 +302,7 @@ footer li{margin:4px 0}
     <div class="stats">
       <div class="stat"><strong>3</strong><span>persona tracks</span></div>
       <div class="stat"><strong>10</strong><span>built-in skills</span></div>
-      <div class="stat"><strong>25</strong><span>minutes</span></div>
+      <div class="stat"><strong>33</strong><span>minutes</span></div>
       <div class="stat"><strong>4</strong><span>Qlik apps</span></div>
       <div class="stat"><strong>5</strong><span>knowledge bases</span></div>
       <div class="stat"><strong>60</strong><span>documents</span></div>
@@ -303,7 +321,6 @@ footer li{margin:4px 0}
     <a href="#story">The story</a>
     <a href="#assistant">Assistant</a>
     <a href="#skills">Custom skills</a>
-    <a href="#prep">Before you start</a>
     <a href="#script">Demo script</a>
     <a href="#blindspots">What Answers should find</a>
     <a href="#backup">Backup questions</a>
@@ -317,31 +334,30 @@ footer li{margin:4px 0}
   <div class="wrap">
     <div class="eyebrow">The story</div>
     <h2>One review, three leaders, one assistant</h2>
-    <p class="lead" style="margin-top:14px">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree, and the finale pulls their findings into one review.</p>
-    <p style="margin-top:6px">The demo is modular: a 2-minute opening, three 7-minute tracks and a 3-minute finale. Run all of it in about 25 minutes, or pick the tracks that suit the audience.</p>
-    <div class="grid g3" style="margin-top:30px">
+    <p class="lead story-lead">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree, and the finale pulls their findings into one review. The demo is modular: a 3-minute opening, three 9-minute tracks and a 3-minute finale, about 33 minutes in all, or pick the tracks that suit the audience.</p>
+    <div class="grid g3 story-pillars">
       <div class="card pillar"><h3>New single-agent skills</h3><p>Descriptive through to Prescriptive, Simulation and Optimization, with <strong>Blind Spots</strong> surfacing what the current selection hides.</p></div>
       <div class="card pillar"><h3>Multi-app assistant</h3><p>One assistant over up to 5 apps and 5 knowledge bases. Each answer labels which app and which document it used.</p></div>
       <div class="card pillar"><h3>Structured + unstructured</h3><p>The documents were written to agree with the data, except for planted conflicts that Answers should catch and cite.</p></div>
     </div>
-    <div class="grid g4" style="margin-top:18px">
+    <div class="grid g4 story-personas">
       <div class="card persona">
-        <div class="who"><span class="avatar p-sales">SD</span><div><h3 style="margin:0">Sales Director</h3><small>Track A · 4 beats</small></div></div>
+        <div class="who"><span class="avatar p-sales">SD</span><div><h3>Sales Director</h3><small>Track A · 4 beats</small></div></div>
         <div class="chips"><span class="chip app">Sales</span><span class="chip app">Inventory and Purchasing</span><span class="chip kb">Supplier contracts</span></div>
         <ul><li>Why did we miss quota, and what hides behind my filter?</li><li>Can supply keep up if demand rises?</li></ul>
       </div>
       <div class="card persona">
-        <div class="who"><span class="avatar p-mkt">MM</span><div><h3 style="margin:0">Marketing Manager</h3><small>Track B · 4 beats</small></div></div>
+        <div class="who"><span class="avatar p-mkt">MM</span><div><h3>Marketing Manager</h3><small>Track B · 4 beats</small></div></div>
         <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Sales, pricing and promotions</span><span class="chip kb">Website guest feedback</span></div>
         <ul><li>Which promotions and customers pay off?</li><li>What are customers and website visitors telling us?</li></ul>
       </div>
       <div class="card persona">
-        <div class="who"><span class="avatar p-hr">HR</span><div><h3 style="margin:0">HR Business Manager</h3><small>Track C · 4 beats</small></div></div>
+        <div class="who"><span class="avatar p-hr">HR</span><div><h3>HR Business Manager</h3><small>Track C · 4 beats</small></div></div>
         <div class="chips"><span class="chip app">HR</span><span class="chip kb">HR handbook</span></div>
         <ul><li>Are we paying and resting people as our policies say?</li><li>How should we spend the pay-review budget?</li></ul>
       </div>
       <div class="card persona" style="border-style:dashed">
-        <div class="who"><span class="avatar p-dig">HD</span><div><h3 style="margin:0">Head of Digital</h3><small>Optional Track D · 4 beats</small></div></div>
+        <div class="who"><span class="avatar p-dig">HD</span><div><h3>Head of Digital</h3><small>Optional Track D · 4 beats</small></div></div>
         <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Website guest feedback</span></div>
         <ul><li>Why do visitors leave without buying?</li><li>Why won't guests register?</li></ul>
       </div>
@@ -424,27 +440,10 @@ footer li{margin:4px 0}
   </div>
 </section>
 
-<section id="prep">
-  <div class="wrap">
-    <div class="eyebrow">Before you start</div>
-    <h2>Five-minute pre-flight</h2>
-    <ul class="check" style="margin-top:24px" data-store="prep">
-      <li><input type="checkbox" id="c1"><label for="c1">All four apps reloaded today, so the shifted dates run up to the latest quarter end.</label></li>
-      <li><input type="checkbox" id="c2"><label for="c2">Assistant open with all 4 apps and 5 knowledge bases attached; knowledge bases finished indexing.</label></li>
-      <li><input type="checkbox" id="c3"><label for="c3">Custom skills switched <strong>off</strong> for the opening beat.</label></li>
-      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app.</label></li>
-      <li><input type="checkbox" id="c5"><label for="c5">Blind Spots (A2) tried once: the question itself scopes to <strong>Bikes</strong> in <strong>North America</strong>.</label></li>
-      <li><input type="checkbox" id="c6"><label for="c6">C4 run once beforehand, so the $150,000 budget makes sense against the payroll.</label></li>
-      <li><input type="checkbox" id="c7"><label for="c7">A second tab with the Sales app sheet, as a fallback if an answer runs long.</label></li>
-      <li><input type="checkbox" id="c8"><label for="c8">Tracks chosen for this audience in the filter below.</label></li>
-    </ul>
-  </div>
-</section>
-
 <section id="script">
   <div class="wrap">
     <div class="eyebrow">Demo script</div>
-    <h2>Five parts, about 25 minutes</h2>
+    <h2>Five parts, about 33 minutes</h2>
     <p class="lead" style="margin-top:14px">Choose the parts to run, then present them full screen or copy each question into the assistant. Beat A2 is the featured Blind Spots moment. Track D is optional, for customer-experience audiences.</p>
     <div class="toolbar" role="toolbar" aria-label="Filter by persona">
       <button class="filter" aria-pressed="true" data-track="O"><span class="sw" style="background:var(--gray)"></span>Opening</button>
@@ -525,7 +524,7 @@ footer li{margin:4px 0}
   <div class="pm-top">
     <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="751.80 112.36 159.98 68.35" role="img" aria-label="Qlik"><path d="M821.73 178.01L812.59 178.01L807.18 172.05L807.13 172.00L807.08 171.95C807.08 171.95 807.07 171.95 807.07 171.95L806.87 171.74L802.35 167.19C808.43 162.36 812.34 154.91 812.34 146.53C812.34 131.97 800.53 120.17 785.97 120.17C777.67 120.17 770.26 124.01 765.43 130.01L760.61 125.15C766.69 117.94 775.80 113.36 785.97 113.36C804.30 113.36 819.15 128.21 819.15 146.53C819.15 154.38 816.42 161.59 811.87 167.27L821.73 178.01Z" fill="#009749"/><path d="M830.66 114.81H837.26V177.99H830.66ZZ" fill="#ffffff"/><path d="M848.61 133.86H855.18V177.99H848.61ZZ" fill="#ffffff"/><path d="M856.47 119.31C856.47 121.80 854.45 123.82 851.96 123.82C849.47 123.82 847.46 121.80 847.46 119.31C847.46 116.82 849.47 114.81 851.96 114.81C854.45 114.81 856.47 116.82 856.47 119.31Z" fill="#ffffff"/><path d="M807.17 172.05C801.43 176.84 794.04 179.71 785.97 179.71C767.65 179.71 752.80 164.86 752.80 146.53C752.80 138.38 755.73 130.92 760.61 125.15L765.43 130.01C761.79 134.53 759.61 140.28 759.61 146.53C759.61 161.09 771.41 172.90 785.97 172.90C792.16 172.90 797.85 170.76 802.35 167.19L806.87 171.74L807.07 171.95C807.07 171.95 807.08 171.95 807.08 171.95L807.13 172.00L807.17 172.05Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M901.42 133.86L892.25 133.86L873.24 150.50L873.21 114.81L866.64 114.81L866.64 177.99L873.21 177.99L873.21 157.61L892.73 177.99L901.87 177.99L878.60 154.39L901.42 133.86Z" fill="#ffffff"/><path d="M910.77 174.37L910.77 177.50L910.23 177.50L910.23 175.37L909.28 177.50L908.99 177.50L908.05 175.37L908.05 177.50L907.50 177.50L907.50 174.37L908.17 174.37L909.14 176.67L910.11 174.37L910.77 174.37Z" fill="#ffffff"/><path d="M906.96 174.37L906.96 174.84L906.00 174.84L906.00 177.50L905.46 177.50L905.46 174.84L904.51 174.84L904.51 174.37L906.96 174.37Z" fill="#ffffff"/></svg></span>
     <span class="spacer"></span>
-    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>25:00</span></span>
+    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>33:00</span></span>
     <button class="pm-x" data-close>Close · Esc</button>
   </div>
   <div class="pm-main">
@@ -550,11 +549,11 @@ footer li{margin:4px 0}
 <script>
 (function(){
   var TRACKS = {
-    O:{name:"Opening", who:"Presenter", p:"p-all", mins:2, q:"Show what the custom skills change"},
-    A:{name:"Track A · Sales Director", who:"Sales Director", p:"p-sales", mins:7, q:"Why did we miss, and can supply keep up?"},
-    B:{name:"Track B · Marketing Manager", who:"Marketing Manager", p:"p-mkt", mins:7, q:"What pays off, and what are customers telling us?"},
-    C:{name:"Track C · HR Business Manager", who:"HR Business Manager", p:"p-hr", mins:7, q:"Are we paying, rewarding and resting people the way our policies say?"},
-    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:7, q:"Why do website visitors leave without buying or registering?", optional:true},
+    O:{name:"Opening", who:"Presenter", p:"p-all", mins:3, q:"Show what the custom skills change"},
+    A:{name:"Track A · Sales Director", who:"Sales Director", p:"p-sales", mins:9, q:"Why did we miss, and can supply keep up?"},
+    B:{name:"Track B · Marketing Manager", who:"Marketing Manager", p:"p-mkt", mins:9, q:"What pays off, and what are customers telling us?"},
+    C:{name:"Track C · HR Business Manager", who:"HR Business Manager", p:"p-hr", mins:9, q:"Are we paying, rewarding and resting people the way our policies say?"},
+    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:9, q:"Why do website visitors leave without buying or registering?", optional:true},
     F:{name:"Finale", who:"All personas", p:"p-all", mins:3, q:"Bring it together for the review"}
   };
   // ---- Demo link: paste the Qranks app or assistant URL here ----
