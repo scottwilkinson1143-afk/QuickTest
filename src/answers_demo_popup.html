@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qlik Answers · AdventureWorks Demo (with Answers pop-up)</title>
+<meta name="description" content="Run sheet for the Qlik Answers pre-release demo on the AdventureWorks dataset: assistant set-up, custom skills and the 12-beat demo script.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#009845; --gray:#54565A; --deep:#19426C; --sky:#10CFC9; --ocean:#006580; --white:#fff;
+  --mint:#4DB494; --plum:#94579C; --casper:#A9B3B6;
+  --ink:#54565A; --ink-strong:#2f3134; --line:#e3e6e8; --soft:#f5f7f8; --green-10:#e6f5ec; --sky-10:#e7faf9; --deep-10:#e8edf2;
+  --radius:10px; --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--white);color:var(--ink);font:400 16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-weight:700;margin:0;line-height:1.15}
+h2{color:var(--green);font-size:clamp(26px,3.2vw,36px);letter-spacing:-.01em}
+h3{color:var(--deep);font-size:18px;font-weight:600}
+p{margin:0 0 12px}
+a{color:var(--ocean)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+.eyebrow{font-size:13px;font-weight:600;color:var(--green);letter-spacing:.02em;margin-bottom:10px}
+.lead{font-size:18px;max-width:760px}
+section{padding:72px 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+
+/* hero with brand light streaks */
+.hero{position:relative;overflow:hidden;background:var(--deep);color:#fff;padding:36px 0 84px}
+.streaks{position:absolute;inset:0;pointer-events:none;opacity:.95}
+.streaks span{position:absolute;left:-10%;width:130%;border-radius:50%;filter:blur(.4px)}
+.hero .wrap{position:relative}
+.logo{display:block;height:44px;width:auto}
+.logo svg{height:100%;width:auto;display:block}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 12px;color:#fff}
+.tag i{width:8px;height:8px;border-radius:50%;background:var(--sky);display:inline-block}
+.hero h1{font-size:clamp(36px,6vw,68px);letter-spacing:-.02em;margin:72px 0 18px;max-width:900px}
+.hero h1 b{color:var(--sky);font-weight:700}
+.hero p.sub{font-size:19px;max-width:680px;color:rgba(255,255,255,.88)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 34px;margin-top:34px}
+.stat strong{display:block;font-size:34px;font-weight:700;color:#fff;line-height:1}
+.stat span{font-size:13px;color:rgba(255,255,255,.75)}
+.hero-cta{margin-top:36px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{appearance:none;border:0;cursor:pointer;font:600 15px/1 Inter,system-ui,sans-serif;border-radius:999px;padding:14px 22px;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:#00843c}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+.btn-line{background:#fff;color:var(--deep);border:1px solid var(--line)}
+.btn-line:hover{border-color:var(--deep)}
+
+/* sticky nav */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:saturate(1.4) blur(6px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;align-items:center;gap:22px;height:58px;overflow-x:auto;scrollbar-width:none}
+nav.top .wrap::-webkit-scrollbar{display:none}
+nav.top .mini{height:22px;flex:none}
+nav.top .mini svg{height:22px;width:auto;display:block}
+nav.top a{flex:none;color:var(--gray);text-decoration:none;font-size:14px;font-weight:500;padding:6px 0;border-bottom:2px solid transparent}
+nav.top a:hover,nav.top a.on{color:var(--green);border-color:var(--green)}
+nav.top .spacer{flex:1}
+nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
+
+/* cards & grids */
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{border:1px solid var(--line);border-radius:var(--radius);padding:22px;background:#fff}
+.card h3{margin-bottom:8px}
+.pillar{border-top:4px solid var(--green)}
+.pillar:nth-child(2){border-top-color:var(--deep)}
+.pillar:nth-child(3){border-top-color:var(--sky)}
+.persona .who{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:15px;flex:none}
+.p-sales{background:var(--green)} .p-mkt{background:var(--ocean)} .p-hr{background:var(--deep)} .p-all{background:var(--gray)}
+.persona ul{margin:8px 0 0;padding-left:18px}
+.persona li{margin:3px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--gray);border:1px solid var(--line);white-space:nowrap}
+.chip.app{background:var(--green-10);color:#00743a;border-color:#bfe5cf}
+.chip.kb{background:var(--sky-10);color:#036b69;border-color:#b5ecea}
+.chip.skill{background:var(--deep-10);color:var(--deep);border-color:#cdd8e3}
+
+/* assistant diagram */
+.diagram{display:grid;grid-template-columns:1fr 260px 1fr;gap:0;align-items:center;margin-top:30px}
+.col h4{font-size:13px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
+.slot{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:11px 14px;margin:8px 0;background:#fff;font-size:15px;font-weight:500;color:var(--ink-strong);position:relative}
+.slot small{margin-left:auto;font-size:12px;color:var(--gray);font-weight:400;text-align:right}
+.slot .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.slot.empty{border-style:dashed;color:var(--casper);font-weight:400}
+.col.apps .slot::after,.col.kbs .slot::before{content:"";position:absolute;top:50%;width:28px;border-top:1.5px dashed var(--sky)}
+.col.apps .slot::after{right:-29px}
+.col.kbs .slot::before{left:-29px}
+.hub{margin:0 28px;border-radius:50%;aspect-ratio:1;background:radial-gradient(circle at 50% 40%,#21568b,var(--deep));color:#fff;display:grid;place-items:center;text-align:center;padding:22px;box-shadow:0 0 0 8px var(--sky-10),0 0 0 9px #b5ecea}
+.hub b{display:block;font-size:17px;line-height:1.25}
+.hub span{font-size:12px;color:rgba(255,255,255,.8);display:block;margin-top:6px}
+.note{font-size:14px;color:var(--gray);background:var(--soft);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 8px 8px 0;margin-top:22px}
+
+/* skills */
+.skill-card dl{margin:10px 0 0;display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:15px}
+.skill-card dt{font-weight:600;color:var(--deep)}
+.skill-card dd{margin:0}
+.skill-card .chip{margin-bottom:10px}
+.skill-card .when{font-size:14px;color:var(--gray);margin:0 0 4px}
+.beat0{margin-top:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--deep);color:#fff;border-radius:var(--radius);padding:18px 22px}
+.beat0 .q{font-size:18px;font-weight:600;flex:1;min-width:240px}
+.beat0 .lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sky)}
+
+/* checklist */
+.check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
+.check li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.check input{accent-color:var(--green);width:18px;height:18px;margin-top:3px;flex:none}
+.check label{cursor:pointer}
+
+/* script */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:26px 0 22px}
+.filter{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font:500 14px Inter,system-ui,sans-serif;color:var(--gray);cursor:pointer}
+.filter[aria-pressed=true]{background:var(--deep);border-color:var(--deep);color:#fff}
+.toolbar .grow{flex:1}
+.progress{font-size:14px;color:var(--gray)}
+.progress b{color:var(--green)}
+.timeline{position:relative}
+.beat{display:grid;grid-template-columns:64px 1fr;gap:18px;padding:0 0 26px;position:relative}
+.beat::before{content:"";position:absolute;left:31px;top:58px;bottom:0;border-left:2px solid var(--line)}
+.beat:last-child::before{display:none}
+.num{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:700;color:#fff;background:var(--gray);position:relative}
+.num.p-sales{background:var(--green)} .num.p-mkt{background:var(--ocean)} .num.p-hr{background:var(--deep)}
+.beat.featured .num{box-shadow:0 0 0 6px var(--sky-10),0 0 0 7px var(--sky)}
+.beat-body{border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;background:#fff}
+.beat.featured .beat-body{border-color:var(--sky);box-shadow:0 6px 24px rgba(16,207,201,.12)}
+.beat.done .beat-body{opacity:.55}
+.beat-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.beat-head .who{font-size:13px;font-weight:600;color:var(--gray);margin-right:4px}
+.star{font-size:12px;font-weight:700;color:#036b69;background:var(--sky-10);border:1px solid var(--sky);border-radius:999px;padding:3px 10px}
+.question{display:flex;gap:12px;align-items:flex-start;background:var(--soft);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.question p{margin:0;font-size:18px;font-weight:600;color:var(--ink-strong);flex:1}
+.question .pre{display:block;font-size:13px;font-weight:500;color:var(--ocean);margin-bottom:4px}
+.copy{appearance:none;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 10px;font:600 12px Inter,system-ui,sans-serif;color:var(--deep);cursor:pointer;flex:none}
+.copy:hover{border-color:var(--deep)}
+.copy.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:15px}
+.cols h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--green);font-weight:700;margin-bottom:6px}
+.cols ul{margin:0;padding-left:18px}
+.cols li{margin:3px 0}
+.beat-foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.beat-foot .lbl{font-size:12px;color:var(--gray);margin-right:4px}
+.beat-foot label{margin-left:auto;font-size:13px;color:var(--gray);display:flex;gap:6px;align-items:center;cursor:pointer}
+.beat-foot input{accent-color:var(--green)}
+.hide{display:none!important}
+.demo-link{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:9px 14px;border-radius:999px;background:var(--green);color:#fff;font-weight:600;font-size:14px;text-decoration:none}
+.demo-link:hover{background:#00843c}
+.pm-link{display:inline-flex;align-items:center;gap:8px;margin:8px 0 0 8px;padding:8px 12px;border-radius:8px;background:var(--green);color:#fff;font-weight:600;font-size:13px;text-decoration:none}
+.p-dig{background:var(--sky);color:var(--deep)!important}
+.num{font-size:19px}
+.track-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:34px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.track-head:first-child{margin-top:6px}
+.track-head h3{font-size:22px;color:var(--deep)}
+.track-head .tq{font-size:16px;color:var(--gray);font-style:italic}
+.track-head .tm{margin-left:auto;font-size:13px;font-weight:600;color:var(--green)}
+.track-head .opt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#036b69;background:var(--sky-10);border:1px solid var(--sky);border-radius:999px;padding:2px 8px}
+.follow{margin:-6px 0 14px 22px;padding:10px 14px;border-left:3px solid var(--sky);background:#fbfcfc;border-radius:0 8px 8px 0;display:flex;gap:12px;align-items:flex-start}
+.follow p{margin:0;font-size:16px;font-weight:600;color:var(--ink-strong);flex:1}
+.follow .pre{display:block;font-size:12px;font-weight:600;color:var(--ocean);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.filter.optional{border-style:dashed}
+.filter .sw{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.g4{grid-template-columns:1fr}.track-head .tm{margin-left:0}}
+.pm-follow{font-size:clamp(18px,2vw,24px);color:rgba(255,255,255,.9);margin:6px 0 4px;font-weight:600}
+.pm-follow span{color:var(--sky);font-size:13px;text-transform:uppercase;letter-spacing:.05em;display:block;font-weight:600}
+
+/* conflicts table */
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--gray);font-weight:600;padding:10px 12px;border-bottom:2px solid var(--deep)}
+.tbl td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl td:first-child{font-weight:600;color:var(--deep);white-space:nowrap}
+.tbl .num-cell{font-variant-numeric:tabular-nums;color:var(--ink-strong);font-weight:600}
+.tbl-wrap{overflow-x:auto;margin-top:24px}
+
+/* backup */
+.backup .question{margin:10px 0 0}
+.backup .question p{font-size:16px}
+
+/* footer */
+footer{background:var(--deep);color:rgba(255,255,255,.85);position:relative;overflow:hidden;padding:56px 0 40px;font-size:14px}
+footer .wrap{position:relative}
+footer h3{color:#fff;margin-bottom:10px}
+footer .sig{font-size:28px;font-weight:700;color:#fff;margin-top:28px}
+footer .sig b{color:var(--green)}
+footer ul{padding-left:18px;margin:0}
+footer li{margin:4px 0}
+
+/* presenter mode */
+.presenter{position:fixed;inset:0;z-index:100;background:var(--deep);color:#fff;display:none;flex-direction:column}
+.presenter.open{display:flex}
+.presenter .streaks{opacity:.5}
+.pm-top{position:relative;display:flex;align-items:center;gap:18px;padding:20px 32px}
+.pm-top .logo{height:30px}
+.pm-top .spacer{flex:1}
+.pm-clock{font-variant-numeric:tabular-nums;font-size:15px;color:rgba(255,255,255,.85)}
+.pm-clock b{color:#fff;font-size:20px}
+.pm-x{appearance:none;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:999px;padding:8px 14px;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.pm-main{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(24px,7vw,120px);max-width:1300px;margin:0 auto;width:100%}
+.pm-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px}
+.pm-meta .n{font-size:15px;font-weight:600;color:var(--sky)}
+.pm-meta .pchip{font-size:13px;font-weight:600;border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.12);color:#fff}
+.pm-q{font-size:clamp(28px,4.2vw,52px);font-weight:700;line-height:1.15;letter-spacing:-.01em;margin:0 0 10px}
+.pm-pre{font-size:18px;color:var(--sky);font-weight:500;margin-bottom:12px;min-height:1px}
+.pm-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:30px;font-size:17px;color:rgba(255,255,255,.9)}
+.pm-cols h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--sky);margin-bottom:8px}
+.pm-cols ul{margin:0;padding-left:20px}
+.pm-cols li{margin:5px 0}
+.pm-bottom{position:relative;display:flex;align-items:center;gap:14px;padding:18px 32px 26px}
+.pm-dots{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.pm-dots button{width:30px;height:6px;border-radius:3px;border:0;background:rgba(255,255,255,.25);cursor:pointer;padding:0}
+.pm-dots button.on{background:var(--sky)}
+.pm-dots button.seen{background:rgba(255,255,255,.55)}
+.pm-nav{appearance:none;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:999px;padding:10px 18px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+.pm-nav.next{background:var(--green);border-color:var(--green)}
+.pm-copy{appearance:none;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:8px;padding:8px 12px;font:600 13px Inter,system-ui,sans-serif;cursor:pointer;margin-top:8px}
+.kbd{font-size:12px;color:rgba(255,255,255,.6)}
+
+/* Qlik Answers pop-up */
+.qa-fab{position:fixed;right:24px;bottom:24px;z-index:120;appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:14px 20px 14px 16px;border-radius:999px;background:var(--green);color:#fff;font:600 15px/1 Inter,system-ui,sans-serif;box-shadow:0 10px 30px rgba(25,66,108,.35)}
+.qa-fab:hover{background:#00843c}
+.qa-fab .ic{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:15px}
+.qa-fab[aria-expanded=true]{background:var(--deep)}
+.qa-pop{position:fixed;right:24px;bottom:96px;z-index:120;width:min(460px,calc(100vw - 32px));height:min(680px,calc(100vh - 128px));background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(25,66,108,.35),0 0 0 1px rgba(25,66,108,.08);display:flex;flex-direction:column;overflow:hidden;transform-origin:bottom right;transition:opacity .18s ease,transform .18s ease}
+.qa-pop[hidden]{display:flex!important;opacity:0;transform:translateY(12px) scale(.97);pointer-events:none;visibility:hidden}
+.qa-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--deep);color:#fff}
+.qa-head .dot{width:9px;height:9px;border-radius:50%;background:var(--sky);flex:none}
+.qa-head b{font-size:15px;font-weight:600;flex:1}
+.qa-head a,.qa-head button{appearance:none;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:6px 10px;font:600 12px Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none}
+.qa-head a:hover,.qa-head button:hover{background:rgba(255,255,255,.1)}
+.qa-body{flex:1;min-height:0;position:relative;background:#fff}
+.qa-body qlik-embed{display:block;width:100%;height:100%}
+.qa-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:28px;color:var(--gray);font-size:15px}
+.qa-msg strong{display:block;color:var(--deep);font-size:17px;margin-bottom:8px}
+.qa-msg .btn{margin-top:14px}
+.qa-spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--green);animation:qaspin .8s linear infinite;margin:0 auto 12px}
+@keyframes qaspin{to{transform:rotate(360deg)}}
+@media (max-width:560px){
+  .qa-fab{right:16px;bottom:16px;padding:12px}
+  .qa-fab .lbl{display:none}
+  .qa-pop{right:16px;bottom:80px;width:calc(100vw - 32px);height:calc(100vh - 112px)}
+}
+body.pm-open .qa-fab{display:none}
+body.pm-open .qa-pop{top:76px;bottom:auto;height:min(680px,calc(100vh - 170px))}
+@media print{.qa-fab,.qa-pop{display:none!important}}
+
+@media (max-width:900px){
+  .g3,.g2,.cols,.check,.pm-cols{grid-template-columns:1fr}
+  .diagram{grid-template-columns:1fr;gap:18px}
+  .hub{max-width:220px;margin:0 auto}
+  .col.apps .slot::after,.col.kbs .slot::before{display:none}
+  section{padding:52px 0}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .beat{grid-template-columns:44px 1fr;gap:12px}
+  .num{width:44px;height:44px;font-size:17px}
+  .beat::before{left:21px;top:44px}
+  .question{flex-direction:column}
+  .hero h1{margin-top:48px}
+  .tbl td:first-child{white-space:normal}
+  .pm-top,.pm-bottom{padding-left:16px;padding-right:16px}
+  .kbd{display:none}
+  .skill-card dl{grid-template-columns:1fr;gap:2px}
+  .skill-card dd{margin-bottom:8px}
+}
+@media print{
+  nav.top,.hero-cta,.toolbar,.copy,.beat-foot label,.presenter{display:none!important}
+  .hero{padding:24px 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .beat{break-inside:avoid}
+  section{padding:28px 0}
+  footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="streaks" aria-hidden="true" data-streaks></div>
+  <div class="wrap">
+    <div class="hero-top">
+      <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="751.80 112.36 159.98 68.35" role="img" aria-label="Qlik"><path d="M821.73 178.01L812.59 178.01L807.18 172.05L807.13 172.00L807.08 171.95C807.08 171.95 807.07 171.95 807.07 171.95L806.87 171.74L802.35 167.19C808.43 162.36 812.34 154.91 812.34 146.53C812.34 131.97 800.53 120.17 785.97 120.17C777.67 120.17 770.26 124.01 765.43 130.01L760.61 125.15C766.69 117.94 775.80 113.36 785.97 113.36C804.30 113.36 819.15 128.21 819.15 146.53C819.15 154.38 816.42 161.59 811.87 167.27L821.73 178.01Z" fill="#009749"/><path d="M830.66 114.81H837.26V177.99H830.66ZZ" fill="#ffffff"/><path d="M848.61 133.86H855.18V177.99H848.61ZZ" fill="#ffffff"/><path d="M856.47 119.31C856.47 121.80 854.45 123.82 851.96 123.82C849.47 123.82 847.46 121.80 847.46 119.31C847.46 116.82 849.47 114.81 851.96 114.81C854.45 114.81 856.47 116.82 856.47 119.31Z" fill="#ffffff"/><path d="M807.17 172.05C801.43 176.84 794.04 179.71 785.97 179.71C767.65 179.71 752.80 164.86 752.80 146.53C752.80 138.38 755.73 130.92 760.61 125.15L765.43 130.01C761.79 134.53 759.61 140.28 759.61 146.53C759.61 161.09 771.41 172.90 785.97 172.90C792.16 172.90 797.85 170.76 802.35 167.19L806.87 171.74L807.07 171.95C807.07 171.95 807.08 171.95 807.08 171.95L807.13 172.00L807.17 172.05Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M901.42 133.86L892.25 133.86L873.24 150.50L873.21 114.81L866.64 114.81L866.64 177.99L873.21 177.99L873.21 157.61L892.73 177.99L901.87 177.99L878.60 154.39L901.42 133.86Z" fill="#ffffff"/><path d="M910.77 174.37L910.77 177.50L910.23 177.50L910.23 175.37L909.28 177.50L908.99 177.50L908.05 175.37L908.05 177.50L907.50 177.50L907.50 174.37L908.17 174.37L909.14 176.67L910.11 174.37L910.77 174.37Z" fill="#ffffff"/><path d="M906.96 174.37L906.96 174.84L906.00 174.84L906.00 177.50L905.46 177.50L905.46 174.84L904.51 174.84L904.51 174.37L906.96 174.37Z" fill="#ffffff"/></svg></span>
+      <span class="tag"><i></i> Qlik Answers · Pre-release demo</span>
+    </div>
+    <h1>One assistant. Four apps. Five knowledge bases. <b>Answers you didn't know to ask for.</b></h1>
+    <p class="sub">It's the week before Adventure Works' quarterly business review. Three leaders prepare with one Qlik Answers assistant, and each finds something neither the numbers nor the documents would show on their own. Blind Spots is the featured moment.</p>
+    <div class="stats">
+      <div class="stat"><strong>3</strong><span>persona tracks</span></div>
+      <div class="stat"><strong>10</strong><span>built-in skills</span></div>
+      <div class="stat"><strong>25</strong><span>minutes</span></div>
+      <div class="stat"><strong>4</strong><span>Qlik apps</span></div>
+      <div class="stat"><strong>5</strong><span>knowledge bases</span></div>
+      <div class="stat"><strong>60</strong><span>documents</span></div>
+      <div class="stat"><strong>5,000</strong><span>guest comments</span></div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn btn-primary" data-present="0">▶ Start presenter mode</button>
+      <a class="btn btn-ghost" href="#script">View the demo script</a>
+    </div>
+  </div>
+</header>
+
+<nav class="top" aria-label="Sections">
+  <div class="wrap">
+    <span class="mini"><svg xmlns="http://www.w3.org/2000/svg" viewBox="531.07 112.48 160.15 68.35" role="img" aria-label="Qlik"><path d="M601.00 178.13L591.86 178.13L586.45 172.17L586.41 172.12L586.35 172.07C586.35 172.07 586.35 172.07 586.35 172.07L586.15 171.86L581.63 167.31C587.71 162.48 591.62 155.02 591.62 146.65C591.62 132.09 579.81 120.29 565.25 120.29C556.95 120.29 549.54 124.13 544.71 130.13L539.89 125.27C545.97 118.06 555.07 113.48 565.25 113.48C583.57 113.48 598.43 128.33 598.43 146.65C598.43 154.50 595.70 161.71 591.15 167.39L601.00 178.13Z" fill="#009749"/><path d="M609.93 114.92H616.54V178.11H609.93ZZ" fill="#55575a"/><path d="M627.89 133.98H634.46V178.11H627.89ZZ" fill="#55575a"/><path d="M635.75 119.43C635.75 121.92 633.73 123.94 631.24 123.94C628.75 123.94 626.73 121.92 626.73 119.43C626.73 116.94 628.75 114.92 631.24 114.92C633.73 114.92 635.75 116.94 635.75 119.43Z" fill="#55575a"/><path d="M586.45 172.17C580.71 176.95 573.32 179.83 565.25 179.83C546.93 179.83 532.07 164.98 532.07 146.65C532.07 138.50 535.01 131.04 539.89 125.27L544.71 130.13C541.07 134.65 538.89 140.39 538.89 146.65C538.89 161.21 550.69 173.02 565.25 173.02C571.44 173.02 577.13 170.88 581.63 167.31L586.15 171.86L586.35 172.07C586.35 172.07 586.35 172.07 586.35 172.07L586.41 172.12L586.45 172.17Z" fill="#55575a"/><path d="M680.70 133.98L671.53 133.98L652.52 150.62L652.49 114.93L645.91 114.93L645.91 178.11L652.49 178.11L652.49 157.72L672.01 178.11L681.15 178.11L657.88 154.51L680.70 133.98Z" fill="#55575a"/><path d="M690.22 174.99L690.22 178.13L689.68 178.13L689.68 175.99L688.73 178.13L688.44 178.13L687.50 175.99L687.50 178.13L686.95 178.13L686.95 174.99L687.62 174.99L688.59 177.29L689.56 174.99L690.22 174.99Z" fill="#55575a"/><path d="M686.41 174.99L686.41 175.47L685.45 175.47L685.45 178.13L684.91 178.13L684.91 175.47L683.96 175.47L683.96 174.99L686.41 174.99Z" fill="#55575a"/></svg></span>
+    <a href="#story">The story</a>
+    <a href="#assistant">Assistant</a>
+    <a href="#skills">Custom skills</a>
+    <a href="#prep">Before you start</a>
+    <a href="#script">Demo script</a>
+    <a href="#blindspots">What Answers should find</a>
+    <a href="#backup">Backup questions</a>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" data-present="0">Present</button>
+  </div>
+</nav>
+
+<main>
+<section id="story">
+  <div class="wrap">
+    <div class="eyebrow">The story</div>
+    <h2>One review, three leaders, one assistant</h2>
+    <p class="lead" style="margin-top:14px">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree, and the finale pulls their findings into one review.</p>
+    <p style="margin-top:6px">The demo is modular: a 2-minute opening, three 7-minute tracks and a 3-minute finale. Run all of it in about 25 minutes, or pick the tracks that suit the audience.</p>
+    <div class="grid g3" style="margin-top:30px">
+      <div class="card pillar"><h3>New single-agent skills</h3><p>Descriptive through to Prescriptive, Simulation and Optimization, with <strong>Blind Spots</strong> surfacing what the current selection hides.</p></div>
+      <div class="card pillar"><h3>Multi-app assistant</h3><p>One assistant over up to 5 apps and 5 knowledge bases. Each answer labels which app and which document it used.</p></div>
+      <div class="card pillar"><h3>Structured + unstructured</h3><p>The documents were written to agree with the data, except for planted conflicts that Answers should catch and cite.</p></div>
+    </div>
+    <div class="grid g4" style="margin-top:18px">
+      <div class="card persona">
+        <div class="who"><span class="avatar p-sales">SD</span><div><h3 style="margin:0">Sales Director</h3><small>Track A · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Sales</span><span class="chip app">Inventory and Purchasing</span><span class="chip kb">Supplier contracts</span></div>
+        <ul><li>Why did we miss quota, and what hides behind my filter?</li><li>Can supply keep up if demand rises?</li></ul>
+      </div>
+      <div class="card persona">
+        <div class="who"><span class="avatar p-mkt">MM</span><div><h3 style="margin:0">Marketing Manager</h3><small>Track B · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Sales, pricing and promotions</span><span class="chip kb">Website guest feedback</span></div>
+        <ul><li>Which promotions and customers pay off?</li><li>What are customers and website visitors telling us?</li></ul>
+      </div>
+      <div class="card persona">
+        <div class="who"><span class="avatar p-hr">HR</span><div><h3 style="margin:0">HR Business Manager</h3><small>Track C · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">HR</span><span class="chip kb">HR handbook</span></div>
+        <ul><li>Are we paying and resting people as our policies say?</li><li>How should we spend the pay-review budget?</li></ul>
+      </div>
+      <div class="card persona" style="border-style:dashed">
+        <div class="who"><span class="avatar p-dig">HD</span><div><h3 style="margin:0">Head of Digital</h3><small>Optional Track D · 4 beats</small></div></div>
+        <div class="chips"><span class="chip app">Marketing</span><span class="chip kb">Website guest feedback</span></div>
+        <ul><li>Why do visitors leave without buying?</li><li>Why won't guests register?</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="assistant">
+  <div class="wrap">
+    <div class="eyebrow">Assistant set-up</div>
+    <h2>Adventure Works Business Assistant</h2>
+    <p class="lead" style="margin-top:14px">One assistant in the <em>AdventureWorks Answers Demo</em> space. App slot 5 is spare, for a Finance app later.</p>
+    <div class="diagram">
+      <div class="col apps">
+        <h4>Apps</h4>
+        <div class="slot"><span class="dot" style="background:var(--green)"></span>Sales<small>Sales Director</small></div>
+        <div class="slot"><span class="dot" style="background:var(--green)"></span>Inventory and Purchasing<small>Sales Director</small></div>
+        <div class="slot"><span class="dot" style="background:var(--ocean)"></span>Marketing<small>Marketing Manager</small></div>
+        <div class="slot"><span class="dot" style="background:var(--deep)"></span>HR<small>HR Business Manager</small></div>
+        <div class="slot empty"><span class="dot" style="background:var(--line)"></span>Spare slot<small>e.g. Finance</small></div>
+      </div>
+      <div class="hub"><div><b>Adventure Works<br>Business Assistant</b><span>Qlik Answers · glossary-aligned master items</span></div></div>
+      <div class="col kbs">
+        <h4>Knowledge bases</h4>
+        <div class="slot"><span class="dot" style="background:var(--sky)"></span>HR handbook<small>8 docs</small></div>
+        <div class="slot"><span class="dot" style="background:var(--sky)"></span>Product catalogue, manuals and reviews<small>12 docs</small></div>
+        <div class="slot"><span class="dot" style="background:var(--sky)"></span>Sales, pricing, promotions and playbook<small>29 docs</small></div>
+        <div class="slot"><span class="dot" style="background:var(--sky)"></span>Supplier contracts<small>11 docs</small></div>
+        <div class="slot"><span class="dot" style="background:var(--sky)"></span>Website guest feedback<small>5,000 comments</small></div>
+      </div>
+    </div>
+    <p class="note">The business glossary sits beside the apps, so master measures and dimensions carry the same names and descriptions the agent searches on. Results are not joined across apps: a question that needs two subject areas in one calculation is answered inside one app.</p>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="eyebrow">Customer-defined skills</div>
+    <h2>Teach the assistant how Adventure Works talks</h2>
+    <p class="lead" style="margin-top:14px">Three plain-language skills make answers follow house conventions: one sets the fiscal calendar, one sets what "recent" means, and one sets how every answer is laid out. The feature is pre-release, so final screens may differ.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card skill-card">
+        <span class="chip skill">aw-adventure-works-calendar</span>
+        <h3>Adventure Works calendar</h3>
+        <p class="when">Used for any question that mentions a year, quarter, year to date or other period.</p>
+        <dl>
+          <dt>Defines</dt><dd>The fiscal year runs 1 July to 30 June and is named by the year it ends: FY2027 is July 2026 to June 2027. Q1 is July to September.</dd>
+          <dt>Business rule</dt><dd>"This year", "last year", "last quarter" and "year to date" mean fiscal periods unless someone says "calendar". A comparison with last year uses the same span of the previous fiscal year.</dd>
+          <dt>Instruction</dt><dd>Name the fiscal period and its calendar months, for example "FY2027 Q1 (July to September 2026)".</dd>
+        </dl>
+      </div>
+      <div class="card skill-card">
+        <span class="chip skill">aw-recent-sales-defaults</span>
+        <h3>Recent sales defaults</h3>
+        <p class="when">Used when a question says "recent" or gives no time period.</p>
+        <dl>
+          <dt>Defines</dt><dd>"Recent" means the latest 6 months of data, counted back from the last month with orders, not from today's date.</dd>
+          <dt>Business rule</dt><dd>If no time period is given, use the recent period. Quota questions use the last 2 fiscal quarters with sales, because quotas have no monthly date.</dd>
+          <dt>Instruction</dt><dd>State the period at the start with its month names, for example "Over the latest 6 months of data (March to August 2026)". Report money in US dollars.</dd>
+        </dl>
+      </div>
+      <div class="card skill-card">
+        <span class="chip skill">concise-structured-answers</span>
+        <h3>Concise structured answers</h3>
+        <p class="when">Used for every data or policy answer, including follow-ups and repeated questions.</p>
+        <dl>
+          <dt>Format</dt><dd>A bold one-line lead, then three to five bullets with one figure each. App figures and document content sit in separate labelled sections.</dd>
+          <dt>Citations</dt><dd>At most one citation per sentence or bullet, attached only to what that source says.</dd>
+          <dt>Numbers</dt><dd>Money in dollars with no cents on amounts of $100 or more, ratios as percentages, and no expressions, field names or other technical working.</dd>
+        </dl>
+      </div>
+    </div>
+    <p class="note"><strong>Also possible: per-app calculation skills.</strong> A skill can be scoped to a single app to hold its calculation rules, such as which master measures to prefer, how the tables relate and which business rules apply when a question leaves something open. This demo doesn't need them, because the master measure descriptions already carry those rules, but they're worth raising with customers whose apps have few governed master items.</p>
+    <div class="beat0">
+      <div><div class="lbl">Opening beat O · skills off, then on</div></div>
+      <div class="q">How have Europe sales done recently?</div>
+      <button class="copy" data-copy="How have Europe sales done recently?">Copy</button>
+    </div>
+  </div>
+</section>
+
+<section id="prep">
+  <div class="wrap">
+    <div class="eyebrow">Before you start</div>
+    <h2>Five-minute pre-flight</h2>
+    <ul class="check" style="margin-top:24px" data-store="prep">
+      <li><input type="checkbox" id="c1"><label for="c1">All four apps reloaded today, so the shifted dates run up to the latest quarter end.</label></li>
+      <li><input type="checkbox" id="c2"><label for="c2">Assistant open with all 4 apps and 5 knowledge bases attached; knowledge bases finished indexing.</label></li>
+      <li><input type="checkbox" id="c3"><label for="c3">Custom skills switched <strong>off</strong> for the opening beat.</label></li>
+      <li><input type="checkbox" id="c4"><label for="c4">Selections cleared in every app.</label></li>
+      <li><input type="checkbox" id="c5"><label for="c5">Blind Spots (A2) tried once: the question itself scopes to <strong>Bikes</strong> in <strong>North America</strong>.</label></li>
+      <li><input type="checkbox" id="c6"><label for="c6">C4 run once beforehand, so the $150,000 budget makes sense against the payroll.</label></li>
+      <li><input type="checkbox" id="c7"><label for="c7">A second tab with the Sales app sheet, as a fallback if an answer runs long.</label></li>
+      <li><input type="checkbox" id="c8"><label for="c8">Tracks chosen for this audience in the filter below.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section id="script">
+  <div class="wrap">
+    <div class="eyebrow">Demo script</div>
+    <h2>Five parts, about 25 minutes</h2>
+    <p class="lead" style="margin-top:14px">Choose the parts to run, then present them full screen or copy each question into the assistant. Beat A2 is the featured Blind Spots moment. Track D is optional, for customer-experience audiences.</p>
+    <div class="toolbar" role="toolbar" aria-label="Filter by persona">
+      <button class="filter" aria-pressed="true" data-track="O"><span class="sw" style="background:var(--gray)"></span>Opening</button>
+      <button class="filter" aria-pressed="true" data-track="A"><span class="sw" style="background:var(--green)"></span>A · Sales Director</button>
+      <button class="filter" aria-pressed="true" data-track="B"><span class="sw" style="background:var(--ocean)"></span>B · Marketing Manager</button>
+      <button class="filter" aria-pressed="true" data-track="C"><span class="sw" style="background:var(--deep)"></span>C · HR Business Manager</button>
+      <button class="filter optional" aria-pressed="false" data-track="D"><span class="sw" style="background:var(--sky)"></span>D · Head of Digital (optional)</button>
+      <button class="filter" aria-pressed="true" data-track="F"><span class="sw" style="background:var(--gray)"></span>Finale</button>
+      <span class="grow"></span>
+      <span class="progress" data-progress></span>
+      <button class="btn btn-line" data-reset style="padding:9px 14px;font-size:13px">Reset ticks</button>
+      <button class="btn btn-primary" data-present="0" style="padding:9px 16px;font-size:13px">▶ Present</button>
+    </div>
+    <div class="timeline" data-beats></div>
+  </div>
+</section>
+
+<section id="blindspots">
+  <div class="wrap">
+    <div class="eyebrow">What Answers should find</div>
+    <h2>Planted conflicts between documents and data</h2>
+    <p class="lead" style="margin-top:14px">Each row is a moment where a document says one thing and the data shows another. If Answers cites both sides, the demo has landed.</p>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Story</th><th>The document says</th><th>The data shows</th><th>Beat</th></tr></thead>
+        <tbody>
+          <tr><td>Promotion approvals</td><td>Discounts over 30% need VP of Sales sign-off</td><td class="num-cell">Mountain-100 (35%) and Mountain-500 (40%) clearance sold $277K with Sales Manager approval only</td><td>B3</td></tr>
+          <tr><td>Northeast quota</td><td>Business reviews say it "expects to recover next quarter"</td><td class="num-cell">Attainment 74%, 70%, 81%, 43% over four quarters</td><td>A1</td></tr>
+          <tr><td>Supplier rejections</td><td>Rejection limits of 2% or 3% in each agreement</td><td class="num-cell">Superior Bicycles 5.2% and Crowley Sport 5.3% (limit 2%); Vision Cycles 4.7% and Proseware 4.6% (limit 3%)</td><td>A4</td></tr>
+          <tr><td>Supplier lead time</td><td>Superior Bicycles agreed 15 days</td><td class="num-cell">19 days in vendor terms</td><td>A4</td></tr>
+          <tr><td>Pay reviews</td><td>Pay reviewed after 3 years without a change</td><td class="num-cell">270 of 290 employees overdue</td><td>C2</td></tr>
+          <tr><td>Holiday carry-over</td><td>Carry-over capped at 40 hours</td><td class="num-cell">178 employees above the cap</td><td>C3</td></tr>
+          <tr><td>Volume discount</td><td>Post-review says it "drove larger reseller orders"</td><td class="num-cell">Claim untested; very few discounted lines</td><td>B2</td></tr>
+          <tr><td>Touring-1000 launch</td><td>Post-review says it "delivered the uplift the plan asked for"</td><td class="num-cell">775 units against a 1,200 target</td><td>Backup</td></tr>
+          <tr><td>Touring comfort</td><td>Range guide sells comfort on long rides</td><td class="num-cell">Reviews average 2.9 vs 4.5 for Mountain and Road; about 470 website comfort complaints</td><td>B4</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="backup">
+  <div class="wrap">
+    <div class="eyebrow">Backup questions</div>
+    <h2>If you have time, or need a recovery</h2>
+    <div class="grid g2 backup" style="margin-top:24px" data-backup></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="streaks" aria-hidden="true" data-streaks></div>
+  <div class="wrap">
+    <div class="grid g2">
+      <div>
+        <h3>About the data</h3>
+        <ul>
+          <li>Microsoft AdventureWorks OLTP sample, held in Snowflake and loaded into four Qlik Cloud apps on UKDemoSaaS.</li>
+          <li>Dates are shifted forward by whole quarters so the latest data sits at the most recent quarter end.</li>
+          <li>All 60 documents and 5,000 website comments are synthetic, written for this demo.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Watch-outs</h3>
+        <ul>
+          <li>The latest quarter has few reseller orders, so several territories show low attainment. Lead with Northeast.</li>
+          <li>Bike demand ends 30 Aug 2026; frame the forecast as "from the last full season".</li>
+          <li>There are no leavers in the HR data, so steer away from attrition.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="sig"><b>Qlik.</b> Wherever There's Data.</div>
+  </div>
+</footer>
+
+<div class="presenter" role="dialog" aria-modal="true" aria-label="Presenter mode" data-pm>
+  <div class="streaks" aria-hidden="true" data-streaks></div>
+  <div class="pm-top">
+    <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="751.80 112.36 159.98 68.35" role="img" aria-label="Qlik"><path d="M821.73 178.01L812.59 178.01L807.18 172.05L807.13 172.00L807.08 171.95C807.08 171.95 807.07 171.95 807.07 171.95L806.87 171.74L802.35 167.19C808.43 162.36 812.34 154.91 812.34 146.53C812.34 131.97 800.53 120.17 785.97 120.17C777.67 120.17 770.26 124.01 765.43 130.01L760.61 125.15C766.69 117.94 775.80 113.36 785.97 113.36C804.30 113.36 819.15 128.21 819.15 146.53C819.15 154.38 816.42 161.59 811.87 167.27L821.73 178.01Z" fill="#009749"/><path d="M830.66 114.81H837.26V177.99H830.66ZZ" fill="#ffffff"/><path d="M848.61 133.86H855.18V177.99H848.61ZZ" fill="#ffffff"/><path d="M856.47 119.31C856.47 121.80 854.45 123.82 851.96 123.82C849.47 123.82 847.46 121.80 847.46 119.31C847.46 116.82 849.47 114.81 851.96 114.81C854.45 114.81 856.47 116.82 856.47 119.31Z" fill="#ffffff"/><path d="M807.17 172.05C801.43 176.84 794.04 179.71 785.97 179.71C767.65 179.71 752.80 164.86 752.80 146.53C752.80 138.38 755.73 130.92 760.61 125.15L765.43 130.01C761.79 134.53 759.61 140.28 759.61 146.53C759.61 161.09 771.41 172.90 785.97 172.90C792.16 172.90 797.85 170.76 802.35 167.19L806.87 171.74L807.07 171.95C807.07 171.95 807.08 171.95 807.08 171.95L807.13 172.00L807.17 172.05Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M901.42 133.86L892.25 133.86L873.24 150.50L873.21 114.81L866.64 114.81L866.64 177.99L873.21 177.99L873.21 157.61L892.73 177.99L901.87 177.99L878.60 154.39L901.42 133.86Z" fill="#ffffff"/><path d="M910.77 174.37L910.77 177.50L910.23 177.50L910.23 175.37L909.28 177.50L908.99 177.50L908.05 175.37L908.05 177.50L907.50 177.50L907.50 174.37L908.17 174.37L909.14 176.67L910.11 174.37L910.77 174.37Z" fill="#ffffff"/><path d="M906.96 174.37L906.96 174.84L906.00 174.84L906.00 177.50L905.46 177.50L905.46 174.84L904.51 174.84L904.51 174.37L906.96 174.37Z" fill="#ffffff"/></svg></span>
+    <span class="spacer"></span>
+    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>25:00</span></span>
+    <button class="pm-x" type="button" data-qa-toggle aria-expanded="false" aria-controls="qa-pop">✦ Qlik Answers</button>
+    <button class="pm-x" data-close>Close · Esc</button>
+  </div>
+  <div class="pm-main">
+    <div class="pm-meta" data-pm-meta></div>
+    <div class="pm-pre" data-pm-pre></div>
+    <p class="pm-q" data-pm-q></p>
+    <div><button class="pm-copy" data-pm-copy>Copy question</button><a class="pm-link hide" data-pm-link target="_blank" rel="noopener"></a></div>
+    <div class="pm-follow" data-pm-follow></div>
+    <div class="pm-cols">
+      <div><h4>What it shows</h4><ul data-pm-shows></ul></div>
+      <div><h4>Look for</h4><ul data-pm-look></ul></div>
+    </div>
+  </div>
+  <div class="pm-bottom">
+    <button class="pm-nav" data-prev>← Back</button>
+    <div class="pm-dots" data-pm-dots></div>
+    <span class="kbd">← → to move · C to copy · F copies follow-up · A shows Answers</span>
+    <button class="pm-nav next" data-next>Next →</button>
+  </div>
+</div>
+
+<!-- Qlik Answers pop-up -->
+<button class="qa-fab" type="button" data-qa-toggle aria-expanded="false" aria-controls="qa-pop"><span class="ic" aria-hidden="true">✦</span><span class="lbl" data-qa-label>Ask Qlik Answers</span></button>
+<div class="qa-pop" id="qa-pop" role="dialog" aria-label="Qlik Answers" hidden>
+  <div class="qa-head">
+    <span class="dot" aria-hidden="true"></span>
+    <b>Adventure Works Business Assistant</b>
+    <a data-qa-open target="_blank" rel="noopener">Open full ↗</a>
+    <button type="button" data-qa-toggle aria-label="Hide Qlik Answers">Hide</button>
+  </div>
+  <div class="qa-body" data-qa-body>
+    <div class="qa-msg" data-qa-msg><div><div class="qa-spin"></div>Connecting to Qlik Answers…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var TRACKS = {
+    O:{name:"Opening", who:"Presenter", p:"p-all", mins:2, q:"Show what the custom skills change"},
+    A:{name:"Track A · Sales Director", who:"Sales Director", p:"p-sales", mins:7, q:"Why did we miss, and can supply keep up?"},
+    B:{name:"Track B · Marketing Manager", who:"Marketing Manager", p:"p-mkt", mins:7, q:"What pays off, and what are customers telling us?"},
+    C:{name:"Track C · HR Business Manager", who:"HR Business Manager", p:"p-hr", mins:7, q:"Are we paying, rewarding and resting people the way our policies say?"},
+    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:7, q:"Why do website visitors leave without buying or registering?", optional:true},
+    F:{name:"Finale", who:"All personas", p:"p-all", mins:3, q:"Bring it together for the review"}
+  };
+  // ---- Demo link: paste the Qranks app or assistant URL here ----
+  var DEMO_LINK = "https://ukdemosaas.eu.qlikcloud.com/assistant/39f6ec03-b5da-43e3-a837-de9884fe77dc/content";
+  var DEMO_LINK_LABEL = "Open the Adventure Works assistant";
+  var ORDER = ["O","A","B","C","D","F"];
+  var KB3 = "Sales, pricing, promotions and playbook";
+  var APPS = ["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
+  var BEATS = [
+    {t:"O", id:"O", link:true, skill:["Descriptive","Custom skills"], pre:"Ask with the custom skills off, then on:", q:"How have Europe sales done recently?", src:["Sales"],
+      shows:["The same question answered twice","Three custom skills applying house conventions"],
+      look:["With skills on: the period is stated up front as the latest 6 months of data (March to August 2026)","Fiscal labels, US dollars, and a bold lead with bullets"]},
+    {t:"A", id:"A1", link:true, skill:["Diagnostic","Follow-up"], q:"Which territories missed quota last quarter, and which sales people drove the gap?",
+      follow:"What did the last business review say Northeast would do about it?", src:["Sales",KB3],
+      shows:["Ranked attribution in plain words","A follow-up that keeps the context and adds a cited document"],
+      look:["Northeast at 43% of quota last quarter","Review notes say it \"expects to recover\", after 74%, 70% and 81%"]},
+    {t:"A", id:"A2", featured:true, skill:["Blind Spots"], q:"Looking at Bike Sales in North America, what am I not seeing?", src:["Sales"],
+      shows:["The featured moment: what the filter hides, quantified","Europe, Pacific and non-bike revenue brought back into view"],
+      look:["Share of revenue outside the selection stated as a number","A suggested next question about the hidden segments"]},
+    {t:"A", id:"A3", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
+      shows:["Forecast with a range and its assumptions","Built on sales unit history"],
+      look:["A range, not a single line","Bike demand history ends 30 Aug 2026: say \"from the last full season\""]},
+    {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% higher than the last six months, which components run short first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
+      shows:["Components ranked by shortfall against stock on hand","Contract terms checked against actual supplier performance"],
+      look:["Chain, brakes and derailleurs run short first; the brakes' supplier, Superior Bicycles, rejects 5.2% against a 2% contract limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
+    {t:"B", id:"B1", link:true, skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
+      shows:["Set logic written for you","A correct cohort count"],
+      look:["One cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
+    {t:"B", id:"B2", skill:["Prescriptive"], q:"Do volume discounts actually raise revenue per order?", src:["Marketing",KB3],
+      shows:["Cause and effect, with checks and a range","Separates discounting from orders that were already large"],
+      look:["The post-review claim (\"drove larger reseller orders\") is not supported","Answers notes how few discounted lines there are to test"]},
+    {t:"B", id:"B3", skill:["Apps + documents"], q:"Were any discounts above our policy limit, and who approved them?", src:["Marketing",KB3],
+      shows:["A planted conflict flagged and cited","Policy rule applied to the data"],
+      look:["Policy: over 30% needs VP of Sales sign-off","Mountain-100 (35%) and Mountain-500 (40%) clearance sold $277K with Sales Manager approval only"]},
+    {t:"B", id:"B4", skill:["Customer voice","Semi-structured + unstructured"], q:"What are website visitors and reviewers saying about the Touring range, and is it showing in sales?", src:["Marketing","Website guest feedback","Product catalogue and reviews"],
+      shows:["Three sources in one answer: app, feedback and reviews","Themes with counts, not single quotes"],
+      look:["About 470 comfort complaints on the website: saddle, reach, sore hands and back","Reviews average 2.9 for Touring against 4.5 for Mountain and Road"]},
+    {t:"C", id:"C1", link:true, skill:["Comparative"], q:"Compare average pay for salaried and hourly staff across department groups.", src:["HR"],
+      shows:["Side-by-side table with the differences called out","Aggregate only, no individual pay"],
+      look:["Uses Current Pay Rate, not the pay history","A clear salaried versus hourly gap by group"]},
+    {t:"C", id:"C2", skill:["Diagnostic","Apps + documents"], q:"Who is overdue a pay review under our policy, and where is it concentrated?", src:["HR","HR handbook"],
+      shows:["Policy rule applied to the data, with a citation","Ranked by department"],
+      look:["Policy: review after 3 years without a change","270 of 290 employees overdue"]},
+    {t:"C", id:"C3", skill:["Descriptive","Apps + documents"], q:"Which departments have staff above the holiday carry-over limit in our handbook?", src:["HR","HR handbook"],
+      shows:["A handbook limit read and applied","Department breakdown"],
+      look:["Handbook: carry-over capped at 40 hours","178 employees above the cap"]},
+    {t:"C", id:"C4", skill:["Optimization"], q:"We have a $150,000 pay-review budget this year. How should we split it across departments to clear the longest-overdue reviews first?", src:["HR","HR handbook"],
+      shows:["An allocation that stays within budget","Assumptions stated with the result"],
+      look:["Longest-overdue staff prioritised","Budget not exceeded; trade-offs explained"]},
+    {t:"D", id:"D1", link:true, skill:["Knowledge base","Semi-structured"], q:"Why do people abandon their basket on the website?", src:["Website guest feedback"],
+      shows:["Semi-structured feedback read field by field","Themes with counts"],
+      look:["Reasons left: price, delivery, stock and technical problems","Basket values where given"]},
+    {t:"D", id:"D2", skill:["Knowledge base"], q:"Why do guest customers say they won't register?", src:["Website guest feedback"],
+      shows:["Voice of non-registered buyers","Answer cited to the monthly files"],
+      look:["Order tracking and returns need an account","Share who said they would register"]},
+    {t:"D", id:"D3", skill:["Knowledge base"], q:"Which products get the most delivery and returns complaints from guest buyers?", src:["Website guest feedback"],
+      shows:["Product-level themes across twelve months","Monthly summaries used for counts"],
+      look:["Named products with complaint counts","Exact counts belong in the app; themes from the knowledge base"]},
+    {t:"D", id:"D4", skill:["Comparative","Multi-source"], q:"Compare website sentiment on Touring bikes with online Touring sales by month.", src:["Marketing","Website guest feedback"],
+      shows:["Structured and semi-structured side by side","Figures labelled by source"],
+      look:["Comfort complaints set beside sales","Figures from the app, themes from the feedback"]},
+    {t:"F", id:"F1", skill:["Multi-app"], q:"Prepare a quarterly business review across sales, supply, marketing and people, citing our documents.", src:["4 apps","5 knowledge bases"],
+      shows:["Every source used, figures labelled by app","Documents cited alongside the numbers"],
+      look:["Northeast, supplier breaches, discount approvals, overdue pay reviews and Touring comfort all surface","Each figure traceable to its app"]},
+    {t:"F", id:"F2", skill:["Dashboard and Layout"], q:"Build a sheet in the Sales app for the review: revenue, margin and quota attainment by territory, with a monthly trend.", src:["Sales"],
+      shows:["A ready-made sheet built from the conversation","KPIs plus a trend"],
+      look:["Uses the master measures","Quota attainment by Sales Person Territory"]}
+  ];
+  var BACKUP = [
+    {skill:"Diagnostic", src:["Inventory and Purchasing"], q:"What is driving scrap in the paint shop?"},
+    {skill:"Predictive", src:["Marketing"], q:"Group our online customers into segments by spend, frequency and demographics."},
+    {skill:"Apps + documents", src:["Sales",KB3], q:"Did the Touring-1000 launch deliver the uplift its brief promised?", note:"775 units against a 1,200 target."},
+    {skill:"Apps + documents", src:["Marketing","Product catalogue and reviews"], q:"What does the warranty say about frame damage on mountain bikes?"}
+  ];
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function store(k,v){try{ if(v===undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k,JSON.stringify(v)); }catch(e){ return null; }}
+  function chipSrc(s){return '<span class="chip '+(APPS.indexOf(s)>-1?'app':'kb')+'">'+esc(s)+'</span>';}
+
+  // light streaks
+  var STREAKS=[[18,2,"#10CFC9",.55],[24,1,"#009845",.8],[31,6,"#10CFC9",.18],[44,1,"#10CFC9",.5],[52,10,"#006580",.35],[58,1.5,"#009845",.7],[63,3,"#10CFC9",.3],[71,1,"#10CFC9",.6],[78,8,"#10CFC9",.15],[84,1.5,"#009845",.6],[90,2,"#10CFC9",.35]];
+  document.querySelectorAll("[data-streaks]").forEach(function(el){
+    el.innerHTML = STREAKS.map(function(s,i){var c=s[2];
+      return '<span style="top:'+s[0]+'%;height:'+s[1]+'px;background:linear-gradient(90deg,transparent 0%,'+c+' '+(30+i*4)%70+'%,transparent 100%);opacity:'+s[3]+';box-shadow:0 0 '+(s[1]*3+4)+'px '+c+'"></span>';}).join("");
+  });
+
+  // render beats grouped by track
+  var box=document.querySelector("[data-beats]"), done=store("aw2-done")||{};
+  var html="";
+  ORDER.forEach(function(k){
+    var T=TRACKS[k];
+    html+='<div class="track-head" data-trackhead="'+k+'"><h3>'+esc(T.name)+'</h3><span class="tq">'+esc(T.q)+'</span>'+(T.optional?'<span class="opt">Optional</span>':'')+'<span class="tm">'+T.mins+' min</span></div>';
+    BEATS.forEach(function(b,i){ if(b.t!==k) return; var p=T.p;
+      html+='<article class="beat'+(b.featured?' featured':'')+(done[b.id]?' done':'')+'" data-t="'+k+'" id="beat-'+b.id+'">'+
+        '<div class="num '+p+'">'+b.id+'</div><div class="beat-body">'+
+        '<div class="beat-head"><span class="who">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+'</div>'+
+        (b.link?'<a class="demo-link" href="'+esc(DEMO_LINK)+'" target="_blank" rel="noopener">'+esc(DEMO_LINK_LABEL)+' ↗</a>':'')+
+        '<div class="question"><p>'+(b.pre?'<span class="pre">'+esc(b.pre)+'</span>':'')+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+
+        (b.follow?'<div class="follow"><p><span class="pre">Follow-up</span>'+esc(b.follow)+'</p><button class="copy" data-copy="'+esc(b.follow)+'">Copy</button></div>':'')+
+        '<div class="cols"><div><h4>What it shows</h4><ul>'+b.shows.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>'+
+        '<div><h4>Look for</h4><ul>'+b.look.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div></div>'+
+        '<div class="beat-foot"><span class="lbl">Sources</span>'+b.src.map(chipSrc).join("")+
+        '<button class="copy" data-present-id="'+b.id+'" style="margin-left:8px">Present from here</button>'+
+        '<label><input type="checkbox" data-done="'+b.id+'"'+(done[b.id]?' checked':'')+'> Done</label></div></div></article>';
+    });
+  });
+  box.innerHTML=html;
+
+  document.querySelector("[data-backup]").innerHTML = BACKUP.map(function(b){
+    return '<div class="card"><div class="chips"><span class="chip skill">'+esc(b.skill)+'</span>'+b.src.map(chipSrc).join("")+'</div>'+
+      '<div class="question"><p>'+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+(b.note?'<p style="margin:10px 0 0;font-size:14px">'+esc(b.note)+'</p>':'')+'</div>';
+  }).join("");
+
+  // track selection
+  var sel = store("aw2-tracks") || {O:1,A:1,B:1,C:1,D:0,F:1};
+  function active(){ return BEATS.filter(function(b){return sel[b.t];}); }
+  function applySel(){
+    document.querySelectorAll("[data-track]").forEach(function(b){ b.setAttribute("aria-pressed", !!sel[b.dataset.track]); });
+    document.querySelectorAll(".beat").forEach(function(el){ el.classList.toggle("hide", !sel[el.dataset.t]); });
+    document.querySelectorAll("[data-trackhead]").forEach(function(el){ el.classList.toggle("hide", !sel[el.dataset.trackhead]); });
+    progress();
+  }
+  document.querySelectorAll("[data-track]").forEach(function(btn){
+    btn.addEventListener("click",function(){ var k=btn.dataset.track; sel[k]=sel[k]?0:1; store("aw2-tracks",sel); applySel(); });
+  });
+  function planMins(){ return ORDER.reduce(function(s,k){return s+(sel[k]?TRACKS[k].mins:0);},0); }
+  function progress(){
+    var a=active(), n=a.filter(function(b){return done[b.id];}).length;
+    document.querySelector("[data-progress]").innerHTML='<b>'+n+'</b> of '+a.length+' beats done · about '+planMins()+' min';
+  }
+  applySel();
+
+  document.addEventListener("change",function(e){
+    var t=e.target;
+    if(t.dataset.done){ done[t.dataset.done]=t.checked; store("aw2-done",done); t.closest(".beat").classList.toggle("done",t.checked); progress(); }
+    if(t.closest("[data-store=prep]")){ var s={}; document.querySelectorAll("[data-store=prep] input").forEach(function(i){s[i.id]=i.checked;}); store("aw2-prep",s); }
+  });
+  var prep=store("aw2-prep")||{}; Object.keys(prep).forEach(function(id){var el=document.getElementById(id); if(el) el.checked=prep[id];});
+  document.querySelector("[data-reset]").addEventListener("click",function(){
+    done={}; store("aw2-done",done); document.querySelectorAll("[data-done]").forEach(function(c){c.checked=false; c.closest(".beat").classList.remove("done");}); progress();
+  });
+
+  // copy
+  function copyText(t,btn){
+    function ok(){ if(!btn) return; var o=btn.textContent; btn.textContent="Copied"; btn.classList.add("ok"); setTimeout(function(){btn.textContent=o; btn.classList.remove("ok");},1400); }
+    function fallback(){ var ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(e){} document.body.removeChild(ta); ok(); }
+    if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t).then(ok,fallback); } else fallback();
+  }
+  document.addEventListener("click",function(e){
+    var c=e.target.closest("[data-copy]"); if(c){ copyText(c.dataset.copy,c); return; }
+    var p=e.target.closest("[data-present]"); if(p){ openPM(0); return; }
+    var q=e.target.closest("[data-present-id]"); if(q){ var id=q.dataset.presentId, b=BEATS.filter(function(x){return x.id===id;})[0]; if(b&&!sel[b.t]){sel[b.t]=1; applySel();} openPM(active().map(function(x){return x.id;}).indexOf(id)); }
+  });
+
+  // presenter mode
+  var pm=document.querySelector("[data-pm]"), list=[], cur=0, seen={}, t0=null, tick=null;
+  var dots=document.querySelector("[data-pm-dots]");
+  dots.addEventListener("click",function(e){var b=e.target.closest("[data-go]"); if(b) show(+b.dataset.go);});
+  function li(a){return a.map(function(x){return '<li>'+esc(x)+'</li>';}).join("");}
+  function show(i){
+    cur=Math.max(0,Math.min(list.length-1,i)); var b=list[cur], T=TRACKS[b.t]; seen[b.id]=true;
+    document.querySelector("[data-pm-meta]").innerHTML='<span class="n">'+b.id+' · '+(cur+1)+' of '+list.length+'</span><span class="pchip">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="pchip">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="pchip" style="background:var(--sky);color:var(--deep)">★ Featured</span>':'')+b.src.map(function(s){return '<span class="pchip" style="background:transparent;border:1px solid rgba(255,255,255,.3)">'+esc(s)+'</span>';}).join("");
+    document.querySelector("[data-pm-pre]").textContent=b.pre||"";
+    document.querySelector("[data-pm-q]").textContent=b.q;
+    var L=document.querySelector("[data-pm-link]"); L.classList.toggle("hide",!b.link); if(b.link){ L.href=DEMO_LINK; L.textContent=DEMO_LINK_LABEL+" ↗"; }
+    document.querySelector("[data-pm-follow]").innerHTML=b.follow?'<span>Follow-up</span>'+esc(b.follow):"";
+    document.querySelector("[data-pm-shows]").innerHTML=li(b.shows);
+    document.querySelector("[data-pm-look]").innerHTML=li(b.look);
+    dots.querySelectorAll("button").forEach(function(d,j){d.className=j===cur?"on":(seen[list[j].id]?"seen":"");});
+    document.querySelector("[data-prev]").disabled=cur===0;
+    document.querySelector("[data-next]").textContent=cur===list.length-1?"Finish ✓":"Next →";
+  }
+  function fmt(s){var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r;}
+  function openPM(i){
+    list=active(); if(!list.length) return;
+    dots.innerHTML=list.map(function(b,j){return '<button aria-label="Beat '+b.id+'" title="'+b.id+'" data-go="'+j+'"></button>';}).join("");
+    document.querySelector("[data-plan]").textContent=fmt(planMins()*60);
+    pm.classList.add("open"); document.body.style.overflow="hidden"; document.body.classList.add("pm-open");
+    if(!t0) t0=Date.now();
+    clearInterval(tick); tick=setInterval(function(){ document.querySelector("[data-clock]").textContent=fmt(Math.floor((Date.now()-t0)/1000)); },500);
+    show(i>0?i:0);
+  }
+  function closePM(){ pm.classList.remove("open"); document.body.style.overflow=""; document.body.classList.remove("pm-open"); clearInterval(tick); location.hash="beat-"+list[cur].id; }
+  document.querySelector("[data-close]").addEventListener("click",closePM);
+  document.querySelector("[data-prev]").addEventListener("click",function(){show(cur-1);});
+  document.querySelector("[data-next]").addEventListener("click",function(){ if(cur===list.length-1) closePM(); else show(cur+1); });
+  document.querySelector("[data-pm-copy]").addEventListener("click",function(e){copyText(list[cur].q,e.currentTarget);});
+  document.addEventListener("keydown",function(e){
+    if(!pm.classList.contains("open")) return;
+    // typing inside the Answers pop-up must not move the slides
+    if(qaPop && e.composedPath && e.composedPath().indexOf(qaPop)>-1) return;
+    if(e.key==="a"||e.key==="A"){ e.preventDefault(); toggleQA(); return; }
+    if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault(); show(cur+1);}
+    else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault(); show(cur-1);}
+    else if(e.key==="Escape"){closePM();}
+    else if(e.key==="c"||e.key==="C"){copyText(list[cur].q,document.querySelector("[data-pm-copy]"));}
+    else if((e.key==="f"||e.key==="F")&&list[cur].follow){copyText(list[cur].follow,document.querySelector("[data-pm-copy]"));}
+  });
+
+  // ---- Qlik Answers pop-up (qlik-embed, OAuth2 single-page app) ----
+  var QA = {
+    host: "https://ukdemosaas.eu.qlikcloud.com",
+    clientId: "a6c0a95b5e3ad86f95aa94a9de35c610",
+    assistantId: "39f6ec03-b5da-43e3-a837-de9884fe77dc",
+    ui: "ai/agentic-assistant",
+    // oauth-callback.html must sit in the same folder as this page
+    redirect: new URL("oauth-callback.html", location.href).href
+  };
+  var qaPop=document.getElementById("qa-pop"), qaBody=document.querySelector("[data-qa-body]"), qaLoaded=false;
+  document.querySelector("[data-qa-open]").href=DEMO_LINK;
+  function qaMessage(title,text,withLink){
+    var m=qaBody.querySelector("[data-qa-msg]");
+    if(!m){ m=document.createElement("div"); m.className="qa-msg"; m.setAttribute("data-qa-msg",""); qaBody.appendChild(m); }
+    m.innerHTML='<div><strong>'+esc(title)+'</strong>'+esc(text)+(withLink?'<br><a class="btn btn-primary" href="'+esc(DEMO_LINK)+'" target="_blank" rel="noopener">'+esc(DEMO_LINK_LABEL)+' ↗</a>':'')+'</div>';
+  }
+  function loadQA(){
+    if(qaLoaded) return; qaLoaded=true;
+    if(location.protocol==="file:"){
+      qaMessage("Open this page from its web address","Qlik sign-in needs the page served over https, so the embedded assistant can't load from a local file.",true);
+      return;
+    }
+    var s=document.createElement("script");
+    s.crossOrigin="anonymous"; s.type="application/javascript";
+    s.src="https://cdn.jsdelivr.net/npm/@qlik/embed-web-components";
+    s.setAttribute("data-host",QA.host);
+    s.setAttribute("data-client-id",QA.clientId);
+    s.setAttribute("data-redirect-uri",QA.redirect);
+    s.setAttribute("data-access-token-storage","session");
+    s.setAttribute("data-auth-type","Oauth2");
+    s.onload=function(){
+      var el=document.createElement("qlik-embed");
+      el.setAttribute("ui",QA.ui);
+      el.setAttribute("assistant-id",QA.assistantId);
+      el.setAttribute("appearance","qlik-light");
+      qaBody.appendChild(el);
+      var m=qaBody.querySelector("[data-qa-msg]"); if(m) m.remove();
+    };
+    s.onerror=function(){ qaMessage("Qlik Answers couldn't load","The embed library didn't download. Check the network, or open the assistant in a new tab.",true); };
+    document.head.appendChild(s);
+  }
+  function toggleQA(force){
+    var open = typeof force==="boolean" ? force : qaPop.hidden;
+    qaPop.hidden=!open;
+    document.querySelectorAll("[data-qa-toggle]").forEach(function(b){ b.setAttribute("aria-expanded",open); });
+    document.querySelector("[data-qa-label]").textContent=open?"Hide Qlik Answers":"Ask Qlik Answers";
+    if(open) loadQA();
+  }
+  document.querySelectorAll("[data-qa-toggle]").forEach(function(b){ b.addEventListener("click",function(){ toggleQA(); }); });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"&&!qaPop.hidden&&!pm.classList.contains("open")){ toggleQA(false); }
+  });
+
+  // active nav link
+  var links=[].slice.call(document.querySelectorAll("nav.top a"));
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(en){ if(en.isIntersecting){ links.forEach(function(a){a.classList.toggle("on",a.getAttribute("href")==="#"+en.target.id);}); } });},{rootMargin:"-40% 0px -55% 0px"});
+    document.querySelectorAll("main section").forEach(function(s){io.observe(s);});
+  }
+})();
+</script>
+
+</body>
+</html>

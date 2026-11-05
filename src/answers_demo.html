@@ -104,6 +104,8 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .skill-card dl{margin:10px 0 0;display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:15px}
 .skill-card dt{font-weight:600;color:var(--deep)}
 .skill-card dd{margin:0}
+.skill-card .chip{margin-bottom:10px}
+.skill-card .when{font-size:14px;color:var(--gray);margin:0 0 4px}
 .beat0{margin-top:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:var(--deep);color:#fff;border-radius:var(--radius);padding:18px 22px}
 .beat0 .q{font-size:18px;font-weight:600;flex:1;min-width:240px}
 .beat0 .lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--sky)}
@@ -239,6 +241,8 @@ footer li{margin:4px 0}
   .tbl td:first-child{white-space:normal}
   .pm-top,.pm-bottom{padding-left:16px;padding-right:16px}
   .kbd{display:none}
+  .skill-card dl{grid-template-columns:1fr;gap:2px}
+  .skill-card dd{margin-bottom:8px}
 }
 @media print{
   nav.top,.hero-cta,.toolbar,.copy,.beat-foot label,.presenter{display:none!important}
@@ -360,26 +364,40 @@ footer li{margin:4px 0}
   <div class="wrap">
     <div class="eyebrow">Customer-defined skills</div>
     <h2>Teach the assistant how Adventure Works talks</h2>
-    <p class="lead" style="margin-top:14px">Plain-language skills make answers follow house conventions: two for the calendar and defaults, and one set of calculation rules per app. The feature is pre-release, so final screens may differ.</p>
-    <div class="grid g2" style="margin-top:26px">
+    <p class="lead" style="margin-top:14px">Three plain-language skills make answers follow house conventions: one sets the fiscal calendar, one sets what "recent" means, and one sets how every answer is laid out. The feature is pre-release, so final screens may differ.</p>
+    <div class="grid g3" style="margin-top:26px">
       <div class="card skill-card">
+        <span class="chip skill">aw-adventure-works-calendar</span>
         <h3>Adventure Works calendar</h3>
+        <p class="when">Used for any question that mentions a year, quarter, year to date or other period.</p>
         <dl>
-          <dt>Defines</dt><dd>The fiscal year runs 1 July to 30 June and is named by the year it ends; Q1 is July to September.</dd>
-          <dt>Instruction</dt><dd>"This year", "last year", "last quarter" and "year to date" mean fiscal periods unless someone says "calendar".</dd>
+          <dt>Defines</dt><dd>The fiscal year runs 1 July to 30 June and is named by the year it ends: FY2027 is July 2026 to June 2027. Q1 is July to September.</dd>
+          <dt>Business rule</dt><dd>"This year", "last year", "last quarter" and "year to date" mean fiscal periods unless someone says "calendar". A comparison with last year uses the same span of the previous fiscal year.</dd>
+          <dt>Instruction</dt><dd>Name the fiscal period and its calendar months, for example "FY2027 Q1 (July to September 2026)".</dd>
         </dl>
       </div>
       <div class="card skill-card">
+        <span class="chip skill">aw-recent-sales-defaults</span>
         <h3>Recent sales defaults</h3>
+        <p class="when">Used when a question says "recent" or gives no time period.</p>
         <dl>
-          <dt>Defines</dt><dd>"Recent" means the last 6 full calendar months.</dd>
-          <dt>Business rule</dt><dd>If no time period is given, use the last 6 full months.</dd>
-          <dt>Instruction</dt><dd>State the period used at the start of the answer; report money in US dollars.</dd>
+          <dt>Defines</dt><dd>"Recent" means the latest 6 months of data, counted back from the last month with orders, not from today's date.</dd>
+          <dt>Business rule</dt><dd>If no time period is given, use the recent period. Quota questions use the last 2 fiscal quarters with sales, because quotas have no monthly date.</dd>
+          <dt>Instruction</dt><dd>State the period at the start with its month names, for example "Over the latest 6 months of data (March to August 2026)". Report money in US dollars.</dd>
+        </dl>
+      </div>
+      <div class="card skill-card">
+        <span class="chip skill">concise-structured-answers</span>
+        <h3>Concise structured answers</h3>
+        <p class="when">Used for every data or policy answer, including follow-ups and repeated questions.</p>
+        <dl>
+          <dt>Format</dt><dd>A bold one-line lead, then three to five bullets with one figure each. App figures and document content sit in separate labelled sections.</dd>
+          <dt>Citations</dt><dd>At most one citation per sentence or bullet, attached only to what that source says.</dd>
+          <dt>Numbers</dt><dd>Money in dollars with no cents on amounts of $100 or more, ratios as percentages, and no expressions, field names or other technical working.</dd>
         </dl>
       </div>
     </div>
-    <div class="card" style="margin-top:18px"><h3>Calculation rules, one skill per app</h3><p style="margin:6px 0 10px">Each one lets you finesse how Qlik Answers uses the governed content in that app: which master measures and fields to prefer, how the tables relate, and the business rules to follow when a question leaves something open.</p>
-      <div class="chips"><span class="chip skill">aw-sales-calculation-rules</span><span class="chip skill">aw-marketing-calculation-rules</span><span class="chip skill">aw-hr-calculation-rules</span><span class="chip skill">aw-inventory-purchasing-calculation-rules</span></div></div>
+    <p class="note"><strong>Also possible: per-app calculation skills.</strong> A skill can be scoped to a single app to hold its calculation rules, such as which master measures to prefer, how the tables relate and which business rules apply when a question leaves something open. This demo doesn't need them, because the master measure descriptions already carry those rules, but they're worth raising with customers whose apps have few governed master items.</p>
     <div class="beat0">
       <div><div class="lbl">Opening beat O · skills off, then on</div></div>
       <div class="q">How have Europe sales done recently?</div>
@@ -529,8 +547,8 @@ footer li{margin:4px 0}
   var APPS = ["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
   var BEATS = [
     {t:"O", id:"O", link:true, skill:["Descriptive","Custom skills"], pre:"Ask with the custom skills off, then on:", q:"How have Europe sales done recently?", src:["Sales"],
-      shows:["The same question answered twice","Custom skills applying house conventions"],
-      look:["With skills on: the period is stated up front as the last 6 full months","Fiscal periods and US dollars used throughout"]},
+      shows:["The same question answered twice","Three custom skills applying house conventions"],
+      look:["With skills on: the period is stated up front as the latest 6 months of data (March to August 2026)","Fiscal labels, US dollars, and a bold lead with bullets"]},
     {t:"A", id:"A1", link:true, skill:["Diagnostic","Follow-up"], q:"Which territories missed quota last quarter, and which sales people drove the gap?",
       follow:"What did the last business review say Northeast would do about it?", src:["Sales",KB3],
       shows:["Ranked attribution in plain words","A follow-up that keeps the context and adds a cited document"],
@@ -541,9 +559,9 @@ footer li{margin:4px 0}
     {t:"A", id:"A3", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
       shows:["Forecast with a range and its assumptions","Built on sales unit history"],
       look:["A range, not a single line","Bike demand history ends 30 Aug 2026: say \"from the last full season\""]},
-    {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% above that forecast, which components stock out first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
-      shows:["Stock-out risk with a range","Contract terms checked against actual supplier performance"],
-      look:["Road bike brakes run short first; their supplier, Superior Bicycles, rejects 5.2% against a 2% contract limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
+    {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% higher than the last six months, which components run short first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
+      shows:["Components ranked by shortfall against stock on hand","Contract terms checked against actual supplier performance"],
+      look:["Chain, brakes and derailleurs run short first; the brakes' supplier, Superior Bicycles, rejects 5.2% against a 2% contract limit","Superior's agreed lead time is 15 days, against 19 in vendor terms"]},
     {t:"B", id:"B1", link:true, skill:["Advanced Expressions"], q:"Which customers bought a bike but never an accessory?", src:["Marketing"],
       shows:["Set logic written for you","A correct cohort count"],
       look:["One cohort number, with how it was worked out","Offer to break it down by territory or segment"]},
