@@ -145,6 +145,14 @@ nav.top .btn{padding:9px 16px;font-size:13px;flex:none}
 .story-personas .chip{font-size:11px;padding:3px 8px}
 .story-personas ul{font-size:14px;line-height:1.4;margin-top:8px}
 
+
+/* known-issue flags */
+.warn{margin:0 0 14px;padding:12px 14px;border-radius:8px;background:#fdf3e1;border:1px solid #f0c674;color:#6b4a00;font-size:15px}
+.warn b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#8a5a00;margin-bottom:2px}
+.needs{font-size:12px;font-weight:700;color:#8a5a00;background:#fdf3e1;border:1px solid #f0c674;border-radius:999px;padding:3px 10px}
+.pm-warn{margin:10px 0 4px;padding:12px 16px;border-radius:10px;background:rgba(240,198,116,.16);border:1px solid #f0c674;color:#fbe3b0;font-size:17px;max-width:900px}
+.pm-warn b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#f0c674;margin-bottom:2px}
+
 /* checklist */
 .check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px}
 .check li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -302,7 +310,7 @@ footer li{margin:4px 0}
     <div class="stats">
       <div class="stat"><strong>3</strong><span>persona tracks</span></div>
       <div class="stat"><strong>10</strong><span>built-in skills</span></div>
-      <div class="stat"><strong>33</strong><span>minutes</span></div>
+      <div class="stat"><strong>30</strong><span>minutes</span></div>
       <div class="stat"><strong>4</strong><span>Qlik apps</span></div>
       <div class="stat"><strong>5</strong><span>knowledge bases</span></div>
       <div class="stat"><strong>60</strong><span>documents</span></div>
@@ -334,7 +342,7 @@ footer li{margin:4px 0}
   <div class="wrap">
     <div class="eyebrow">The story</div>
     <h2>One review, three leaders, one assistant</h2>
-    <p class="lead story-lead">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree, and the finale pulls their findings into one review. The demo is modular: a 3-minute opening, three 9-minute tracks and a 3-minute finale, about 33 minutes in all, or pick the tracks that suit the audience.</p>
+    <p class="lead story-lead">Adventure Works Cycles makes and sells bikes through resellers and online. Its numbers live in four Qlik apps; its rules, plans and customer voice live in policies, contracts, reviews and website feedback. With the FY2027 Q1 business review a week away, the Sales Director, the Marketing Manager and the HR Business Manager each prepare with the same assistant. Each track ends on a moment where a document and the data disagree. The demo is modular: a 3-minute opening and three 9-minute tracks, about 30 minutes in all, or pick the tracks that suit the audience.</p>
     <div class="grid g3 story-pillars">
       <div class="card pillar"><h3>New single-agent skills</h3><p>Descriptive through to Prescriptive, Simulation and Optimization, with <strong>Blind Spots</strong> surfacing what the current selection hides.</p></div>
       <div class="card pillar"><h3>Multi-app assistant</h3><p>One assistant over up to 5 apps and 5 knowledge bases. Each answer labels which app and which document it used.</p></div>
@@ -443,7 +451,7 @@ footer li{margin:4px 0}
 <section id="script">
   <div class="wrap">
     <div class="eyebrow">Demo script</div>
-    <h2>Five parts, about 33 minutes</h2>
+    <h2>Four parts, about 30 minutes</h2>
     <p class="lead" style="margin-top:14px">Choose the parts to run, then present them full screen or copy each question into the assistant. Beat A2 is the featured Blind Spots moment. Track D is optional, for customer-experience audiences.</p>
     <div class="toolbar" role="toolbar" aria-label="Filter by persona">
       <button class="filter" aria-pressed="true" data-track="O"><span class="sw" style="background:var(--gray)"></span>Opening</button>
@@ -451,7 +459,6 @@ footer li{margin:4px 0}
       <button class="filter" aria-pressed="true" data-track="B"><span class="sw" style="background:var(--ocean)"></span>B · Marketing Manager</button>
       <button class="filter" aria-pressed="true" data-track="C"><span class="sw" style="background:var(--deep)"></span>C · HR Business Manager</button>
       <button class="filter optional" aria-pressed="false" data-track="D"><span class="sw" style="background:var(--sky)"></span>D · Head of Digital (optional)</button>
-      <button class="filter" aria-pressed="true" data-track="F"><span class="sw" style="background:var(--gray)"></span>Finale</button>
       <span class="grow"></span>
       <span class="progress" data-progress></span>
       <button class="btn btn-line" data-reset style="padding:9px 14px;font-size:13px">Reset ticks</button>
@@ -510,7 +517,7 @@ footer li{margin:4px 0}
         <h3>Watch-outs</h3>
         <ul>
           <li>The latest quarter has few reseller orders, so several territories show low attainment. Lead with Northeast.</li>
-          <li>Bike demand ends 30 Aug 2026; frame the forecast as "from the last full season".</li>
+          <li>The forecast beat (A3) needs re-engineering: Answers says the data does not support a forecast.</li>
           <li>There are no leavers in the HR data, so steer away from attrition.</li>
         </ul>
       </div>
@@ -524,7 +531,7 @@ footer li{margin:4px 0}
   <div class="pm-top">
     <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="751.80 112.36 159.98 68.35" role="img" aria-label="Qlik"><path d="M821.73 178.01L812.59 178.01L807.18 172.05L807.13 172.00L807.08 171.95C807.08 171.95 807.07 171.95 807.07 171.95L806.87 171.74L802.35 167.19C808.43 162.36 812.34 154.91 812.34 146.53C812.34 131.97 800.53 120.17 785.97 120.17C777.67 120.17 770.26 124.01 765.43 130.01L760.61 125.15C766.69 117.94 775.80 113.36 785.97 113.36C804.30 113.36 819.15 128.21 819.15 146.53C819.15 154.38 816.42 161.59 811.87 167.27L821.73 178.01Z" fill="#009749"/><path d="M830.66 114.81H837.26V177.99H830.66ZZ" fill="#ffffff"/><path d="M848.61 133.86H855.18V177.99H848.61ZZ" fill="#ffffff"/><path d="M856.47 119.31C856.47 121.80 854.45 123.82 851.96 123.82C849.47 123.82 847.46 121.80 847.46 119.31C847.46 116.82 849.47 114.81 851.96 114.81C854.45 114.81 856.47 116.82 856.47 119.31Z" fill="#ffffff"/><path d="M807.17 172.05C801.43 176.84 794.04 179.71 785.97 179.71C767.65 179.71 752.80 164.86 752.80 146.53C752.80 138.38 755.73 130.92 760.61 125.15L765.43 130.01C761.79 134.53 759.61 140.28 759.61 146.53C759.61 161.09 771.41 172.90 785.97 172.90C792.16 172.90 797.85 170.76 802.35 167.19L806.87 171.74L807.07 171.95C807.07 171.95 807.08 171.95 807.08 171.95L807.13 172.00L807.17 172.05Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M807.07 171.95C807.07 171.95 807.07 171.95 807.07 171.95L802.35 167.19L806.87 171.74L807.07 171.95Z" fill="#ffffff"/><path d="M901.42 133.86L892.25 133.86L873.24 150.50L873.21 114.81L866.64 114.81L866.64 177.99L873.21 177.99L873.21 157.61L892.73 177.99L901.87 177.99L878.60 154.39L901.42 133.86Z" fill="#ffffff"/><path d="M910.77 174.37L910.77 177.50L910.23 177.50L910.23 175.37L909.28 177.50L908.99 177.50L908.05 175.37L908.05 177.50L907.50 177.50L907.50 174.37L908.17 174.37L909.14 176.67L910.11 174.37L910.77 174.37Z" fill="#ffffff"/><path d="M906.96 174.37L906.96 174.84L906.00 174.84L906.00 177.50L905.46 177.50L905.46 174.84L904.51 174.84L904.51 174.37L906.96 174.37Z" fill="#ffffff"/></svg></span>
     <span class="spacer"></span>
-    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>33:00</span></span>
+    <span class="pm-clock">Elapsed <b data-clock>00:00</b> / <span data-plan>30:00</span></span>
     <button class="pm-x" data-close>Close · Esc</button>
   </div>
   <div class="pm-main">
@@ -532,6 +539,7 @@ footer li{margin:4px 0}
     <div class="pm-pre" data-pm-pre></div>
     <p class="pm-q" data-pm-q></p>
     <div><button class="pm-copy" data-pm-copy>Copy question</button><a class="pm-link hide" data-pm-link target="_blank" rel="noopener"></a></div>
+    <div class="pm-warn hide" data-pm-warn></div>
     <div class="pm-follow" data-pm-follow></div>
     <div class="pm-cols">
       <div><h4>What it shows</h4><ul data-pm-shows></ul></div>
@@ -553,13 +561,12 @@ footer li{margin:4px 0}
     A:{name:"Track A · Sales Director", who:"Sales Director", p:"p-sales", mins:9, q:"Why did we miss, and can supply keep up?"},
     B:{name:"Track B · Marketing Manager", who:"Marketing Manager", p:"p-mkt", mins:9, q:"What pays off, and what are customers telling us?"},
     C:{name:"Track C · HR Business Manager", who:"HR Business Manager", p:"p-hr", mins:9, q:"Are we paying, rewarding and resting people the way our policies say?"},
-    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:9, q:"Why do website visitors leave without buying or registering?", optional:true},
-    F:{name:"Finale", who:"All personas", p:"p-all", mins:3, q:"Bring it together for the review"}
+    D:{name:"Track D · Head of Digital", who:"Head of Digital", p:"p-dig", mins:9, q:"Why do website visitors leave without buying or registering?", optional:true}
   };
   // ---- Demo link: paste the Qranks app or assistant URL here ----
   var DEMO_LINK = "https://ukdemosaas.eu.qlikcloud.com/assistant/39f6ec03-b5da-43e3-a837-de9884fe77dc/content";
   var DEMO_LINK_LABEL = "Open the Adventure Works assistant";
-  var ORDER = ["O","A","B","C","D","F"];
+  var ORDER = ["O","A","B","C","D"];
   var KB3 = "Sales, pricing, promotions and playbook";
   var APPS = ["Sales","Marketing","HR","Inventory and Purchasing","4 apps"];
   var BEATS = [
@@ -574,6 +581,7 @@ footer li{margin:4px 0}
       shows:["The featured moment: what the filter hides, quantified","Europe, Pacific and non-bike revenue brought back into view"],
       look:["Share of revenue outside the selection stated as a number","A suggested next question about the hidden segments"]},
     {t:"A", id:"A3", skill:["Predictive"], q:"Forecast monthly road bike units for the next 6 months, with the range.", src:["Inventory and Purchasing"],
+      warn:"Needs re-engineering: Answers currently says the data does not support a forecast. Skip this beat, or present it as Answers being honest about its limits, until the demand history is reworked.",
       shows:["Forecast with a range and its assumptions","Built on sales unit history"],
       look:["A range, not a single line","Bike demand history ends 30 Aug 2026: say \"from the last full season\""]},
     {t:"A", id:"A4", skill:["Simulation"], q:"If road bike demand runs 20% higher than the last six months, which components run short first, and are their suppliers within contract?", src:["Inventory and Purchasing","Supplier contracts"],
@@ -614,17 +622,11 @@ footer li{margin:4px 0}
       look:["Named products with complaint counts","Exact counts belong in the app; themes from the knowledge base"]},
     {t:"D", id:"D4", skill:["Comparative","Multi-source"], q:"Compare website sentiment on Touring bikes with online Touring sales by month.", src:["Marketing","Website guest feedback"],
       shows:["Structured and semi-structured side by side","Figures labelled by source"],
-      look:["Comfort complaints set beside sales","Figures from the app, themes from the feedback"]},
-    {t:"F", id:"F1", skill:["Multi-app"], q:"Prepare a quarterly business review across sales, supply, marketing and people, citing our documents.", src:["4 apps","5 knowledge bases"],
-      shows:["Every source used, figures labelled by app","Documents cited alongside the numbers"],
-      look:["Northeast, supplier breaches, discount approvals, overdue pay reviews and Touring comfort all surface","Each figure traceable to its app"]},
-    {t:"F", id:"F2", skill:["Dashboard and Layout"], q:"Build a sheet in the Sales app for the review: revenue, margin and quota attainment by territory, with a monthly trend.", src:["Sales"],
-      shows:["A ready-made sheet built from the conversation","KPIs plus a trend"],
-      look:["Uses the master measures","Quota attainment by Sales Person Territory"]}
+      look:["Comfort complaints set beside sales","Figures from the app, themes from the feedback"]}
   ];
   var BACKUP = [
-    {skill:"Diagnostic", src:["Inventory and Purchasing"], q:"What is driving scrap in the paint shop?"},
-    {skill:"Predictive", src:["Marketing"], q:"Group our online customers into segments by spend, frequency and demographics."},
+    {skill:"Diagnostic", src:["Inventory and Purchasing"], q:"What is the waste level in our paint process, and how does it compare with the rest of manufacturing?", note:"Measured as scrap on work orders through the Paint and Specialized Paint work centres: 20 units, 0.14% against 0.24% overall."},
+    {skill:"Comparative", src:["Website guest feedback"], q:"How have the topics in our website feedback changed over the year, and which complaints are growing?", note:"Monthly summaries carry topic counts, e.g. Comfort 84 in Dec 2025 against 115 in Jul 2026, Website 38 against 73."},
     {skill:"Apps + documents", src:["Sales",KB3], q:"Did the Touring-1000 launch deliver the uplift its brief promised?", note:"775 units against a 1,200 target."},
     {skill:"Apps + documents", src:["Marketing","Product catalogue and reviews"], q:"What does the warranty say about frame damage on mountain bikes?"}
   ];
@@ -649,9 +651,10 @@ footer li{margin:4px 0}
     BEATS.forEach(function(b,i){ if(b.t!==k) return; var p=T.p;
       html+='<article class="beat'+(b.featured?' featured':'')+(done[b.id]?' done':'')+'" data-t="'+k+'" id="beat-'+b.id+'">'+
         '<div class="num '+p+'">'+b.id+'</div><div class="beat-body">'+
-        '<div class="beat-head"><span class="who">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+'</div>'+
+        '<div class="beat-head"><span class="who">'+esc(T.who)+'</span>'+b.skill.map(function(s){return '<span class="chip skill">'+esc(s)+'</span>';}).join("")+(b.featured?'<span class="star">★ Featured</span>':'')+(b.warn?'<span class="needs">Needs re-engineering</span>':'')+'</div>'+
         (b.link?'<a class="demo-link" href="'+esc(DEMO_LINK)+'" target="_blank" rel="noopener">'+esc(DEMO_LINK_LABEL)+' ↗</a>':'')+
         '<div class="question"><p>'+(b.pre?'<span class="pre">'+esc(b.pre)+'</span>':'')+esc(b.q)+'</p><button class="copy" data-copy="'+esc(b.q)+'">Copy</button></div>'+
+        (b.warn?'<div class="warn" role="note"><b>⚠ Known issue</b>'+esc(b.warn)+'</div>':'')+
         (b.follow?'<div class="follow"><p><span class="pre">Follow-up</span>'+esc(b.follow)+'</p><button class="copy" data-copy="'+esc(b.follow)+'">Copy</button></div>':'')+
         '<div class="cols"><div><h4>What it shows</h4><ul>'+b.shows.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>'+
         '<div><h4>Look for</h4><ul>'+b.look.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div></div>'+
@@ -668,7 +671,7 @@ footer li{margin:4px 0}
   }).join("");
 
   // track selection
-  var sel = store("aw2-tracks") || {O:1,A:1,B:1,C:1,D:0,F:1};
+  var sel = store("aw2-tracks") || {O:1,A:1,B:1,C:1,D:0};
   function active(){ return BEATS.filter(function(b){return sel[b.t];}); }
   function applySel(){
     document.querySelectorAll("[data-track]").forEach(function(b){ b.setAttribute("aria-pressed", !!sel[b.dataset.track]); });
@@ -719,6 +722,7 @@ footer li{margin:4px 0}
     document.querySelector("[data-pm-pre]").textContent=b.pre||"";
     document.querySelector("[data-pm-q]").textContent=b.q;
     var L=document.querySelector("[data-pm-link]"); L.classList.toggle("hide",!b.link); if(b.link){ L.href=DEMO_LINK; L.textContent=DEMO_LINK_LABEL+" ↗"; }
+    var W=document.querySelector("[data-pm-warn]"); W.classList.toggle("hide",!b.warn); W.innerHTML=b.warn?'<b>⚠ Known issue</b>'+esc(b.warn):"";
     document.querySelector("[data-pm-follow]").innerHTML=b.follow?'<span>Follow-up</span>'+esc(b.follow):"";
     document.querySelector("[data-pm-shows]").innerHTML=li(b.shows);
     document.querySelector("[data-pm-look]").innerHTML=li(b.look);
