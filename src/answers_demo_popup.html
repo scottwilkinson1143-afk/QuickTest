@@ -7,12 +7,17 @@
 <script>
 /* =====================================================================
    QLIK ANSWERS POP-UP SETTINGS
-   mode: "embed" = qlik-embed agentic assistant (OAuth)
-         "frame" = Qlik's own assistant page in a frame (fallback)
-   Override for one visit by adding ?qa=frame or ?qa=embed to the address.
+   mode: "window" = opens Qlik's own assistant page in a small browser
+                    window on the right of the screen (default, no set-up)
+         "embed"  = qlik-embed agentic assistant in the pop-up (OAuth)
+         "frame"  = Qlik's own assistant page in the pop-up (needs the
+                    tenant CSP frame-ancestors entry for this site)
+   Override for one visit by adding ?qa=window, ?qa=embed or ?qa=frame.
    ===================================================================== */
 window.QA_CONFIG = {
-  mode: "embed",
+  mode: "window",
+  windowWidth: 480,
+  windowHeight: 760,
   host: "https://ukdemosaas.eu.qlikcloud.com",
   clientId: "a6c0a95b5e3ad86f95aa94a9de35c610",
   assistantId: "39f6ec03-b5da-43e3-a837-de9884fe77dc",
@@ -27,7 +32,7 @@ window.QA_CONFIG = {
   stripLaunchDarklyHeaders: true
 };
 (function(){
-  try{ var m=new URLSearchParams(location.search).get("qa"); if(m==="frame"||m==="embed") window.QA_CONFIG.mode=m; }catch(e){}
+  try{ var m=new URLSearchParams(location.search).get("qa"); if(m==="frame"||m==="embed"||m==="window") window.QA_CONFIG.mode=m; }catch(e){}
   var C=window.QA_CONFIG;
   if(!C.stripLaunchDarklyHeaders) return;
   var tenant=new URL(C.host).origin, logged=false;
@@ -906,7 +911,18 @@ body.pm-open .qa-pop{top:76px;bottom:auto;height:min(680px,calc(100vh - 170px))}
     s.onerror=function(){ qaMessage("Qlik Answers couldn't load","The embed library didn't download. Check the network, or open the assistant in a new tab.",true); };
     document.head.appendChild(s);
   }
+  // Window mode: one named browser window, brought back to the front on later clicks
+  var qaWin=null;
+  function openQAWindow(){
+    if(qaWin && !qaWin.closed){ qaWin.focus(); return; }
+    var w=QA.windowWidth, h=Math.min(QA.windowHeight, (screen.availHeight||900)-60);
+    var left=(screen.availLeft||0)+(screen.availWidth||1280)-w-24, top=(screen.availTop||0)+40;
+    qaWin=window.open(QA.frameUrl,"qlikAnswersAW","popup=yes,width="+w+",height="+h+",left="+left+",top="+top);
+    if(!qaWin){ window.open(QA.frameUrl,"_blank","noopener"); return; }   // pop-up blocked: fall back to a tab
+    try{ qaWin.focus(); }catch(e){}
+  }
   function toggleQA(force){
+    if(QA.mode==="window"){ if(force!==false) openQAWindow(); return; }
     var open = typeof force==="boolean" ? force : qaPop.hidden;
     qaPop.hidden=!open;
     document.querySelectorAll("[data-qa-toggle]").forEach(function(b){ b.setAttribute("aria-expanded",open); });
@@ -914,6 +930,10 @@ body.pm-open .qa-pop{top:76px;bottom:auto;height:min(680px,calc(100vh - 170px))}
     if(open) loadQA();
   }
   document.querySelectorAll("[data-qa-toggle]").forEach(function(b){ b.addEventListener("click",function(){ toggleQA(); }); });
+  if(QA.mode==="window"){
+    document.querySelector("[data-qa-label]").textContent="Ask Qlik Answers ↗";
+    document.querySelectorAll("[data-qa-toggle]").forEach(function(b){ b.removeAttribute("aria-expanded"); b.removeAttribute("aria-controls"); b.title="Opens the assistant in its own window"; });
+  }
   document.addEventListener("keydown",function(e){
     if(e.key==="Escape"&&!qaPop.hidden&&!pm.classList.contains("open")){ toggleQA(false); }
   });
